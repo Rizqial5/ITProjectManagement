@@ -6,8 +6,11 @@ using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
+
 //Register Syncfusion license https://help.syncfusion.com/common/essential-studio/licensing/how-to-generate
-Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(builder.Configuration["SyncfusionLicense"]);
+var syncLicense = builder.Configuration["SyncfusionLicense"];
+
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncLicense);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
