@@ -1,0 +1,37 @@
+﻿@using ProjectManagement.App.ViewModel
+
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h2>Login</h2>
+
+@using (Html.BeginForm("Login", "Account", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <div>
+        @Html.LabelFor(m => m.Email)
+        @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+    </div>
+
+    <div>
+        @Html.LabelFor(m => m.Password)
+        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+    </div>
+
+    <div>
+        <label>
+            @Html.CheckBoxFor(m => m.RememberMe)
+            Remember Me
+        </label>
+    </div>
+
+    <button type="submit">Login</button>
+}
+
+<p>Belum punya akun? @Html.ActionLink("Daftar di sini", "Register")</p>
+
