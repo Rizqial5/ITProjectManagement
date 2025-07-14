@@ -1,20 +1,34 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.Models;
+using ProjectManagement.App.Repository.Interface;
 
 namespace ProjectManagement.App.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IProjectRepository _projectRepository;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IProjectRepository projectRepository)
         {
             _logger = logger;
+            _projectRepository = projectRepository;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            //Check if there is project 
+
+            var existingProjects =  await _projectRepository.GetAllAsync();
+
+            ViewBag.IsProjectEmpty = false;
+
+            if (!existingProjects.Any())
+            {
+                ViewBag.IsProjectEmpty = true;
+            }
+
             return View();
         }
 
