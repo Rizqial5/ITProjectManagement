@@ -1,0 +1,22 @@
+﻿@using ProjectManagement.App.DTO.Project
+@model CreateProjectDto
+
+
+<form asp-action="CreateProject" asp-controller="Home" method="post">
+
+	<div class="mb-3">
+		<label asp-for="Title" class="form-label"></label>
+		<ejs-textbox ejs-for="Title" class="form-control"></ejs-textbox>
+		<span asp-validation-for="Title"></span>
+	</div>
+
+	<div class="mb-3">
+		<label asp-for="Description" class="form-label"></label>
+		<ejs-textbox ejs-for="Description" class="form-control"></ejs-textbox>
+		<span asp-validation-for="Description"></span>
+	</div>
+
+	<div class="text-end">
+		<ejs-button id="submit" isPrimary="true" content="Add Project"/>
+	</div>
+</form>

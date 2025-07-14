@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using ProjectManagement.App.DTO.Project;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Repository.Interface;
 
@@ -30,6 +31,19 @@ namespace ProjectManagement.App.Controllers
             }
 
             return View();
+        }
+
+        public async Task<IActionResult> CreateProject(CreateProjectDto createProjectDto)
+        {
+            if (!ModelState.IsValid) 
+            {
+                return PartialView("_CreateProjectDialog", createProjectDto);
+            }
+
+
+            await _projectRepository.AddAsync(createProjectDto);
+
+            return RedirectToAction("Index");
         }
 
         public IActionResult Privacy()
