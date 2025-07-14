@@ -35,15 +35,16 @@ namespace ProjectManagement.App.Controllers
 
         public async Task<IActionResult> CreateProject(CreateProjectDto createProjectDto)
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
             {
-                return PartialView("_CreateProjectDialog", createProjectDto);
+
+                return Json(new { success = false });
             }
 
 
             await _projectRepository.AddAsync(createProjectDto);
 
-            return RedirectToAction("Index");
+            return Json(new { success = true });
         }
 
         public IActionResult Privacy()

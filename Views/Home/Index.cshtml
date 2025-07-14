@@ -6,13 +6,18 @@
 
 <div class="text-center mt-5">
     <h1 class="display-4">Welcome</h1>
-    @if (ViewBag.IsProjectEmpty)
+    @* @if (ViewBag.IsProjectEmpty)
     {
         <div>
             <p>Project is Empty</p>
             <ejs-button id="createButton" isPrimary="true" content="Create a Project" onclick="createProject()"></ejs-button>
         </div>
-    }
+    } *@
+
+    <div>
+        <p>Project is Empty</p>
+        <ejs-button id="createButton" isPrimary="true" content="Create a Project" onclick="createProject()"></ejs-button>
+    </div>
 </div>
 
 
@@ -47,4 +52,42 @@
     //     }
     // }
 
+    
+    $('#createForm').on('submit', function (e) {
+        e.preventDefault();
+
+        var form = $(this);
+
+
+
+        var formData = form.serialize();
+
+
+
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: formData,
+            success: function (response, status, xhr) {
+                if (response.success == false) {
+                    // Gagal validasi, return PartialView ulang
+                    $("#createForm").validate().showErrors();
+
+
+                } else {
+                    // Sukses, tutup dialog & reload halaman
+                    var dialog = $('#createProjectDialog')[0].ej2_instances[0];
+                    dialog.hide();
+                    location.reload();
+                }
+            },
+            error: function () {
+                alert("Terjadi kesalahan saat menyimpan.");
+            }
+        });
+    });
+     
+     
+
+    
 </script>
