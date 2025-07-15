@@ -18,5 +18,9 @@
          </PackageReference>
          <PackageReference Include="Syncfusion.EJ2.AspNet.Core" Version="29.1.33" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="wwwroot\css\sass\" />
+  </ItemGroup>
 
 </Project>

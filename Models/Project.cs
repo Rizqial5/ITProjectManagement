@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ProjectManagement.App.Models
 {
@@ -15,6 +16,7 @@ namespace ProjectManagement.App.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Relasi: 1 Project memiliki banyak TaskItem
+        [JsonIgnore]
         public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
     }
 }

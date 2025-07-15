@@ -30,7 +30,7 @@ namespace ProjectManagement.App.Controllers
                 ViewBag.IsProjectEmpty = true;
             }
 
-            return View();
+            return View(existingProjects);
         }
 
         public async Task<IActionResult> CreateProject(CreateProjectDto createProjectDto)
