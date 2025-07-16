@@ -13,6 +13,8 @@
 }
 </style>
 
+@Html.AntiForgeryToken()
+
 <div class="text-center mt-5">
 
 
@@ -31,9 +33,17 @@
                   gridLines="Both"
                   enableHover="true"
                   allowTextWrap="true"
+                  allowSelection="true"
+                  actionBegin="actionBegin"
+                  actionComplete="actionComplete"
+                  toolbar="@(new List<string>(){"Delete","Edit","Update","Cancel"})"
                   commandClick="onCommandClick"
                   height="400">
+            <e-grid-editSettings allowDeleting="true" allowEditing="true" mode="Normal"></e-grid-editSettings>
+            <e-grid-selectionsettings persistSelection="true" type="Multiple" checkboxOnly="true"></e-grid-selectionsettings>
             <e-grid-columns>
+                <e-grid-column type="checkbox" width="50"></e-grid-column>
+                <e-grid-column field="Id" isPrimaryKey="true" visible="false"></e-grid-column>
                 <e-grid-column field="Name"
                                headerText="Project Name"
                                width="200"
@@ -83,6 +93,128 @@
 
 
 <script>
+    let flag = false;
+    function actionComplete(e) {
+        if (e.requestType === 'save' || e.requestType === 'delete') {
+            flag = false;
+        }
+    }
+
+    function actionBegin(e) {
+        var grid = document.getElementById("ExistingProjectGrid").ej2_instances[0];
+
+        if(!flag)
+        {
+            if (e.requestType === 'delete') {
+            e.cancel = true; // Cancel default delete behavior
+
+            const ids = e.data.map(row => row[grid.getPrimaryKeyFieldNames()[0]]);
+
+            const ajax = new ej.base.Ajax({
+                url: '@Url.Action("DeleteProject", "Home")',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                beforeSend: function (xhr) {
+                    ajax.httpRequest.setRequestHeader("XSRF-TOKEN", document.querySelector('input[name="__RequestVerificationToken"]').value);
+                },
+                data: JSON.stringify(ids)
+            });
+
+            ajax.onSuccess = function (data, status, xhr) {
+                let response = {};
+                try {
+                    response = typeof data === "string" ? JSON.parse(data) : data;
+                } catch (err) {
+                    console.error("Parsing JSON gagal:", err);
+                }
+
+                if (response.success === false) {
+                    // Gagal validasi atau gagal delete
+                    flag = false;
+                    ejs.notifications.ToastUtility.show(response.message || "Gagal memproses permintaan.", 'Error', 3000);
+                } else {
+                    // Sukses
+                    flag = true;
+                    ejs.notifications.ToastUtility.show('Data berhasil dihapus.', 'Success', 3000);
+                    grid.dataSource = response.data;
+                }
+            };
+
+            ajax.onFailure = function (xhr) {
+                let message = "Terjadi kesalahan saat menyimpan.";
+                flag = false
+                try {
+                    const errorResponse = JSON.parse(xhr.responseText);
+                    if (errorResponse.message) {
+                        message = errorResponse.message;
+                    }
+                } catch (err) {
+                    console.warn("Gagal membaca pesan error:", err);
+                }
+
+                ejs.notifications.ToastUtility.show(message, 'Error', 3000);
+            };
+
+
+            ajax.send();
+        }
+        else if(e.requestType == 'save' && (e.action == 'edit')) {
+            var editedData = e.data;
+            e.cancel = true;
+
+            const ajax = new ej.base.Ajax({
+                url: '@Url.Action("UpdateProject", "Home")',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                beforeSend: function (xhr) {
+                    ajax.httpRequest.setRequestHeader("XSRF-TOKEN", document.querySelector('input[name="__RequestVerificationToken"]').value);
+                },
+                data: JSON.stringify({ value: editedData })
+            });
+
+            ajax.onSuccess = function (data, status, xhr) {
+                let response = {};
+                try {
+                    response = typeof data === "string" ? JSON.parse(data) : data;
+                } catch (err) {
+                    console.error("Parsing JSON gagal:", err);
+                }
+
+                if (response.success === false) {
+                    // Gagal validasi atau gagal delete
+                    flag = false;
+                    ejs.notifications.ToastUtility.show(response.message || "Gagal memproses permintaan.", 'Error', 3000);
+                } else {
+                    // Sukses
+                    flag = true;
+                    ejs.notifications.ToastUtility.show('Data berhasil diupdate', 'Success', 3000);
+
+                    grid.endEdit();
+
+
+                }
+            };
+
+            ajax.onFailure = function (xhr) {
+                let message = "Terjadi kesalahan saat menyimpan.";
+                flag = false;
+                try {
+                    const errorResponse = JSON.parse(xhr.responseText);
+                    if (errorResponse.message) {
+                        message = errorResponse.message;
+                    }
+                } catch (err) {
+                    console.warn("Gagal membaca pesan error:", err);
+                }
+
+                ejs.notifications.ToastUtility.show(message, 'Error', 3000);
+            };
+
+            ajax.send();
+        }
+        }
+        
+    }
 
     function createProject() {
         var dialog = document.getElementById("createProjectDialog").ej2_instances[0];
@@ -92,14 +224,11 @@
 
     function onCommandClick(args) {
         const row = args.rowData;
-        const id = row.Id; // pastikan model punya property "Id"
         
         console.log("View")
     }
 
 
-
-    
     $('#createForm').on('submit', function (e) {
         e.preventDefault();
 

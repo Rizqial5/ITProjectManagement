@@ -47,6 +47,34 @@ namespace ProjectManagement.App.Controllers
             return Json(new { success = true });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> DeleteProject([FromBody] int[] projectId)
+        {
+            var result = await _projectRepository.DeleteAsync(projectId);
+
+            if(!result)
+            {
+                return Json(new { success = false, message = "No Project found to delete" });
+            }
+
+            var refreshData = await _projectRepository.GetAllAsync();
+
+            return Json(new { success = true, data = refreshData });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateProject([FromBody] CRUDModel<Project> value)
+        {
+            var result = await _projectRepository.UpdateAsync(value.value);
+
+            if (!result)
+            {
+                return Json(new { success = false, message = "No Project found to update" });
+            }
+
+            return Json(new { success = true });
+        }
+
         public IActionResult Privacy()
         {
             return View();

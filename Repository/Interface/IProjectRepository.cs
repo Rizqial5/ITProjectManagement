@@ -10,9 +10,9 @@ namespace ProjectManagement.App.Repository.Interface
         Task<Project> GetAsync(int id);
 
         Task AddAsync(CreateProjectDto project);
-        Task UpdateAsync(Project project);
+        Task<bool> UpdateAsync(Project project);
 
-        Task DeleteAsync(int id);
+        Task<bool> DeleteAsync(int[] id);
 
     }
 }

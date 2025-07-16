@@ -32,9 +32,19 @@ namespace ProjectManagement.App.Repository
             
         }
 
-        public Task DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int[] id)
         {
-            throw new NotImplementedException();
+            var projectSelected = await _dbContext.Projects.Where(i => id.Contains(i.Id)).ToListAsync();
+
+            if (projectSelected.Any()) 
+            {
+                _dbContext.Projects.RemoveRange(projectSelected);
+
+                await _dbContext.SaveChangesAsync();
+
+                return true;
+            }
+            return false;
         }
 
         public async Task<IEnumerable<Project>> GetAllAsync()
@@ -49,9 +59,22 @@ namespace ProjectManagement.App.Repository
             throw new NotImplementedException();
         }
 
-        public Task UpdateAsync(Project project)
+        public async Task<bool> UpdateAsync(Project project)
         {
-            throw new NotImplementedException();
+            var checkData = await _dbContext.Projects.FirstOrDefaultAsync(i => i.Id == project.Id);
+
+            if(checkData == null)
+            {
+                return false;
+            }
+
+            checkData.Name = project.Name;
+            checkData.Description = project.Description;
+            checkData.CreatedAt = DateTime.Now;
+
+            await _dbContext.SaveChangesAsync();
+
+            return true;
         }
     }
 }
