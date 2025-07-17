@@ -105,6 +105,12 @@
             <a href="@Url.Action("Index", "Home")">
                 <span class="e-icons e-home" style="margin-right:8px"></span> Home
             </a>
+            <a href="@Url.Action("Index", "Workspace", new { ProjectID = ViewBag.ProjectID, ProjectName = ViewBag.ProjectName })">
+                <span class="e-icons" style="margin-right:8px"></span> Dashboard
+            </a>
+            <a href="@Url.Action("KanbanView", "Kanban", new { ProjectID = ViewBag.ProjectID, ProjectName = ViewBag.ProjectName })">
+                <span class="e-icons e-kanban" style="margin-right:8px"></span> Kanban
+            </a>
         </div>
         <button id="sidebarToggle" class="sidebar-toggle-btn me-2" title="Hide Sidebar">
             <span class="e-icons e-arrow-left"></span>

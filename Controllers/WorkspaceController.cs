@@ -14,8 +14,13 @@ namespace ProjectManagement.App.Controllers
 
         public IActionResult Index(WorkspaceViewModel workspaceViewModel)
         {
+
+            ViewBag.ProjectID = workspaceViewModel.ProjectID;
+            ViewBag.ProjectName = workspaceViewModel.ProjectName;
             // workspaceViewModel.ProjectID dan ProjectName akan terisi dari query string
             return View(workspaceViewModel);
         }
+
+
     }
 }
