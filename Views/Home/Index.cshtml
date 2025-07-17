@@ -224,10 +224,25 @@
 
     function onCommandClick(args) {
         const row = args.rowData;
-        
-        console.log("View")
-    }
+        const projectId = row.Id;
+        const projectName = row.Name;
 
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GoToWorkspace", "Workspace")',
+            data: { projectId: projectId, projectName: projectName },
+            success: function (response) {
+                if (response.success && response.url) {
+                    window.location.href = response.url;
+                } else {
+                    ejs.notifications.ToastUtility.show('Failed to open workspace.', 'Error', 3000);
+                }
+            },
+            error: function () {
+                ejs.notifications.ToastUtility.show('Error contacting server.', 'Error', 3000);
+            }
+        });
+    }
 
     $('#createForm').on('submit', function (e) {
         e.preventDefault();

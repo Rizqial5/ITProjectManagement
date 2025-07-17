@@ -1,0 +1,173 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Workspace</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="~/css/material.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        body {
+            background: #fff; /* Sama seperti Home */
+            color: #212529;   /* Teks gelap */
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .e-sidebar {
+            background: #f8f9fa; /* Sidebar terang */
+            color: #212529;
+            border-right: 1px solid #e3e6ea;
+            height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        .sidebar-header {
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding: 20px 20px 10px 20px;
+            color: #2563eb; /* Primary Syncfusion */
+            letter-spacing: 1px;
+        }
+        .sidebar-menu {
+            padding: 0 10px;
+        }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: #212529;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+            font-weight: 500;
+        }
+        .sidebar-menu a:hover {
+            background: #2563eb;
+            color: #fff;
+        }
+        .sidebar-toggle-btn {
+            position: absolute;
+            top: 15px;
+            right: 0px;
+            background: #2563eb;
+            color: #fff;
+            border-radius: 50%;
+            border: none;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .e-sidebar.e-close {
+            box-shadow: none;
+        }
+        .main-content {
+            margin-left: 260px;
+            padding: 32px 32px 32px 32px;
+            min-height: 100vh;
+            background: #fff; /* Sama seperti Home */
+            color: #212529;
+            transition: margin-left 0.3s;
+            overflow-x: auto;
+        }
+        .sidebar-collapsed .main-content {
+            margin-left: 0 !important;
+        }
+        @@media (max-width: 768px) {
+            .main-content {
+                margin-left: 0 !important;
+                padding: 16px;
+            }
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="~/js/ej2/ej2.min.js"></script>
+</head>
+<body>
+    <div id="sidebar" class="e-sidebar" style="position:fixed;" data-width="260px" data-target=".main-content" data-type="Push">
+        <div class="sidebar-header">
+            <span>Workspace</span>
+        </div>
+        <div class="sidebar-menu">
+            <a href="@Url.Action("Index", "Home")">
+                <span class="e-icons e-home" style="margin-right:8px"></span> Home
+            </a>
+        </div>
+        <button id="sidebarToggle" class="sidebar-toggle-btn me-2" title="Hide Sidebar">
+            <span class="e-icons e-arrow-left"></span>
+        </button>
+    </div>
+    <div class="main-content" id="mainContent">
+        @RenderBody()
+    </div>
+    <script>
+        var sidebarObj = new ej.navigations.Sidebar({
+            width: "260px",
+            type: "Push",
+            showBackdrop: false,
+            isOpen: true,
+            closeOnDocumentClick: false,
+            enableDock: false,
+            position: "Left"
+        });
+        sidebarObj.appendTo('#sidebar');
+
+        function hideSidebar() {
+            sidebarObj.hide();
+            $('body').addClass('sidebar-collapsed');
+        }
+        function showSidebar() {
+            sidebarObj.show();
+            $('body').removeClass('sidebar-collapsed');
+        }
+
+        $('#sidebarToggle').on('click', function () {
+            if (sidebarObj.isOpen) {
+                hideSidebar();
+            } else {
+                showSidebar();
+            }
+        });
+
+        // Auto show/hide on mouse move
+        let sidebarArea = 30; // px from left
+        let hideArea = 200; // px from left
+        let sidebarTimeout = null;
+
+        $(document).on('mousemove', function (e) {
+            if (e.clientX <= sidebarArea && !sidebarObj.isOpen) {
+                showSidebar();
+            } else if (e.clientX > hideArea && sidebarObj.isOpen) {
+                // Only auto-hide if not hovering sidebar
+                if (!$(e.target).closest('#sidebar').length) {
+                    if (sidebarTimeout) clearTimeout(sidebarTimeout);
+                    sidebarTimeout = setTimeout(hideSidebar, 300);
+                }
+            }
+        });
+
+        // Prevent auto-hide when mouse is over sidebar
+        $('#sidebar').on('mouseenter', function () {
+            if (sidebarTimeout) clearTimeout(sidebarTimeout);
+        });
+        $('#sidebar').on('mouseleave', function (e) {
+            if (e.clientX > hideArea) {
+                sidebarTimeout = setTimeout(hideSidebar, 300);
+            }
+        });
+    </script>
+</body>
+</html>
