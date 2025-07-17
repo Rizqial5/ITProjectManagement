@@ -1,11 +1,63 @@
-﻿@using ProjectManagement.App.ViewModel.Workspace
-@model WorkspaceViewModel;
+﻿@using ProjectManagement.App.Models
+@using ProjectManagement.App.Models.Enum
+@model ProjectManagement.App.ViewModel.Workspace.WorkspaceViewModel
 @{
     Layout = "_WorkspaceLayout";
     ViewData["Title"] = "Workspace Board";
+    // Enum values for dropdown
+    var statusList = Enum.GetValues(typeof(Status))
+                     .Cast<Status>()
+                     .Select(s => new { Value = s.ToString(), Text = s.ToString() })
+                     .ToList();
 }
 
 <div>
     <h1>Workspace @Model.ProjectName Board</h1>
-    <!-- Konten workspace Anda di sini -->
+
+    <ejs-grid id="TaskGrid"
+              allowPaging="true"
+              allowSorting="true"
+              toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
+              editSettings="@(new Syncfusion.EJ2.Grids.GridEditSettings { AllowAdding = true, AllowEditing = true, AllowDeleting = true, Mode = Syncfusion.EJ2.Grids.EditMode.Normal })"
+              height="400">
+        <e-data-manager url='@Url.Action("GetTasks", "Workspace", new { projectId = Model.ProjectID})'
+                        insertUrl='@Url.Action("AddTask", "Workspace")?projectId=@Model.ProjectID'
+                        updateUrl='@Url.Action("UpdateTask", "Workspace")?projectId=@Model.ProjectID'
+                        removeUrl='@Url.Action("DeleteTask", "Workspace")?projectId=@Model.ProjectID'
+                        adaptor="UrlAdaptor"></e-data-manager>
+        <e-grid-columns>
+            <e-grid-column field="Id" headerText="ID" isPrimaryKey="true" visible="false"></e-grid-column>
+            <e-grid-column field="Title" headerText="Title" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
+           <e-grid-column field="Status"
+               headerText="Status"
+               width="150"
+               editType="dropdownedit"
+               edit="@(new {
+                   @params = new {
+                       dataSource = ViewBag.DllStatus ,
+                       fields = new { text = "Text", value = "Value" },
+                       placeholder = "Select status"
+                   }
+               })">
+</e-grid-column>
+        </e-grid-columns>
+    </ejs-grid>
 </div>
+
+<script>
+    function onTaskActionBegin(args) {
+        if (args.requestType === 'save' || args.requestType === 'delete') {
+            args.data.ProjectId = @Model.ProjectID;
+        }
+        if (args.requestType === 'save') {
+            if (args.action === 'add') {
+                args.url = '@Url.Action("AddTask", "Workspace")?projectId=@Model.ProjectID';
+            } else if (args.action === 'edit') {
+                args.url = '@Url.Action("UpdateTask", "Workspace")?projectId=@Model.ProjectID';
+            }
+        }
+        if (args.requestType === 'delete') {
+            args.url = '@Url.Action("DeleteTask", "Workspace")?projectId=@Model.ProjectID';
+        }
+    }
+</script>
