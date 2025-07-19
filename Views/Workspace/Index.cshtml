@@ -9,10 +9,12 @@
                      .Cast<Status>()
                      .Select(s => new { Value = s.ToString(), Text = s.ToString() })
                      .ToList();
+    var statusListJson = System.Text.Json.JsonSerializer.Serialize(statusList);
 }
 
 <div>
     <h1>Workspace @Model.ProjectName Board</h1>
+    <hr />
 
     <ejs-grid id="TaskGrid"
               allowPaging="true"
@@ -28,23 +30,48 @@
         <e-grid-columns>
             <e-grid-column field="Id" headerText="ID" isPrimaryKey="true" visible="false"></e-grid-column>
             <e-grid-column field="Title" headerText="Title" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
-           <e-grid-column field="Status"
-               headerText="Status"
-               width="150"
-               editType="dropdownedit"
-               edit="@(new {
-                   @params = new {
-                       dataSource = ViewBag.DllStatus ,
-                       fields = new { text = "Text", value = "Value" },
-                       placeholder = "Select status"
-                   }
-               })">
-</e-grid-column>
+            <e-grid-column field="Status"
+                           headerText="Status"
+                           width="150"
+                           edit="@(new { create = "StatusCreate", read = "StatusRead", write = "StatusWrite", destroy = "StatusDestroy" })"
+                           editType="dropdownedit">
+            </e-grid-column>
         </e-grid-columns>
     </ejs-grid>
 </div>
 
 <script>
+
+    var statusData = @Html.Raw(statusListJson);
+
+    var statusElem;
+    var statusObj;
+
+    function StatusCreate() {
+        statusElem = document.createElement('input');
+        return statusElem;
+    }
+
+    function StatusRead() {
+        return statusObj.value;
+    }
+
+    function StatusDestroy() {
+        if (statusObj) statusObj.destroy();
+    }
+
+    function StatusWrite(args) {
+        statusObj = new ej.dropdowns.DropDownList({
+            dataSource: statusData,
+            fields: { value: 'Value', text: 'Text' },
+            value: args.rowData && args.rowData.Status ? args.rowData.Status : null,
+            placeholder: 'Select status',
+            floatLabelType: 'Never'
+        });
+        statusObj.appendTo(statusElem);
+    }
+
+
     function onTaskActionBegin(args) {
         if (args.requestType === 'save' || args.requestType === 'delete') {
             args.data.ProjectId = @Model.ProjectID;
@@ -61,3 +88,4 @@
         }
     }
 </script>
+
