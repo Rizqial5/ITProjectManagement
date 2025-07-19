@@ -19,6 +19,14 @@ namespace ProjectManagement.App.Controllers
             _taskRepository = taskRepository;
         }
 
+
+        public IActionResult KanbanView(WorkspaceViewModel workspaceViewModel)
+        {
+
+            return PartialView("_KanbanView", workspaceViewModel);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> GetTasks([FromBody] DataManagerRequest DataManagerRequest, int projectId)
         {
@@ -79,11 +87,17 @@ namespace ProjectManagement.App.Controllers
                 new("Done", "2"),
             };
 
+            
             // workspaceViewModel.ProjectID dan ProjectName akan terisi dari query string
             return View(workspaceViewModel);
         }
 
-
+        [HttpGet]
+        public async Task<IActionResult> GetKanbanTasks(int projectId)
+        {
+            var tasks = await _taskRepository.GetAllAsync(projectId);
+            return Json(tasks);
+        }
     }
 }
 

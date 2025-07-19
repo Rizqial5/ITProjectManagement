@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ProjectManagement.App.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/material.css" />
+    <link rel="stylesheet" href="~/css/ej2/material.css" />
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.21.0/dist/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>
@@ -112,10 +112,10 @@
             <a href="@Url.Action("Index", "Home")">
                 <span class="e-icons e-home" style="margin-right:8px"></span> Home
             </a>
-            <a href="@Url.Action("Index", "Workspace", new { ProjectID = ViewBag.ProjectID, ProjectName = ViewBag.ProjectName })">
+            <a href="javascript:void(0);" onclick="onDashboardViewClick()">
                 <span class="e-icons" style="margin-right:8px"></span> Dashboard
             </a>
-            <a href="@Url.Action("KanbanView", "Kanban", new { ProjectID = ViewBag.ProjectID, ProjectName = ViewBag.ProjectName })">
+            <a href="javascript:void(0);" onclick="onKanbanViewClick()">
                 <span class="e-icons e-kanban" style="margin-right:8px"></span> Kanban
             </a>
         </div>
@@ -132,7 +132,50 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <ejs-scripts></ejs-scripts>
     @await RenderSectionAsync("Scripts", required: false)
+
     <script>
+        var projectId = '@ViewBag.ProjectID';
+        var projectName = '@ViewBag.ProjectName';
+
+        function onDashboardViewClick() {
+            $('#kanbanView').hide();
+            $('#TaskGrid').show();
+        }
+
+
+        function onKanbanViewClick() {
+
+            loadKanbanScripts();
+
+            $('#TaskGrid').hide();
+            $('#kanbanView').show();
+        }
+
+        function loadKanbanScripts() {
+            var projectId = projectId || '@ViewBag.ProjectID';
+            $.get('@Url.Action("GetKanbanTasks", "Workspace")', { projectId: projectId }, function (tasks) {
+                var kanbanObj = document.getElementById("KanbanBoard").ej2_instances[0];
+                if (kanbanObj) {
+                    kanbanObj.dataSource = tasks;
+                }
+
+                var unassigned = tasks.filter(t => t.status === "ToDo");
+                var $list = $('#unassignedTasksList');
+                $list.empty();
+                if (unassigned.length === 0) {
+                    $list.append('<li class="list-group-item text-muted">No unassigned tasks</li>');
+                } else {
+                    unassigned.forEach(function (task) {
+                        $list.append('<li class="list-group-item">' +
+                            '<span class="fw-bold">' + task.title + '</span>' +
+                            (task.AssignedUserId ? ' <span class="badge bg-secondary ms-2">Assigned</span>' : '') +
+                            '</li>');
+                    });
+                }
+            });
+        }
+
+
         var sidebarObj = new ej.navigations.Sidebar({
             width: "260px",
             type: "Push",
