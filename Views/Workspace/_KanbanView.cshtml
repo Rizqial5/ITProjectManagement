@@ -1,24 +1,30 @@
-﻿
-@* @{
-    var data = new List<Object>()
+﻿@using ProjectManagement.App.ViewModel.Workspace
+
+@{
+    var dialogCards = new List<KanbanDialogViewModel>()
     {
-        new {Id = 0,Status = ProjectManagement.App.Models.Enum.Status.ToDo.ToString(), Title="Test"},
-        new {Id = 1,Status = ProjectManagement.App.Models.Enum.Status.ToDo.ToString(), Title="Test"},
-        new {Id = 2,Status = ProjectManagement.App.Models.Enum.Status.ToDo.ToString(), Title="Test"},
+        new(){key = "Title", type="Input"},
+        new(){key = "Description", type="TextArea"},
+        new(){key = "Status", type="DropDown", Id="statusDDl"}
     };
-} *@
+
+    ViewBag.dialog = dialogCards;
+
+    
+}
 
 <div class="d-flex" style="gap: 24px">
     <div style="flex: 1;">
         <ejs-kanban id="KanbanBoard"
-                    keyField="status"                    
-                    cardSettings="@(new Syncfusion.EJ2.Kanban.KanbanCardSettings { ContentField = "title", HeaderField = "id" })"
+                    keyField="Status" 
+                    cardSettings="@(new Syncfusion.EJ2.Kanban.KanbanCardSettings { ContentField = "Description", HeaderField = "Title" })"
                     >
             <e-kanban-columns>
                 <e-kanban-column headerText="To Do" keyField="ToDo"></e-kanban-column>
                 <e-kanban-column headerText="In Progress" keyField="InProgress"></e-kanban-column>
                 <e-kanban-column headerText="Done" keyField="Done"></e-kanban-column>
             </e-kanban-columns>
+            <e-kanban-dialogsettings fields="ViewBag.dialog"></e-kanban-dialogsettings>
         </ejs-kanban>
     </div>
     <div style="width: 320px;">
@@ -32,5 +38,7 @@
         </div>
     </div>
 </div>
+
+
 
 

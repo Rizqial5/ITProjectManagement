@@ -92,12 +92,7 @@ namespace ProjectManagement.App.Controllers
             return View(workspaceViewModel);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetKanbanTasks(int projectId)
-        {
-            var tasks = await _taskRepository.GetAllAsync(projectId);
-            return Json(tasks);
-        }
+
     }
 }
 
