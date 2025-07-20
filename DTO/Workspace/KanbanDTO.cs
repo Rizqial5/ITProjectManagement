@@ -7,6 +7,8 @@ namespace ProjectManagement.App.DTO.Workspace
 {
     public class KanbanDTO
     {
+        public int Id { get; set; }
+
         [Required]
        
         public string Title { get; set; }

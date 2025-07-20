@@ -1,9 +1,9 @@
 ﻿@using ProjectManagement.App.ViewModel.Workspace
-
+@model ProjectManagement.App.ViewModel.Workspace.WorkspaceViewModel
 @{
     var dialogCards = new List<KanbanDialogViewModel>()
     {
-        new(){key = "Title", type="Input"},
+        
         new(){key = "Description", type="TextArea"},
         new(){key = "Status", type="DropDown", Id="statusDDl"}
     };
@@ -13,10 +13,13 @@
     
 }
 
+@Html.AntiForgeryToken()
+
 <div class="d-flex" style="gap: 24px">
     <div style="flex: 1;">
         <ejs-kanban id="KanbanBoard"
-                    keyField="Status" 
+                    keyField="Status"
+                    actionBegin="onKanbanActionBegin"
                     cardSettings="@(new Syncfusion.EJ2.Kanban.KanbanCardSettings { ContentField = "Description", HeaderField = "Title" })"
                     >
             <e-kanban-columns>
@@ -24,6 +27,7 @@
                 <e-kanban-column headerText="In Progress" keyField="InProgress"></e-kanban-column>
                 <e-kanban-column headerText="Done" keyField="Done"></e-kanban-column>
             </e-kanban-columns>
+            <e-kanban-dialogsettings fields="ViewBag.dialog"></e-kanban-dialogsettings>
         </ejs-kanban>
     </div>
     <div style="width: 320px;">
@@ -40,4 +44,68 @@
 
 
 
+<script>
+    function onKanbanActionBegin(args){
+        const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
+        const kanban = document.getElementById("KanbanBoard").ej2_instances[0];
 
+        if (args.requestType === 'cardChange') {
+            const task = args.changedRecords[0];
+
+            const ajax = new ej.base.Ajax({
+                url: '@Url.Action("UpdateKanbanData", "Kanban", new { projectId = Model.ProjectID })',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(task),
+                beforeSend: function () {
+                    ajax.httpRequest.setRequestHeader("XSRF-TOKEN", csrfToken);
+                }
+            });
+
+            ajax.onSuccess = function (responseText) {
+                const response = typeof responseText === "string" ? JSON.parse(responseText) : responseText;
+                if (response.success) {
+                    ejs.notifications.ToastUtility.show(response.message, 'Success', 3000);
+                } else {
+                    ejs.notifications.ToastUtility.show(response.message || 'Update gagal.', 'Error', 3000);
+                }
+            };
+
+            ajax.onFailure = function () {
+                ejs.notifications.ToastUtility.show('Terjadi kesalahan saat update.', 'Error', 3000);
+            };
+
+            ajax.send();
+        }
+
+        if (args.requestType === 'cardRemove') {
+            const task = args.deletedRecords[0];
+
+            const ajax = new ej.base.Ajax({
+                 url: '@Url.Action("DeleteKanbanData", "Kanban")',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(task),
+                beforeSend: function () {
+                    ajax.httpRequest.setRequestHeader("XSRF-TOKEN", csrfToken);
+                }
+            });
+
+            ajax.onSuccess = function (responseText) {
+                const response = typeof responseText === "string" ? JSON.parse(responseText) : responseText;
+                if (response.success) {
+                    ejs.notifications.ToastUtility.show(response.message, 'Success', 3000);
+                } else {
+                    ejs.notifications.ToastUtility.show(response.message || 'Hapus gagal.', 'Error', 3000);
+                }
+            };
+
+            ajax.onFailure = function () {
+                ejs.notifications.ToastUtility.show('Terjadi kesalahan saat menghapus.', 'Error', 3000);
+            };
+
+            ajax.send();
+        }
+    }
+    
+</script>
