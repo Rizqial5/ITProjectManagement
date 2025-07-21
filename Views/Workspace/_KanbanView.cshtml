@@ -30,7 +30,7 @@
             <e-kanban-dialogsettings fields="ViewBag.dialog"></e-kanban-dialogsettings>
         </ejs-kanban>
     </div>
-    <div style="width: 320px;">
+@*     <div style="width: 320px;">
         <div class="card shadow-sm" style="height: 600px; overflow-y: auto;">
             <div class="card-header bg-primary text-white">
                 <strong>Unassigned Tasks</strong>
@@ -39,7 +39,7 @@
                 <li class="list-group-item text-muted">Loading...</li>
             </ul>
         </div>
-    </div>
+    </div> *@
 </div>
 
 
@@ -62,15 +62,6 @@
                 }
             });
 
-            ajax.onSuccess = function (responseText) {
-                const response = typeof responseText === "string" ? JSON.parse(responseText) : responseText;
-                if (response.success) {
-                    ejs.notifications.ToastUtility.show(response.message, 'Success', 3000);
-                } else {
-                    ejs.notifications.ToastUtility.show(response.message || 'Update gagal.', 'Error', 3000);
-                }
-            };
-
             ajax.onFailure = function () {
                 ejs.notifications.ToastUtility.show('Terjadi kesalahan saat update.', 'Error', 3000);
             };
@@ -82,7 +73,7 @@
             const task = args.deletedRecords[0];
 
             const ajax = new ej.base.Ajax({
-                 url: '@Url.Action("DeleteKanbanData", "Kanban")',
+                 url: '@Url.Action("DeleteKanbanData", "Kanban", new { projectId = Model.ProjectID })',
                 type: 'POST',
                 contentType: 'application/json; charset=utf-8',
                 data: JSON.stringify(task),

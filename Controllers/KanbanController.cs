@@ -64,11 +64,11 @@ namespace ProjectManagement.App.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteKanbanData([FromBody] KanbanDTO kanban, int projectId)
         {
-            //var task = await _taskRepository.GetByIdAsync(kanban.Id);
-            //if (task == null)
-            //    return NotFound(new { success = false, message = "Data tidak ditemukan." });
+            var task = await _taskRepository.GetAsync(projectId,kanban.Id);
+            if (task == null)
+                return NotFound(new { success = false, message = "Data tidak ditemukan." });
 
-            //await _taskRepository.DeleteAsync(task.Id);
+            await _taskRepository.DeleteAsync(projectId,task.Id);
             return Ok(new { success = true, message = "Data berhasil dihapus." });
         }
     }

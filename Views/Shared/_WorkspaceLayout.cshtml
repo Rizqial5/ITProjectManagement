@@ -158,20 +158,6 @@
                 if (kanbanObj) {
                     kanbanObj.dataSource = tasks;
                 }
-
-                var unassigned = tasks.filter(t => t.Status === "ToDo");
-                var $list = $('#unassignedTasksList');
-                $list.empty();
-                if (unassigned.length === 0) {
-                    $list.append('<li class="list-group-item text-muted">No unassigned tasks</li>');
-                } else {
-                    unassigned.forEach(function (task) {
-                        $list.append('<li class="list-group-item">' +
-                            '<span class="fw-bold">' + task.Title + '</span>' +
-                            (task.AssignedUserId ? ' <span class="badge bg-secondary ms-2">Assigned</span>' : '') +
-                            '</li>');
-                    });
-                }
             });
         }
 
