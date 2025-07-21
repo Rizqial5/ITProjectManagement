@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO.Project;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Repository.Interface;
+using ProjectManagement.App.ViewModel.Home;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -34,13 +35,20 @@ namespace ProjectManagement.App.Controllers
             ViewBag.IsUserLogin = User.Identity?.IsAuthenticated;
             ViewBag.UserId = userId;
 
+            var showData = existingProjects.Select(i => new ProjectViewModel
+            {
+                Id = i.Id,
+                Title = i.Name,
+                Description = i.Description ?? string.Empty
+            });
 
-            if (!existingProjects.Any())
+
+            if (!showData.Any())
             {
                 ViewBag.IsProjectEmpty = true;
             }
 
-            return View(existingProjects);
+            return View(showData);
         }
 
         [HttpPost]
@@ -76,13 +84,31 @@ namespace ProjectManagement.App.Controllers
 
             var refreshData = await _projectRepository.GetAllAsync(userId);
 
-            return Json(new { success = true, data = refreshData });
+            var showData = refreshData.Select(i => new ProjectViewModel
+            {
+                Id = i.Id,
+                Title = i.Name,
+                Description = i.Description ?? string.Empty
+            });
+
+            return Json(new { success = true, data = showData });
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateProject([FromBody] CRUDModel<Project> value)
+        public async Task<IActionResult> UpdateProject([FromBody] CRUDModel<ProjectViewModel> value)
         {
-            var result = await _projectRepository.UpdateAsync(value.value);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var updatedProject = new Project
+            {
+                Id = value.value.Id,
+                CreatedAt = DateTime.UtcNow,
+                Description = value.value.Description,
+                Name = value.value.Title,
+                ProjectOwnerUserId = userId,
+            };
+
+            var result = await _projectRepository.UpdateAsync(updatedProject);
 
             if (!result)
             {

@@ -1,4 +1,5 @@
 ﻿@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.ViewModel.Home
 @using Syncfusion.EJ2.Grids
 @{
     ViewData["Title"] = "Home Page";
@@ -7,7 +8,7 @@
 
 }
 
-@model IEnumerable<Project>
+@model IEnumerable<ProjectViewModel>
 
 <style>
 .e-grid .e-rowcell.align-left {
@@ -54,7 +55,7 @@
             <e-grid-columns>
                 <e-grid-column type="checkbox" width="50"></e-grid-column>
                 <e-grid-column field="Id" isPrimaryKey="true" visible="false"></e-grid-column>
-                <e-grid-column field="Name"
+                <e-grid-column field="Title"
                                headerText="Project Name"
                                width="200"
                                textAlign="Left"
