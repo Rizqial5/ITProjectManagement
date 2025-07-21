@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace ProjectManagement.App.Models
@@ -18,5 +19,10 @@ namespace ProjectManagement.App.Models
         // Relasi: 1 Project memiliki banyak TaskItem
         [JsonIgnore]
         public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
+
+        public string? ProjectOwnerUserId { get; set; }
+
+        [ForeignKey("AssignedUserId")]
+        public ApplicationUser? ProjectOwner { get; set; }
     }
 }

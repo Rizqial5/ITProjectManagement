@@ -10,5 +10,7 @@ namespace ProjectManagement.App.DTO.Project
 
         [Required]
         public string Description { get; set; }
+
+        public string ProjectOwnerUserId { get; set; } = string.Empty; // tambahkan ini
     }
 }

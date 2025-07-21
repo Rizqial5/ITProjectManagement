@@ -2,7 +2,9 @@
 @using Syncfusion.EJ2.Grids
 @{
     ViewData["Title"] = "Home Page";
-    
+
+   
+
 }
 
 @model IEnumerable<Project>
@@ -23,6 +25,14 @@
         <h1 class="display-4">Welcome</h1>
         <div>
             <p>Project is Empty</p>
+        </div>
+
+        <ejs-button id="createButton" class="mt-3" isPrimary="true" content="Create a Project" onclick="createProject()"></ejs-button>
+    }
+    else if (!ViewBag.IsUserLogin)
+    {
+        <div>
+            <p>Not login yet</p>
         </div>
     }
     else
@@ -68,10 +78,12 @@
                 </e-grid-column>
             </e-grid-columns>
         </ejs-grid>
+
+        <ejs-button id="createButton" class="mt-3" isPrimary="true" content="Create a Project" onclick="createProject()"></ejs-button>
     }
     <ejs-toast id="toast_default"></ejs-toast>
 
-    <ejs-button id="createButton" class="mt-3" isPrimary="true" content="Create a Project" onclick="createProject()"></ejs-button>
+    
 </div>
 
 
