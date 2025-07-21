@@ -32,6 +32,8 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
+builder.Services.AddSession();
+
 
 if (Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), @"node_modules", @"@syncfusion")))
 {
@@ -69,6 +71,8 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapStaticAssets();
 

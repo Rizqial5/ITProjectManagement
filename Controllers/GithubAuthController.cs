@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
 
 namespace ProjectManagement.App.Controllers
@@ -67,9 +68,17 @@ namespace ProjectManagement.App.Controllers
         [HttpGet("github/connected")]
         public IActionResult GitHubConnected()
         {
-            ViewBag.GitHubUser = TempData["GitHubUser"];
-            ViewBag.AccessToken = TempData["AccessToken"];
-            return View(); // Buat view sederhana untuk tampilkan hasil
+            var githubUsername = TempData["GitHubUser"] as string;
+            var accessToken = TempData["AccessToken"] as string;
+
+            if (!string.IsNullOrEmpty(accessToken) && !string.IsNullOrEmpty(githubUsername))
+            {
+                HttpContext.Session.SetString("GitHubToken", accessToken);
+                HttpContext.Session.SetString("GitHubUser", githubUsername);
+
+            }
+
+            return RedirectToAction("Index", "Home");
         }
 
     }

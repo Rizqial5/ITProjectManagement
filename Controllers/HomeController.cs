@@ -29,11 +29,21 @@ namespace ProjectManagement.App.Controllers
                 return View(new List<Project>());
             }
 
+            var accessToken = HttpContext.Session.GetString("GitHubToken");
+            var githubUsername = HttpContext.Session.GetString("GitHubUser");
             var existingProjects =  await _projectRepository.GetAllAsync(userId);
 
             ViewBag.IsProjectEmpty = false;
             ViewBag.IsUserLogin = User.Identity?.IsAuthenticated;
             ViewBag.UserId = userId;
+            ViewBag.Github = githubUsername ?? string.Empty;
+          
+
+
+
+
+
+
 
             var showData = existingProjects.Select(i => new ProjectViewModel
             {
