@@ -1,0 +1,22 @@
+﻿<ejs-dialog id="githubDialog" header="Create new Project"
+            width="50%" visible="false" showCloseIcon="true" isModal="true"
+            target="#githubTarget">
+    <e-content-template>
+        <div class="content-dialog">
+            <ejs-grid id="Github"
+                      allowPaging="true"
+                      allowSorting="true"
+                      height="400">
+                <e-data-manager url='@Url.Action("GetGithubRepo", "GithubAuth")'
+                                adaptor="UrlAdaptor"></e-data-manager>
+                <e-grid-columns>
+                    <e-grid-column field="name" headerText="Name" width="200"></e-grid-column>
+                    <e-grid-column field="html_url" headerText="URL" width="300"
+                                   template="<a href='${html_url}' target='_blank'>${html_url}</a>">
+                    </e-grid-column>
+                    <e-grid-column field="description" headerText="Description" width="250"></e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
+        </div>
+    </e-content-template>
+</ejs-dialog>

@@ -1,6 +1,8 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
+using ProjectManagement.App.DTO.Workspace;
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace ProjectManagement.App.Controllers
 {
@@ -79,6 +81,39 @@ namespace ProjectManagement.App.Controllers
             }
 
             return RedirectToAction("Index", "Home");
+        }
+
+        public async Task<IActionResult> GetGithubRepo()
+        {
+            var token = HttpContext.Session.GetString("GitHubToken");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return Json(new { result = new List<object>(), count = 0 });
+            }
+
+            using var client = new HttpClient();
+            // WAJIB untuk GitHub API
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Project It Apps/1.0"); // <- Tambahkan ini
+
+            var response = await client.GetAsync("https://api.github.com/user/repos");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return Json(new { result = new List<object>(), count = 0 });
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            var repos = JsonSerializer.Deserialize<List<GitHubRepoDto>>(json, options);
+
+            return Json(new { result = repos, count = repos.Count });
         }
 
     }

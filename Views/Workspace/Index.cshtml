@@ -17,30 +17,34 @@
     <hr />
 
     <div class="board-content">
+        <div id="workspaceContent">
+            <ejs-grid id="TaskGrid"
+                      allowPaging="true"
+                      allowSorting="true"
+                      toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
+                      editSettings="@(new Syncfusion.EJ2.Grids.GridEditSettings { AllowAdding = true, AllowEditing = true, AllowDeleting = true, Mode = Syncfusion.EJ2.Grids.EditMode.Normal })"
+                      height="400">
+                <e-data-manager url='@Url.Action("GetTasks", "Workspace", new { projectId = Model.ProjectID })'
+                                insertUrl='@Url.Action("AddTask", "Workspace")?projectId=@Model.ProjectID'
+                                updateUrl='@Url.Action("UpdateTask", "Workspace")?projectId=@Model.ProjectID'
+                                removeUrl='@Url.Action("DeleteTask", "Workspace")?projectId=@Model.ProjectID'
+                                adaptor="UrlAdaptor"></e-data-manager>
+                <e-grid-columns>
+                    <e-grid-column field="Id" headerText="ID" isPrimaryKey="true" visible="false"></e-grid-column>
+                    <e-grid-column field="Title" headerText="Title" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
+                    <e-grid-column field="Description" headerText="Description" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
+                    <e-grid-column field="Status"
+                                   headerText="Status"
+                                   width="150"
+                                   edit="@(new { create = "StatusCreate", read = "StatusRead", write = "StatusWrite", destroy = "StatusDestroy" })"
+                                   editType="dropdownedit">
+                    </e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
 
-        <ejs-grid id="TaskGrid"
-                  allowPaging="true"
-                  allowSorting="true"
-                  toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
-                  editSettings="@(new Syncfusion.EJ2.Grids.GridEditSettings { AllowAdding = true, AllowEditing = true, AllowDeleting = true, Mode = Syncfusion.EJ2.Grids.EditMode.Normal })"
-                  height="400">
-            <e-data-manager url='@Url.Action("GetTasks", "Workspace", new { projectId = Model.ProjectID })'
-                            insertUrl='@Url.Action("AddTask", "Workspace")?projectId=@Model.ProjectID'
-                            updateUrl='@Url.Action("UpdateTask", "Workspace")?projectId=@Model.ProjectID'
-                            removeUrl='@Url.Action("DeleteTask", "Workspace")?projectId=@Model.ProjectID'
-                            adaptor="UrlAdaptor"></e-data-manager>
-            <e-grid-columns>
-                <e-grid-column field="Id" headerText="ID" isPrimaryKey="true" visible="false"></e-grid-column>
-                <e-grid-column field="Title" headerText="Title" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
-                <e-grid-column field="Description" headerText="Description" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
-                <e-grid-column field="Status"
-                               headerText="Status"
-                               width="150"
-                               edit="@(new { create = "StatusCreate", read = "StatusRead", write = "StatusWrite", destroy = "StatusDestroy" })"
-                               editType="dropdownedit">
-                </e-grid-column>
-            </e-grid-columns>
-        </ejs-grid>
+            <ejs-button id="connectRepoButton" isPrimary="true" content="Connect to Repo" onclick="showGithubDialog()"></ejs-button>
+        </div>
+
 
         <div id="kanbanView" style="display:none;">
             <partial name="_KanbanView" model="@Model"></partial>
@@ -48,8 +52,10 @@
 
 
     </div>
+</div>
 
-   
+<div id="githubTarget">
+    <partial name="_GithubDialog"></partial>
 </div>
 
 <script>
@@ -98,6 +104,18 @@
         if (args.requestType === 'delete') {
             args.url = '@Url.Action("DeleteTask", "Workspace")?projectId=@Model.ProjectID';
         }
+    }
+
+    function showGithubDialog(){
+        var dialog = document.getElementById("githubDialog").ej2_instances[0];
+        var grid = document.getElementById("Github").ej2_instances[0];
+
+        dialog.show();
+
+        //     // Refresh ulang data grid saat dialog muncul
+        // if (grid) {
+        //     grid.refresh(); // Ini akan memanggil ulang GetGithubRepo
+        // }
     }
 </script>
 
