@@ -1,5 +1,5 @@
 ﻿<ejs-dialog id="githubDialog" header="Github Repo List"
-            width="50%" visible="false" showCloseIcon="true" isModal="true"
+            width="75%" visible="false" showCloseIcon="true" isModal="true"
             target="#githubTarget">
     <e-content-template>
         <div class="content-dialog">
@@ -7,6 +7,7 @@
                       allowPaging="true"
                       allowSorting="true"
                       allowFiltering="true"
+                      commandClick="onCommandClick"
                       height="400">
                 <e-data-manager url='@Url.Action("GetGithubRepo", "GithubAuth")'
                                 adaptor="UrlAdaptor"></e-data-manager>
@@ -16,6 +17,14 @@
                                    template="#urlTemplate">
                     </e-grid-column>
                     <e-grid-column field="Description" headerText="Description" width="250"></e-grid-column>
+                    <e-grid-column headerText="Actions"
+                                   width="120"
+                                   textAlign="Center"
+                                   commands="@(new List<object>
+                                    {
+                                        new { type = "Connect", buttonOption= new { content = "Connect", cssClass = "e-primary" }}
+                                    })">
+                    </e-grid-column>
                 </e-grid-columns>
             </ejs-grid>
         </div>
@@ -24,4 +33,16 @@
 
 <script id="urlTemplate" type="text/x-template">
     <a href="${Html_Url}">${Html_Url}</a>
+</script>
+
+<script>
+    function onCommandClick(args)
+    {
+        var type = args.commandColumn.type;
+
+        if(type == "Connect")
+        {
+            console.log("Connect")
+        }
+    }
 </script>
