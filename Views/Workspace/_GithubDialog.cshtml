@@ -1,4 +1,4 @@
-﻿<ejs-dialog id="githubDialog" header="Create new Project"
+﻿<ejs-dialog id="githubDialog" header="Github Repo List"
             width="50%" visible="false" showCloseIcon="true" isModal="true"
             target="#githubTarget">
     <e-content-template>
@@ -12,7 +12,7 @@
                 <e-grid-columns>
                     <e-grid-column field="name" headerText="Name" width="200"></e-grid-column>
                     <e-grid-column field="html_url" headerText="URL" width="300"
-                                   template="<a href='${html_url}' target='_blank'>${html_url}</a>">
+                                   template="#urlTemplate">
                     </e-grid-column>
                     <e-grid-column field="description" headerText="Description" width="250"></e-grid-column>
                 </e-grid-columns>
@@ -20,3 +20,7 @@
         </div>
     </e-content-template>
 </ejs-dialog>
+
+<script id="urlTemplate" type="text/x-template">
+    <a href="${html_url}">${html_url}</a>
+</script>

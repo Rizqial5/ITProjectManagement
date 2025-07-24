@@ -1,8 +1,10 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO.Workspace;
+using Syncfusion.EJ2.Base;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ProjectManagement.App.Controllers
 {
@@ -83,7 +85,7 @@ namespace ProjectManagement.App.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public async Task<IActionResult> GetGithubRepo()
+        public async Task<IActionResult> GetGithubRepo([FromBody] DataManagerRequest DataManagerRequest)
         {
             var token = HttpContext.Session.GetString("GitHubToken");
 
@@ -113,7 +115,10 @@ namespace ProjectManagement.App.Controllers
 
             var repos = JsonSerializer.Deserialize<List<GitHubRepoDto>>(json, options);
 
-            return Json(new { result = repos, count = repos.Count });
+            DataOperations dataOperations = new();
+            var result = dataOperations.Execute(repos, DataManagerRequest);
+
+            return Json(new { result = result, count = repos.Count() });
         }
 
     }
