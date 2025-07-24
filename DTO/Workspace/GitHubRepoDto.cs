@@ -4,10 +4,13 @@ namespace ProjectManagement.App.DTO.Workspace
 {
     public class GitHubRepoDto
     {
+        [JsonPropertyName("Name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("html_url")]
+        [JsonPropertyName("Html_Url")]
         public string Html_Url { get; set; }
+
+        [JsonPropertyName("Description")]
         public string Description { get; set; }
     }
 }
