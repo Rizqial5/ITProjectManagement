@@ -3,38 +3,15 @@
             target="#githubTarget">
     <e-content-template>
         <div class="content-dialog">
-            <ejs-grid id="Github"
-                      allowPaging="true"
-                      allowSorting="true"
-                      allowFiltering="true"
-                      commandClick="onCommandClick"
-                      height="400">
-                <e-data-manager url='@Url.Action("ShowGithubRepo", "GithubAuth")'
-                                adaptor="UrlAdaptor"></e-data-manager>
-                <e-grid-columns>
-                    <e-grid-column field="Name" headerText="Name" width="200"></e-grid-column>
-                    <e-grid-column field="Html_Url" headerText="URL" width="300"
-                                   template="#urlTemplate">
-                    </e-grid-column>
-                    <e-grid-column field="Description" headerText="Description" width="250"></e-grid-column>
-                    <e-grid-column headerText="Actions"
-                                   width="120"
-                                   textAlign="Center"
-                                   commands="@(new List<object>
-                                    {
-                                        new { type = "Connect", buttonOption= new { content = "Connect", cssClass = "e-primary" }}
-                                    })">
-                    </e-grid-column>
-                </e-grid-columns>
-            </ejs-grid>
+            <div id="githubGridContainer"></div>
         </div>
     </e-content-template>
 </ejs-dialog>
 
-<script id="urlTemplate" type="text/x-template">
+@* <script id="urlTemplate" type="text/x-template">
     <a href="${Html_Url}">${Html_Url}</a>
 </script>
-
+ *@
 <script>
     function onCommandClick(args)
     {

@@ -107,14 +107,55 @@
     }
 
     function showGithubDialog(){
-        var dialog = document.getElementById("githubDialog").ej2_instances[0];
-        var grid = document.getElementById("Github").ej2_instances[0];
+        // Tampilkan dialog
+        var dialogObj = document.getElementById("githubDialog").ej2_instances[0];
 
-        dialog.show();
+        if (!dialogObj.beforeOpenSet) {
+            dialogObj.beforeOpen = function () {
+                var githubGrid = document.getElementById("Github")?.ej2_instances?.[0];
+                if (githubGrid) githubGrid.refresh();
+            };
+            dialogObj.beforeOpenSet = true; // custom flag agar tidak set dua kali
+        }
 
-            // Refresh ulang data grid saat dialog muncul
-        if (grid) {
-            grid.refresh(); // Ini akan memanggil ulang GetGithubRepo
+        dialogObj.show();
+
+        var checkGrid = $("#Github").length > 0;
+
+        // Cek apakah grid sudah pernah dibuat
+        if (!checkGrid) {
+
+            $("#githubGridContainer").empty()
+
+            var grid = new ej.grids.Grid({
+                id: "Github",
+                dataSource: new ej.data.DataManager({
+                    url: '@Url.Action("ShowGithubRepo", "GithubAuth")',
+                    adaptor: new ej.data.UrlAdaptor()
+                }),
+                allowPaging: true,
+                allowSorting: true,
+                allowFiltering: true,
+                height: 400,
+                commandClick: onCommandClick,
+                columns: [
+                    { field: "Name", headerText: "Name", width: 200 },
+                    {
+                        field: "Html_Url", headerText: "URL", width: 300,
+                        template: '<a href="${Html_Url}">${Html_Url}</a>'
+                    },
+                    { field: "Description", headerText: "Description", width: 250 },
+                    {
+                        headerText: "Actions", width: 120, textAlign: "Center",
+                        commands: [{
+                            type: "Connect",
+                            buttonOption: { content: "Connect", cssClass: "e-primary" }
+                        }]
+                    }
+                ]
+            });
+
+            grid.appendTo("#githubGridContainer");
         }
     }
 </script>
