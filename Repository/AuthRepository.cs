@@ -45,5 +45,7 @@ namespace ProjectManagement.App.Repository
 
             return await _userManager.CreateAsync(user, model.Password);
         }
+
+        
     }
 }

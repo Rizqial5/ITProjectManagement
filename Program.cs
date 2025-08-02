@@ -4,6 +4,8 @@ using ProjectManagement.App.Data;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
+using ProjectManagement.App.Services;
+using ProjectManagement.App.Services.Interfaces;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +33,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<IGithubService, GithubService>();
 
 builder.Services.AddSession();
 

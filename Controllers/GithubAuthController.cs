@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO.Workspace;
+using ProjectManagement.App.Services.Interfaces;
 using Syncfusion.EJ2.Base;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -11,10 +12,12 @@ namespace ProjectManagement.App.Controllers
     public class GithubAuthController : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly IGithubService _githubService;
 
-        public GithubAuthController(IConfiguration configuration)
+        public GithubAuthController(IConfiguration configuration, IGithubService githubService)
         {
             _configuration = configuration;
+            _githubService = githubService;
         }
 
         [HttpGet("github/connect")]
@@ -23,7 +26,7 @@ namespace ProjectManagement.App.Controllers
             var clientId = _configuration["Github:ClientId"];
             var callbackUrl = _configuration["Github:CallbackUrl"];
 
-            var githubOauthUrl = $"https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={callbackUrl}&scope=repo user";
+            var githubOauthUrl = _githubService.GetCallBackGithub(clientId, callbackUrl);
 
             return Redirect(githubOauthUrl);
         }
@@ -34,36 +37,13 @@ namespace ProjectManagement.App.Controllers
             var clientId = _configuration["Github:ClientId"];
             var clientSecret = _configuration["Github:ClientSecret"];
 
-            using var httpClient = new HttpClient();
-
-            var requestBody = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string?, string?>("client_id",clientId),
-                new KeyValuePair<string?, string?>("client_secret",clientSecret),
-                new KeyValuePair<string?, string?>("code",code),
-            });
-
-            var response = await httpClient.PostAsync("https://github.com/login/oauth/access_token", requestBody);
-
-            var content = await response.Content.ReadAsStringAsync();
-
-            var parsed = System.Web.HttpUtility.ParseQueryString(content);
-            var accessToken = parsed["access_token"];
-
-            if(string.IsNullOrWhiteSpace(accessToken))
-            {
-                return BadRequest("Failed to obtain access token from github");
-            }
-
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("ProjectManagementApp", "1.0"));
-
-            var userInfoResponse = await httpClient.GetAsync("https://api.github.com/user");
-            var userInfo = await userInfoResponse.Content.ReadAsStringAsync();
+           
+            var response = await _githubService.ConnectGithub(clientId, clientSecret,code);
 
             // Simpan accessToken ke session/database atau tampilkan info user
-            TempData["GitHubUser"] = userInfo;
-            TempData["AccessToken"] = accessToken;
+
+            TempData["GitHubUser"] = response.UserInfo;
+            TempData["AccessToken"] = response.AccessToken;
 
 
             return RedirectToAction("GitHubConnected");
@@ -85,7 +65,7 @@ namespace ProjectManagement.App.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public async Task<IActionResult> GetGithubRepo([FromBody] DataManagerRequest DataManagerRequest)
+        public async Task<IActionResult> ShowGithubRepo([FromBody] DataManagerRequest DataManagerRequest)
         {
             var token = HttpContext.Session.GetString("GitHubToken");
 
@@ -94,31 +74,19 @@ namespace ProjectManagement.App.Controllers
                 return Json(new { result = new List<object>(), count = 0 });
             }
 
-            using var client = new HttpClient();
-            // WAJIB untuk GitHub API
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Project It Apps/1.0"); // <- Tambahkan ini
+            var response = await _githubService.GetGithubRepo(token);
 
-            var response = await client.GetAsync("https://api.github.com/user/repos");
-
-            if (!response.IsSuccessStatusCode)
+            if(!response.IsSuccess)
             {
                 return Json(new { result = new List<object>(), count = 0 });
             }
 
-            var json = await response.Content.ReadAsStringAsync();
-
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-
-            var repos = JsonSerializer.Deserialize<List<GitHubRepoDto>>(json, options);
 
             DataOperations dataOperations = new();
-            var result = dataOperations.Execute(repos, DataManagerRequest);
 
-            return Json(new { result = result, count = repos.Count() });
+            var result = dataOperations.Execute(response.GitHubRepos, DataManagerRequest);
+
+            return Json(new { result = result, count = response.GitHubRepos.Count() });
         }
 
     }
