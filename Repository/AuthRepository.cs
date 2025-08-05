@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using ProjectManagement.App.Data;
+using ProjectManagement.App.DTO;
+using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
@@ -10,10 +13,18 @@ namespace ProjectManagement.App.Repository
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public AuthRepository(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        private readonly AppDbContext _dbContext;
+
+
+
+
+        public AuthRepository(UserManager<ApplicationUser> userManager, 
+            SignInManager<ApplicationUser> signInManager,
+            AppDbContext dbContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _dbContext = dbContext;
         }
 
         public async Task<ApplicationUser?> LoginAsync(LoginViewModel model)
@@ -46,6 +57,39 @@ namespace ProjectManagement.App.Repository
             return await _userManager.CreateAsync(user, model.Password);
         }
 
-        
+        public async Task<ResponseResultDto<GithubAuth>> SaveGithubCredentials(CreateGithubAuthDto model)
+        {
+            var userGihthub = new ProjectManagement.App.Models.GithubAuth()
+            {
+                GitHubId = model.GitHubId,
+                AccessToken = model.AccessToken,
+                GitHubUsername = model.GitHubUsername,
+                UserId = model.UserId,
+                TokenType = model.TokenType
+            };
+
+            try
+            {
+                await _dbContext.GithubAuths.AddAsync(userGihthub);
+
+                await _dbContext.SaveChangesAsync();
+
+                return new()
+                {
+                    Success = true,
+                    Data = userGihthub,
+                };  
+            }
+            catch (Exception ex) 
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = ex.Message,
+                };
+            }
+            
+
+        }
     }
 }

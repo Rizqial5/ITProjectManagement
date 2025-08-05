@@ -7,7 +7,7 @@
         public string Scope { get; set; }
 
         // sementara
-        public string UserInfo { get; set; }
+        public GitHubUserDto? UserInfo { get; set; }
         public bool IsSuccess {  get; set; }
 
     }

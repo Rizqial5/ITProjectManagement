@@ -1,9 +1,12 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
+using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.DTO.Workspace;
+using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.Services.Interfaces;
 using Syncfusion.EJ2.Base;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text.Json;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -13,11 +16,15 @@ namespace ProjectManagement.App.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly IGithubService _githubService;
+        private readonly IAuthRepository _authRepository;
 
-        public GithubAuthController(IConfiguration configuration, IGithubService githubService)
+        public GithubAuthController(IConfiguration configuration, 
+            IGithubService githubService,
+            IAuthRepository authRepository)
         {
             _configuration = configuration;
             _githubService = githubService;
+            _authRepository = authRepository;
         }
 
         [HttpGet("github/connect")]
@@ -42,8 +49,21 @@ namespace ProjectManagement.App.Controllers
 
             // Simpan accessToken ke session/database atau tampilkan info user
 
-            TempData["GitHubUser"] = response.UserInfo;
-            TempData["AccessToken"] = response.AccessToken;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var model = new CreateGithubAuthDto()
+            {
+                AccessToken = response.AccessToken,
+                GitHubId = response.UserInfo.Id,
+                GitHubUsername = response.UserInfo.Login,
+                UserId = userId
+            };
+
+            var result = await _authRepository.SaveGithubCredentials(model);
+
+
+            TempData["GitHubUser"] = result.Data.GitHubId.ToString();
+            TempData["AccessToken"] = result.Data.AccessToken;
 
 
             return RedirectToAction("GitHubConnected");

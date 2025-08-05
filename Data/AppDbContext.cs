@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Models;
-using static ProjectManagement.App.Models.GithubAuth;
 
 namespace ProjectManagement.App.Data
 {
@@ -12,7 +11,7 @@ namespace ProjectManagement.App.Data
 
         public DbSet<Project> Projects { get; set; }
         public DbSet<TaskItem> TaskItems { get; set; }
-        public DbSet<GitHubAuth> GithubAuths { get; set; }
+        public DbSet<GithubAuth> GithubAuths { get; set; }
 
     }
 }

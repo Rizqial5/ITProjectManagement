@@ -40,11 +40,16 @@ namespace ProjectManagement.App.Services
             var userInfoResponse = await httpClient.GetAsync("https://api.github.com/user");
             var userInfo = await userInfoResponse.Content.ReadAsStringAsync();
 
+            var userDto = JsonSerializer.Deserialize<GitHubUserDto>(userInfo, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
             return new GithubTokenResponseDto()
             {
                 AccessToken = accessToken,
                 IsSuccess = true,
-                UserInfo = userInfo
+                UserInfo = userDto
             };
 
         }
