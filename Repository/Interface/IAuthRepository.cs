@@ -13,5 +13,6 @@ namespace ProjectManagement.App.Repository.Interface
         Task LogoutAsync();
 
         Task<ResponseResultDto<GithubAuth>> SaveGithubCredentials(CreateGithubAuthDto model);
+        Task<ResponseResultDto<GithubAuth>> CheckGithubcredentials(string userId);
     }
 }

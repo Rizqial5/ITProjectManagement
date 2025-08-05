@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Data;
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Github;
@@ -25,6 +26,41 @@ namespace ProjectManagement.App.Repository
             _userManager = userManager;
             _signInManager = signInManager;
             _dbContext = dbContext;
+        }
+
+        public async Task<ResponseResultDto<GithubAuth>> CheckGithubcredentials(string userId)
+        {
+            try
+            {
+                var githubCredentials = await _dbContext.GithubAuths.FirstOrDefaultAsync(i => i.UserId == userId);
+
+                if(githubCredentials == null)
+                {
+                    return new()
+                    {
+                        Success = false,
+                        Message = "User Not Found"
+                    };
+                }
+
+                return new()
+                {
+                    Success = true,
+                    Data = githubCredentials
+                    
+                };
+
+
+            }
+            catch(Exception ex)
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = ex.Message
+
+                };
+            }
         }
 
         public async Task<ApplicationUser?> LoginAsync(LoginViewModel model)

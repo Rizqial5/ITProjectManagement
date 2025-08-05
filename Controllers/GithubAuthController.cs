@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.DTO.Workspace;
+using ProjectManagement.App.Models;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.Services.Interfaces;
 using Syncfusion.EJ2.Base;
@@ -43,6 +44,7 @@ namespace ProjectManagement.App.Controllers
         {
             var clientId = _configuration["Github:ClientId"];
             var clientSecret = _configuration["Github:ClientSecret"];
+            GithubAuth result;
 
            
             var response = await _githubService.ConnectGithub(clientId, clientSecret,code);
@@ -51,19 +53,32 @@ namespace ProjectManagement.App.Controllers
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var model = new CreateGithubAuthDto()
+            var check = await _authRepository.CheckGithubcredentials(userId);
+
+            if(!check.Success)
             {
-                AccessToken = response.AccessToken,
-                GitHubId = response.UserInfo.Id,
-                GitHubUsername = response.UserInfo.Login,
-                UserId = userId
-            };
+                var model = new CreateGithubAuthDto()
+                {
+                    AccessToken = response.AccessToken,
+                    GitHubId = response.UserInfo.Id,
+                    GitHubUsername = response.UserInfo.Login,
+                    UserId = userId
+                };
 
-            var result = await _authRepository.SaveGithubCredentials(model);
+                var responseResult = await _authRepository.SaveGithubCredentials(model);
+
+                result = responseResult.Data;
+            }
+            else
+            {
+                result = check.Data;
+            }
 
 
-            TempData["GitHubUser"] = result.Data.GitHubId.ToString();
-            TempData["AccessToken"] = result.Data.AccessToken;
+
+
+            TempData["GitHubUser"] = result.GitHubId.ToString();
+            TempData["AccessToken"] = result.AccessToken;
 
 
             return RedirectToAction("GitHubConnected");
