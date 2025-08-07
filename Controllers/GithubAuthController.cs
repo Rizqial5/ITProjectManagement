@@ -81,8 +81,6 @@ namespace ProjectManagement.App.Controllers
             }
 
 
-
-
             TempData["GitHubUser"] = result.GitHubId.ToString();
             TempData["AccessToken"] = result.AccessToken;
 

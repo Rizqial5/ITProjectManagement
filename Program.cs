@@ -42,6 +42,8 @@ builder.Services.AddHttpClient("Github", client =>
     client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("ProjectManagementApp", "1.0"));
 });
 
+builder.Services.AddDataProtection();
+
 builder.Services.AddSession();
 
 

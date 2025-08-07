@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Data;
 using ProjectManagement.App.DTO;
@@ -13,6 +14,7 @@ namespace ProjectManagement.App.Repository
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IDataProtector _protector;
 
         private readonly AppDbContext _dbContext;
 
@@ -21,11 +23,12 @@ namespace ProjectManagement.App.Repository
 
         public AuthRepository(UserManager<ApplicationUser> userManager, 
             SignInManager<ApplicationUser> signInManager,
-            AppDbContext dbContext)
+            AppDbContext dbContext, IDataProtectionProvider protector)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _dbContext = dbContext;
+            _protector = protector.CreateProtector("GithubTokenProtector");
         }
 
         public async Task<ResponseResultDto<GithubAuth>> CheckGithubcredentials(string userId)
@@ -42,6 +45,8 @@ namespace ProjectManagement.App.Repository
                         Message = "User Not Found"
                     };
                 }
+
+                githubCredentials.AccessToken = _protector.Unprotect(githubCredentials.AccessToken);
 
                 return new()
                 {
@@ -95,10 +100,12 @@ namespace ProjectManagement.App.Repository
 
         public async Task<ResponseResultDto<GithubAuth>> SaveGithubCredentials(CreateGithubAuthDto model)
         {
-            var userGihthub = new ProjectManagement.App.Models.GithubAuth()
+            var enryptedToken = _protector.Protect(model.AccessToken);
+
+            var userGihthub = new GithubAuth()
             {
                 GitHubId = model.GitHubId,
-                AccessToken = model.AccessToken,
+                AccessToken = enryptedToken,
                 GitHubUsername = model.GitHubUsername,
                 UserId = model.UserId,
                 TokenType = model.TokenType
