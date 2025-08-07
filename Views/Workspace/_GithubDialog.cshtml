@@ -19,7 +19,30 @@
 
         if(type == "Connect")
         {
-            console.log("Connect")
+            var data = args.rowData;
+            var repoData = {
+                RepoId: data.Id,
+                Name: data.Name,
+                Html_Url: data.Html_Url,
+                Description : data.Description
+            }
+            var projectID = @ViewBag.ProjectID
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ConnectToRepo", "Workspace")',
+                data: { projectId: projectId, repo: repoData },
+                success: function (response) {
+                    if (response.Success) {
+                         ejs.notifications.ToastUtility.show(response.Message, 'Success', 3000);
+                    } else {
+                        ejs.notifications.ToastUtility.show(response.Message, 'Error', 3000);
+                    }
+                },
+                error: function () {
+                    ejs.notifications.ToastUtility.show('Error contacting server.', 'Error', 3000);
+                }
+            });
         }
     }
 </script>

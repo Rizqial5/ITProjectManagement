@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Models;
+using System.Reflection.Emit;
 
 namespace ProjectManagement.App.Data
 {
@@ -18,6 +19,10 @@ namespace ProjectManagement.App.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<GithubRepo>()
+                .Property(r => r.RepoId)
+                .ValueGeneratedNever(); // <-
 
             builder.Entity<GithubRepoConnected>()
                 .HasKey(c => new { c.ProjectId, c.UserId, c.RepoId });

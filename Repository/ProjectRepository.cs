@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Data;
+using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Project;
+using ProjectManagement.App.DTO.Workspace;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Repository.Interface;
 
@@ -30,6 +32,59 @@ namespace ProjectManagement.App.Repository
 
             await _dbContext.Projects.AddAsync(newProject);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<ResponseResultDto> ConnectRepo(string userId, int projectId, GitHubRepoDto githubRepoDto)
+        {
+
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                // first create repo data
+
+                var newRepo = new GithubRepo
+                {
+                    RepoId = githubRepoDto.RepoId,
+                    RepoName = githubRepoDto.Name,
+                    RepoUrl = githubRepoDto.Html_Url,
+                };
+
+                await _dbContext.GithubRepos.AddAsync(newRepo);
+                await _dbContext.SaveChangesAsync();
+
+                var newGithubConnected = new GithubRepoConnected
+                {
+                    ProjectId = projectId,
+                    RepoId = newRepo.RepoId,
+                    UserId = userId
+                };
+
+                await _dbContext.GithubRepoConnecteds.AddAsync(newGithubConnected);
+
+                await _dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return new()
+                {
+                    Success = true,
+                    Message = "Repo succesfully connected"
+                };
+            }
+            catch (Exception ex) 
+            {
+                await transaction.RollbackAsync();
+
+                return new()
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+
+            }
+
+
         }
 
         public async Task<bool> DeleteAsync(int[] id, string userId)

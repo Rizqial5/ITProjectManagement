@@ -14,6 +14,6 @@ namespace ProjectManagement.App.DTO.Workspace
         public string Html_Url { get; set; }
 
         [JsonPropertyName("Description")]
-        public string Description { get; set; }
+        public string? Description { get; set; } = string.Empty;
     }
 }

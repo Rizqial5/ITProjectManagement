@@ -1,4 +1,6 @@
-﻿using ProjectManagement.App.DTO.Project;
+﻿using ProjectManagement.App.DTO;
+using ProjectManagement.App.DTO.Project;
+using ProjectManagement.App.DTO.Workspace;
 using ProjectManagement.App.Models;
 
 namespace ProjectManagement.App.Repository.Interface
@@ -13,6 +15,8 @@ namespace ProjectManagement.App.Repository.Interface
         Task<bool> UpdateAsync(Project project);
 
         Task<bool> DeleteAsync(int[] id, string userId);
+
+        Task<ResponseResultDto> ConnectRepo(string userId, int projectId, GitHubRepoDto githubRepoDto);
 
     }
 }

@@ -11,9 +11,9 @@ namespace ProjectManagement.App.Models
 
         public string UserId { get; set; } = default!;
 
-        public required ApplicationUser User { get; set; }
-        public required Project Project { get; set; }
-        public required GithubRepo Repo { get; set; }
+        public ApplicationUser? User { get; set; }
+        public Project? Project { get; set; }
+        public GithubRepo? Repo { get; set; }
 
     }
 }

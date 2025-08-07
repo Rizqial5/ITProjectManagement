@@ -1,22 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ProjectManagement.App.DTO;
+using ProjectManagement.App.DTO.Workspace;
 using ProjectManagement.App.Helpers;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Models.Enum;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel.Workspace;
 using Syncfusion.EJ2.Base;
+using System;
 using System.Dynamic;
+using System.Security.Claims;
 
 namespace ProjectManagement.App.Controllers
 {
     public class WorkspaceController : Controller
     {
         private readonly ITaskRepository _taskRepository;
+        private readonly IProjectRepository _projectRepository;
 
-        public WorkspaceController(ITaskRepository taskRepository)
+        public WorkspaceController(ITaskRepository taskRepository, IProjectRepository projectRepository)
         {
             _taskRepository = taskRepository;
+            _projectRepository = projectRepository;
         }
 
 
@@ -72,6 +78,38 @@ namespace ProjectManagement.App.Controllers
         {
             var url = Url.Action("Index", "Workspace", new { ProjectID = projectId, ProjectName = projectName });
             return Json(new { success = true, url });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConnectToRepo(int projectId, GitHubRepoDto repo)
+        {
+            repo.Description = repo.Description ?? string.Empty;
+
+            if(!ModelState.IsValid)
+            {
+                return Json(new ResponseResultDto
+                {
+                    Success = false,
+                    Message = "Invalid request data"
+                });
+            }
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if(string.IsNullOrWhiteSpace(userId))
+            {
+                return Json(new ResponseResultDto
+                {
+                    Success = false,
+                    Message = "User not authenticated"
+                });
+            }
+
+            var response = await _projectRepository.ConnectRepo(userId, projectId, repo);
+
+            return Json(response);
+
+
         }
 
         public IActionResult Index(WorkspaceViewModel workspaceViewModel)
