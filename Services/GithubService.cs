@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.DTO.Workspace;
+using ProjectManagement.App.Models;
 using ProjectManagement.App.Services.Interfaces;
 using Syncfusion.EJ2.Base;
 using System.Net.Http.Headers;
@@ -11,6 +12,13 @@ namespace ProjectManagement.App.Services
 {
     public class GithubService : IGithubService
     {
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public GithubService(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+        }
+
         public async Task<GithubTokenResponseDto> ConnectGithub(string clientId, string clientSecret, string code)
         {
             using var httpClient = new HttpClient();
@@ -93,6 +101,17 @@ namespace ProjectManagement.App.Services
                 GitHubRepos = repos
             };
 
+        }
+
+        public async Task<bool> IsGithubTokenValid(GithubAuth existingCreds)
+        {
+            var client = _httpClientFactory.CreateClient("Github");
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", existingCreds.AccessToken);
+
+            var response = await client.GetAsync("user");
+
+            return response.IsSuccessStatusCode;
         }
     }
 }

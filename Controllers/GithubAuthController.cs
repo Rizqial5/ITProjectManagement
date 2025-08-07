@@ -1,5 +1,7 @@
-﻿using Azure.Core;
+﻿using Azure;
+using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
+using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.DTO.Workspace;
 using ProjectManagement.App.Models;
@@ -47,7 +49,7 @@ namespace ProjectManagement.App.Controllers
             GithubAuth result;
 
            
-            var response = await _githubService.ConnectGithub(clientId, clientSecret,code);
+            var tokenResponse = await _githubService.ConnectGithub(clientId, clientSecret,code);
 
             // Simpan accessToken ke session/database atau tampilkan info user
 
@@ -55,23 +57,27 @@ namespace ProjectManagement.App.Controllers
 
             var check = await _authRepository.CheckGithubcredentials(userId);
 
+            //check apakah token masih valid
+
             if(!check.Success)
             {
-                var model = new CreateGithubAuthDto()
-                {
-                    AccessToken = response.AccessToken,
-                    GitHubId = response.UserInfo.Id,
-                    GitHubUsername = response.UserInfo.Login,
-                    UserId = userId
-                };
-
-                var responseResult = await _authRepository.SaveGithubCredentials(model);
-
-                result = responseResult.Data;
+                result = await SaveGithubCredentials(tokenResponse, userId);
             }
             else
             {
-                result = check.Data;
+                var isValid = await _githubService.IsGithubTokenValid(check.Data);
+
+                if (isValid) 
+                {
+                    result = check.Data;
+                }
+                else
+                {
+                    result = await SaveGithubCredentials(tokenResponse, userId);
+                }
+                
+
+                    
             }
 
 
@@ -82,6 +88,22 @@ namespace ProjectManagement.App.Controllers
 
 
             return RedirectToAction("GitHubConnected");
+        }
+
+        private async Task<GithubAuth> SaveGithubCredentials(GithubTokenResponseDto tokenResponse, string userId)
+        {
+            var model = new CreateGithubAuthDto()
+            {
+                AccessToken = tokenResponse.AccessToken,
+                GitHubId = tokenResponse.UserInfo.Id,
+                GitHubUsername = tokenResponse.UserInfo.Login,
+                UserId = userId
+            };
+
+            var responseResult = await _authRepository.SaveGithubCredentials(model);
+
+            var result = responseResult.Data;
+            return result;
         }
 
         [HttpGet("github/connected")]
