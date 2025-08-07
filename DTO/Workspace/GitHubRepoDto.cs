@@ -4,6 +4,9 @@ namespace ProjectManagement.App.DTO.Workspace
 {
     public class GitHubRepoDto
     {
+        [JsonPropertyName("Id")]
+        public int RepoId { get; set; }
+
         [JsonPropertyName("Name")]
         public string Name { get; set; }
 

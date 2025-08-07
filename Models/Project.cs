@@ -24,5 +24,8 @@ namespace ProjectManagement.App.Models
 
         [ForeignKey("AssignedUserId")]
         public ApplicationUser? ProjectOwner { get; set; }
+
+        public ICollection<GithubRepoConnected> GithubRepoConnecteds { get; set; }
+
     }
 }
