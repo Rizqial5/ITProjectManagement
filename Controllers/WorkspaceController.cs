@@ -5,7 +5,10 @@ using ProjectManagement.App.DTO.Workspace;
 using ProjectManagement.App.Helpers;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Models.Enum;
+using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
+using ProjectManagement.App.Services;
+using ProjectManagement.App.Services.Interfaces;
 using ProjectManagement.App.ViewModel.Workspace;
 using Syncfusion.EJ2.Base;
 using System;
@@ -18,11 +21,15 @@ namespace ProjectManagement.App.Controllers
     {
         private readonly ITaskRepository _taskRepository;
         private readonly IProjectRepository _projectRepository;
+        private readonly IAuthRepository _authRepository;
+        private readonly IGithubService _githubService;
 
-        public WorkspaceController(ITaskRepository taskRepository, IProjectRepository projectRepository)
+        public WorkspaceController(ITaskRepository taskRepository, IProjectRepository projectRepository, IAuthRepository authRepository, IGithubService githubService)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
+            _authRepository = authRepository;
+            _githubService = githubService;
         }
 
 
@@ -155,6 +162,23 @@ namespace ProjectManagement.App.Controllers
                 Success = response.Success,
                 
             });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCommitRepo(string repoName)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+
+       
+
+            var response = await _authRepository.GetGithubCreds(userId!);
+            var githubData = response.Data;
+
+            var creds = await _githubService.CheckLatestCommitAsync(githubData.AccessToken, githubData.GitHubUsername, repoName, "");
+
+            return Json(new { Succes = true });
+
         }
 
 

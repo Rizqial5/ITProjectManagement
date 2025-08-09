@@ -40,7 +40,10 @@ namespace ProjectManagement.App.Services
             }
 
             var json = await resp.Content.ReadAsStringAsync();
-            var commits = JsonSerializer.Deserialize<List<GithubCommitDto>>(json);
+            var commits = JsonSerializer.Deserialize<List<GithubCommitDto>>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
 
             if (commits == null || commits.Count == 0)
             {
