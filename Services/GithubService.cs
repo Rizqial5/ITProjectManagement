@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json.Linq;
+using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.DTO.Workspace;
 using ProjectManagement.App.Models;
@@ -17,6 +18,57 @@ namespace ProjectManagement.App.Services
         public GithubService(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
+        }
+
+        public async Task<ResponseResultDto<CommitCheckResultDto>> CheckLatestCommitAsync(string accessToken, string owner, string repoName, string? lastKnownSha)
+        {
+            var client = _httpClientFactory.CreateClient("Github");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("ProjectManagementApp/1.0");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            // ambil commit terbaru (per_page=1 cepat)
+            var url = $"repos/{owner}/{repoName}/commits?per_page=1";
+            var resp = await client.GetAsync(url);
+
+            if (!resp.IsSuccessStatusCode)
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = $"GitHub API error: {resp.StatusCode} {resp.ReasonPhrase}"
+                };
+            }
+
+            var json = await resp.Content.ReadAsStringAsync();
+            var commits = JsonSerializer.Deserialize<List<GithubCommitDto>>(json);
+
+            if (commits == null || commits.Count == 0)
+            {
+                return new() 
+                { 
+                    Success = true,  
+                    Message = "No commits." 
+                };
+            }
+
+            var latest = commits[0];
+            var hasNew = string.IsNullOrEmpty(lastKnownSha) ? false : latest.Sha != lastKnownSha;
+
+            // NOTE: if you want to treat "no last sha" as new, set hasNew = string.IsNullOrEmpty(lastKnownSha) ? true : (latest.Sha != lastKnownSha);
+
+            var data = new CommitCheckResultDto
+            {
+                HasNewCommit = hasNew,
+                LatestCommitSha = latest.Sha,
+                //LatestCommitMessage = latest.Commit.Message,
+                CommitUrl = latest.HtmlUrl
+            };
+
+            return new()
+            {
+                Success = true,
+                Data = data
+            };
         }
 
         public async Task<GithubTokenResponseDto> ConnectGithub(string clientId, string clientSecret, string code)

@@ -31,7 +31,7 @@ namespace ProjectManagement.App.Repository
             _protector = protector.CreateProtector("GithubTokenProtector");
         }
 
-        public async Task<ResponseResultDto<GithubAuth>> CheckGithubcredentials(string userId)
+        public async Task<ResponseResultDto<GithubAuth>> GetGithubCreds(string userId)
         {
             try
             {

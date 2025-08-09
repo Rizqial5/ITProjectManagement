@@ -55,7 +55,7 @@ namespace ProjectManagement.App.Controllers
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var check = await _authRepository.CheckGithubcredentials(userId);
+            var check = await _authRepository.GetGithubCreds(userId);
 
             //check apakah token masih valid
 
