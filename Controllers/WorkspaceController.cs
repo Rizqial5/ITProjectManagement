@@ -46,6 +46,7 @@ namespace ProjectManagement.App.Controllers
             if(checkConnectProject.Success)
             {
                 ViewBag.RepoName = checkConnectProject.Data.Name;
+                ViewBag.RepoUrl = checkConnectProject.Data.Html_Url;
             }
 
             ViewBag.IsConnected = checkConnectProject.Success;
@@ -138,6 +139,16 @@ namespace ProjectManagement.App.Controllers
             return Json(response);
 
 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DisconnectRepo(int projectId)
+        {
+            return Json(new
+            {
+                Success = true,
+                Message = "Project has successfully disconnect"
+            });
         }
 
 

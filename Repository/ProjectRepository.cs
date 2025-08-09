@@ -51,7 +51,9 @@ namespace ProjectManagement.App.Repository
 
             var repoDto = new GitHubRepoDto
             {
-                Name = existData.Repo.RepoName
+                Name = existData.Repo.RepoName,
+                Html_Url = existData.Repo.RepoUrl
+               
             };
 
             return new()

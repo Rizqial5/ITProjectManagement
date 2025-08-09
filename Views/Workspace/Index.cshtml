@@ -22,12 +22,40 @@
             <div class="mb-3">
                 @if (ViewBag.IsConnected)
                 {
-                    <a>Connected to Github Repo : @ViewBag.RepoName</a>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 500; font-size: 1rem; color: #333;">
+                            Connected to <strong>Github Repo</strong>:
+                            <a href="@ViewBag.RepoUrl"
+                               target="_blank"
+                               style="color: #007acc; text-decoration: none;">
+                                @ViewBag.RepoName
+                            </a>
+                        </span>
+
+                        <ejs-button id="disconnectRepoButton"
+                                    class="mt-3"
+                                    isPrimary="true"
+                                    content="Disconnect Repo"
+                                    onclick="disconnectRepo()">
+                        </ejs-button>
+                    </div>
                 }
                 else
                 {
-                    <ejs-button id="connectRepoButton" class="mt-3" isPrimary="true" content="Connect to Repo" onclick="showGithubDialog()"></ejs-button>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 500; font-size: 1rem; color: #999;">
+                            Not connected to any <strong>Github Repo</strong>
+                        </span>
+
+                        <ejs-button id="connectRepoButton"
+                                    class="mt-3"
+                                    isPrimary="true"
+                                    content="Connect to Repo"
+                                    onclick="showGithubDialog()">
+                        </ejs-button>
+                    </div>
                 }
+
             </div>
 
 
@@ -118,6 +146,32 @@
             args.url = '@Url.Action("DeleteTask", "Workspace")?projectId=@Model.ProjectID';
         }
     }
+
+    function disconnectRepo(){
+        var projectId = @ViewBag.ProjectID
+
+        $.ajax({
+            url: '@Url.Action("DisconnectRepo", "Workspace")',
+            type: "POST",
+            data: {
+                projectId: projectId ,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() // kalau pakai antiforgery
+            },
+            success: function (response) {
+                if (response.Success) {
+
+                    ejs.notifications.ToastUtility.show(response.Message, 'Success', 3000);
+                } else {
+                    ejs.notifications.ToastUtility.show(response.Message, 'Error', 3000);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+                alert("Terjadi kesalahan saat memutuskan repo.");
+            }
+        });
+    };
+    
 
     function showGithubDialog(){
         // Tampilkan dialog
