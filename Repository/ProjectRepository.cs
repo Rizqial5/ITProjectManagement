@@ -133,6 +133,64 @@ namespace ProjectManagement.App.Repository
             return false;
         }
 
+        public async Task<ResponseResultDto> DisconnectRepo(string userId, int projectId)
+        {
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                var existData = await _dbContext.GithubRepoConnecteds
+                .Include(c => c.Repo)
+                .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.UserId == userId);
+
+                if (existData == null)
+                {
+                    return new()
+                    {
+                        Success = false,
+                        Message = "No connected repository found for this project."
+                    };
+                }
+
+                var repo = existData.Repo;
+
+                // deleete composite first
+                _dbContext.GithubRepoConnecteds.Remove(existData);
+
+
+                // delete table repo
+
+                if(repo != null)
+                {
+
+                    _dbContext.GithubRepos.Remove(repo);
+                }
+
+
+                await _dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return new()
+                {
+                    Success = true,
+                    Message = "Project has succesfully disconencted"
+                };
+            }
+            catch (Exception ex) 
+            {
+                await transaction.RollbackAsync();
+
+                return new()
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+
+
+        }
+
         public async Task<IEnumerable<Project>> GetAllAsync(string userId)
         {
             return await _dbContext.Projects

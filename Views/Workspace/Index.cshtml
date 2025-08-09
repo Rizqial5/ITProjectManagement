@@ -160,14 +160,16 @@
             success: function (response) {
                 if (response.Success) {
 
-                    ejs.notifications.ToastUtility.show(response.Message, 'Success', 3000);
+                    window.location.reload();
+                    
                 } else {
                     ejs.notifications.ToastUtility.show(response.Message, 'Error', 3000);
                 }
             },
             error: function (xhr, status, error) {
+
                 console.error(error);
-                alert("Terjadi kesalahan saat memutuskan repo.");
+                ejs.notifications.ToastUtility.show("Error when disconnect repo", 'Error', 3000);
             }
         });
     };

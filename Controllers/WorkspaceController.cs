@@ -144,10 +144,16 @@ namespace ProjectManagement.App.Controllers
         [HttpPost]
         public async Task<IActionResult> DisconnectRepo(int projectId)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var response = await _projectRepository.DisconnectRepo(userId, projectId);
+
+            TempData["RepoNotification"] = "Project has successfully disconnected";
+
             return Json(new
             {
-                Success = true,
-                Message = "Project has successfully disconnect"
+                Success = response.Success,
+                
             });
         }
 

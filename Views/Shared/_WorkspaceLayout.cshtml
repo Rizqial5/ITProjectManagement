@@ -133,6 +133,16 @@
     <ejs-scripts></ejs-scripts>
     @await RenderSectionAsync("Scripts", required: false)
 
+    @* Notifikasi dari TempData *@
+    @if (TempData["RepoNotification"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                ejs.notifications.ToastUtility.show('@TempData["RepoNotification"]', 'Success', 3000);
+            });
+        </script>
+    }
+
     <script>
         var projectId = '@ViewBag.ProjectID';
         var projectName = '@ViewBag.ProjectName';
