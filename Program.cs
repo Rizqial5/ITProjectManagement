@@ -31,10 +31,15 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//Repositories
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<IGithubRepository, GithubRepository>();
+
+//Services
 builder.Services.AddScoped<IGithubService, GithubService>();
+
 
 builder.Services.AddHttpClient("Github", client =>
 {

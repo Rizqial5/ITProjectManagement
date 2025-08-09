@@ -17,6 +17,7 @@ namespace ProjectManagement.App.Repository.Interface
         Task<bool> DeleteAsync(int[] id, string userId);
 
         Task<ResponseResultDto> ConnectRepo(string userId, int projectId, GitHubRepoDto githubRepoDto);
+        Task<ResponseResultDto<GitHubRepoDto>> CheckConnectedProject(int projectId);
 
     }
 }

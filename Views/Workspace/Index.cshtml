@@ -18,6 +18,19 @@
 
     <div class="board-content">
         <div id="workspaceContent">
+
+            <div class="mb-3">
+                @if (ViewBag.IsConnected)
+                {
+                    <a>Connected to Github Repo : @ViewBag.RepoName</a>
+                }
+                else
+                {
+                    <ejs-button id="connectRepoButton" class="mt-3" isPrimary="true" content="Connect to Repo" onclick="showGithubDialog()"></ejs-button>
+                }
+            </div>
+
+
             <ejs-grid id="TaskGrid"
                       allowPaging="true"
                       allowSorting="true"
@@ -42,7 +55,7 @@
                 </e-grid-columns>
             </ejs-grid>
 
-            <ejs-button id="connectRepoButton" class="mt-3" isPrimary="true" content="Connect to Repo" onclick="showGithubDialog()"></ejs-button>
+
         </div>
 
 

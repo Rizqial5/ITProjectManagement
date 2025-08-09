@@ -34,6 +34,35 @@ namespace ProjectManagement.App.Repository
             await _dbContext.SaveChangesAsync();
         }
 
+ 
+        public async Task<ResponseResultDto<GitHubRepoDto>> CheckConnectedProject(int projectId)
+        {
+            var existData = await _dbContext.GithubRepoConnecteds
+                .Include(c=> c.Repo).FirstOrDefaultAsync(i => i.ProjectId == projectId);
+
+            if (existData == null)
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = "Data is Not exists"
+                };
+            }
+
+            var repoDto = new GitHubRepoDto
+            {
+                Name = existData.Repo.RepoName
+            };
+
+            return new()
+            {
+                Success = true,
+                Data = repoDto
+                
+            };
+        }
+        
+
         public async Task<ResponseResultDto> ConnectRepo(string userId, int projectId, GitHubRepoDto githubRepoDto)
         {
 
