@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using ProjectManagement.App.Models.Enum;
 
-namespace ProjectManagement.App.Models
+namespace ProjectManagement.App.Models.Workspace
 {
     public class TaskItem
     {

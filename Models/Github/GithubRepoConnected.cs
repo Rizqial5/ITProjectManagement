@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProjectManagement.App.Models.Workspace;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ProjectManagement.App.Models
+namespace ProjectManagement.App.Models.Github
 {
     public class GithubRepoConnected
     {

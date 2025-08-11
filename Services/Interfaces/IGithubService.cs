@@ -1,7 +1,7 @@
 ﻿using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.DTO.Workspace;
-using ProjectManagement.App.Models;
+using ProjectManagement.App.Models.Github;
 
 namespace ProjectManagement.App.Services.Interfaces
 {

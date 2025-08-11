@@ -2,6 +2,7 @@
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.Models;
+using ProjectManagement.App.Models.Github;
 using ProjectManagement.App.ViewModel;
 
 namespace ProjectManagement.App.Repository.Interface

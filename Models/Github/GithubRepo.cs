@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
-namespace ProjectManagement.App.Models
+namespace ProjectManagement.App.Models.Github
 {
     public class GithubRepo
     {

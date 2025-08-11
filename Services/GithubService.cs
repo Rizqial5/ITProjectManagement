@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.DTO.Workspace;
-using ProjectManagement.App.Models;
+using ProjectManagement.App.Models.Github;
 using ProjectManagement.App.Services.Interfaces;
 using Syncfusion.EJ2.Base;
 using System.Net.Http.Headers;

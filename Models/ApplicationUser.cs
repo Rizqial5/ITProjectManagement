@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using ProjectManagement.App.Models.Workspace;
 
 namespace ProjectManagement.App.Models
 {

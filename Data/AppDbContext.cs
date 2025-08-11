@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Models;
+using ProjectManagement.App.Models.Github;
+using ProjectManagement.App.Models.Workspace;
 using System.Reflection.Emit;
 
 namespace ProjectManagement.App.Data

@@ -5,6 +5,7 @@ using ProjectManagement.App.Data;
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.Models;
+using ProjectManagement.App.Models.Github;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
 

@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ProjectManagement.App.Models.Github;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace ProjectManagement.App.Models
+namespace ProjectManagement.App.Models.Workspace
 {
     public class Project
     {

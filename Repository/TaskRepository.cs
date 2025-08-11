@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Data;
-using ProjectManagement.App.Models;
+using ProjectManagement.App.Models.Workspace;
 using ProjectManagement.App.Repository.Interface;
 
 namespace ProjectManagement.App.Repository

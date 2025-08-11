@@ -1,7 +1,7 @@
 ﻿using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Project;
 using ProjectManagement.App.DTO.Workspace;
-using ProjectManagement.App.Models;
+using ProjectManagement.App.Models.Workspace;
 
 namespace ProjectManagement.App.Repository.Interface
 {
