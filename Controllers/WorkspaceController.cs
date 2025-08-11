@@ -50,10 +50,15 @@ namespace ProjectManagement.App.Controllers
             // Check if Project has Connected with repo
             var checkConnectProject = await _projectRepository.CheckConnectedProject(workspaceViewModel.ProjectID);
 
+            
             if(checkConnectProject.Success)
             {
                 ViewBag.RepoName = checkConnectProject.Data.Name;
                 ViewBag.RepoUrl = checkConnectProject.Data.Html_Url;
+
+                //Check and sync latest commit
+                
+
             }
 
             ViewBag.IsConnected = checkConnectProject.Success;
