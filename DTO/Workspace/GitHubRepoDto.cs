@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using ProjectManagement.App.Models.Github;
+using System.Text.Json.Serialization;
 
 namespace ProjectManagement.App.DTO.Workspace
 {
@@ -15,5 +16,9 @@ namespace ProjectManagement.App.DTO.Workspace
 
         [JsonPropertyName("Description")]
         public string? Description { get; set; } = string.Empty;
+        public string RepoOwner { get; set; }
+        public DateTimeOffset? LastKnownCommitDate { get; set; }
+
+        public ICollection<GithubCommit> Commits { get; set; } 
     }
 }

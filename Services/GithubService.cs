@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json.Linq;
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.DTO.Workspace;
 using ProjectManagement.App.Models.Github;
 using ProjectManagement.App.Services.Interfaces;
+using ProjectManagement.App.Services.Response;
 using Syncfusion.EJ2.Base;
 using System.Net.Http.Headers;
 using System.Text.Json;
@@ -167,6 +169,61 @@ namespace ProjectManagement.App.Services
             var response = await client.GetAsync("user");
 
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task<ResponseResultDto<List<GithubCommitApiResponse>>> GetCommitsAsync(GitHubRepoDto repoData , string accessToken)
+        {
+            var client = _httpClientFactory.CreateClient("Github");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("ProjectManagementApp/1.0");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            string url = string.Empty;
+            if(repoData.LastKnownCommitDate == null)
+            {
+                url = $"repos/{repoData.RepoOwner}/{repoData.Name}/commits?per_page=50";
+            }
+            else
+            {
+                var since = repoData.LastKnownCommitDate.Value.UtcDateTime.ToString("o");
+                url = $"repos/{repoData.RepoOwner}/{repoData.Name}/commits?per_page=50";
+            }
+
+            //call api
+            var response = await client.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = response.ReasonPhrase ?? ""
+                };
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            var commitData = JsonSerializer.Deserialize<List<GithubCommitApiResponse>>(json, options) ?? Enumerable.Empty<GithubCommitApiResponse>();
+
+            if (!commitData.Any()) 
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = "Data is already up to date"
+                };
+            }
+
+            return new()
+            {
+                Success = true,
+                Data = commitData.ToList()
+            };
+
         }
     }
 }

@@ -23,13 +23,15 @@ namespace ProjectManagement.App.Controllers
         private readonly IProjectRepository _projectRepository;
         private readonly IAuthRepository _authRepository;
         private readonly IGithubService _githubService;
+        private readonly IGithubRepository _githubRepository;
 
-        public WorkspaceController(ITaskRepository taskRepository, IProjectRepository projectRepository, IAuthRepository authRepository, IGithubService githubService)
+        public WorkspaceController(ITaskRepository taskRepository, IProjectRepository projectRepository, IAuthRepository authRepository, IGithubService githubService, IGithubRepository githubRepository)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
             _authRepository = authRepository;
             _githubService = githubService;
+            _githubRepository = githubRepository;
         }
 
 
@@ -57,7 +59,7 @@ namespace ProjectManagement.App.Controllers
                 ViewBag.RepoUrl = checkConnectProject.Data.Html_Url;
 
                 //Check and sync latest commit
-                
+                await SynchronizeCommitAsync(checkConnectProject);
 
             }
 
@@ -65,6 +67,42 @@ namespace ProjectManagement.App.Controllers
 
             // workspaceViewModel.ProjectID dan ProjectName akan terisi dari query string
             return View(workspaceViewModel);
+        }
+
+        private async Task SynchronizeCommitAsync(ResponseResultDto<GitHubRepoDto> checkConnectProject)
+        {
+            var repoData = checkConnectProject.Data;
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var response = await _authRepository.GetGithubCreds(userId!);
+            var githubData = response.Data;
+
+            repoData.RepoOwner = githubData.GitHubUsername;
+
+            var commitResponse = await _githubService.GetCommitsAsync(repoData, githubData.AccessToken);
+
+            if (commitResponse.Success)
+            {
+                var commitData = commitResponse.Data;
+
+                var existingShas = repoData.Commits.Select(c => c.Sha).ToHashSet();
+
+                var newCommits = commitData.Where(c => !existingShas.Contains(c.Sha)).ToList();
+
+                if (newCommits.Any())
+                {
+                    var repoResponse = await _githubRepository.InsertGithubCommit(newCommits, repoData.RepoId);
+
+                    if(repoResponse.Success)
+                    {
+                        TempData["RepoNotification"] = "Commits has been succesfully Synchronize";
+                    }
+                    else
+                    {
+                        TempData["RepoNotification"] = "Failed to synchronize commit data";
+                    }
+                }
+            }
         }
 
         public IActionResult KanbanView(WorkspaceViewModel workspaceViewModel)

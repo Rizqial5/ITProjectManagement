@@ -118,6 +118,8 @@ namespace ProjectManagement.App.Repository
 
                 await _dbContext.SaveChangesAsync();
 
+                userGihthub.AccessToken = _protector.Unprotect(userGihthub.AccessToken);
+
                 return new()
                 {
                     Success = true,

@@ -2,6 +2,7 @@
 using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.DTO.Workspace;
 using ProjectManagement.App.Models.Github;
+using ProjectManagement.App.Services.Response;
 
 namespace ProjectManagement.App.Services.Interfaces
 {
@@ -11,6 +12,7 @@ namespace ProjectManagement.App.Services.Interfaces
         public Task<GithubTokenResponseDto> ConnectGithub(string clientId , string clientSecret, string code);
         public Task<bool> IsGithubTokenValid(GithubAuth existingCreds);
         public Task<GithubRepoResponseDto> GetGithubRepo(string accessToken);
+        public Task<ResponseResultDto<List<GithubCommitApiResponse>>> GetCommitsAsync(GitHubRepoDto repoData, string accessToken);
 
         public Task<ResponseResultDto<CommitCheckResultDto>> CheckLatestCommitAsync(
             string accessToken,
