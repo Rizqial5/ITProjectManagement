@@ -20,7 +20,9 @@ namespace ProjectManagement.App.Models.Github
         public GithubRepo Repo { get; set; } = null!;
 
         // Fk Task
-        public int TaskId { get; set; }
+        public int? TaskId { get; set; }
         public TaskItem Task { get; set; } = null!;
+
+        public bool isAssignedTask => TaskId.HasValue;
     }
 }
