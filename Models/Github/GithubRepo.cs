@@ -10,5 +10,8 @@ namespace ProjectManagement.App.Models.Github
         public int RepoId { get; set; }
         public required string RepoName { get; set; }
         public required string RepoUrl { get; set; }
+
+        // Commit
+        public ICollection<GithubCommit> Commits { get; set; } = new List<GithubCommit>();
     }
 }

@@ -17,10 +17,15 @@ namespace ProjectManagement.App.Data
         public DbSet<GithubAuth> GithubAuths { get; set; }
         public DbSet<GithubRepo> GithubRepos { get; set; }
         public DbSet<GithubRepoConnected> GithubRepoConnecteds { get; set; }
+        public DbSet<GithubCommit> GithubCommits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            //GithubCommits
+            builder.Entity<GithubCommit>().HasIndex(c=> c.Sha).IsUnique();
+
 
             builder.Entity<GithubRepo>()
                 .Property(r => r.RepoId)
