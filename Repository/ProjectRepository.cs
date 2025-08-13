@@ -40,7 +40,7 @@ namespace ProjectManagement.App.Repository
         {
             var existData = await _dbContext.GithubRepoConnecteds
                 .Include(c=> c.Repo).ThenInclude(r=> r.Commits)
-                .FirstOrDefaultAsync(i => i.ProjectId == projectId);
+                .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.Connected);
 
             if (existData == null)
             {
@@ -92,7 +92,10 @@ namespace ProjectManagement.App.Repository
                 {
                     ProjectId = projectId,
                     RepoId = newRepo.RepoId,
-                    UserId = userId
+                    UserId = userId,
+                    Connected = true,
+                    ConnectedDate = DateTime.UtcNow,
+                    
                 };
 
                 await _dbContext.GithubRepoConnecteds.AddAsync(newGithubConnected);
@@ -139,13 +142,12 @@ namespace ProjectManagement.App.Repository
 
         public async Task<ResponseResultDto> DisconnectRepo(string userId, int projectId)
         {
-            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+          
 
             try
             {
                 var existData = await _dbContext.GithubRepoConnecteds
-                .Include(c => c.Repo)
-                .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.UserId == userId);
+                .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.UserId == userId && i.Connected);
 
                 if (existData == null)
                 {
@@ -156,26 +158,16 @@ namespace ProjectManagement.App.Repository
                     };
                 }
 
-                var repo = existData.Repo;
-
-                // deleete composite first
-                _dbContext.GithubRepoConnecteds.Remove(existData);
-
-                //delete all connected repo
 
 
-                // dont delete data repo but give the flag isDisconnectedTrue
-
-                //if(repo != null)
-                //{
-
-                //    _dbContext.GithubRepos.Remove(repo);
-                //}
+                // chnage flag in composite 
+                existData.Connected = false;
+                existData.DisconnectedDate = DateTime.UtcNow;
 
 
-                //await _dbContext.SaveChangesAsync();
 
-                await transaction.CommitAsync();
+                await _dbContext.SaveChangesAsync();
+
 
                 return new()
                 {
@@ -185,7 +177,6 @@ namespace ProjectManagement.App.Repository
             }
             catch (Exception ex) 
             {
-                await transaction.RollbackAsync();
 
                 return new()
                 {

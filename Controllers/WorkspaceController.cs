@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ProjectManagement.App.DTO;
+using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.DTO.Workspace;
 using ProjectManagement.App.Helpers;
 using ProjectManagement.App.Models.Enum;
@@ -160,7 +161,7 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ConnectToRepo(int projectId, GitHubRepoDto repo)
+        public async Task<IActionResult> ConnectToRepo(int projectId, ConnectGithubDto repo)
         {
             repo.Description = repo.Description ?? string.Empty;
 
@@ -184,7 +185,15 @@ namespace ProjectManagement.App.Controllers
                 });
             }
 
-            var response = await _projectRepository.ConnectRepo(userId, projectId, repo);
+            var insertRepo = new GitHubRepoDto
+            {
+                RepoId = repo.RepoId,
+                Name = repo.Name,
+                Html_Url = repo.Html_Url,
+                RepoOwner = repo.Name // sementara
+            };
+
+            var response = await _projectRepository.ConnectRepo(userId, projectId, insertRepo);
 
             return Json(response);
 
