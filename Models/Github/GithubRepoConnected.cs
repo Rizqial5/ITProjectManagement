@@ -12,6 +12,10 @@ namespace ProjectManagement.App.Models.Github
 
         public string UserId { get; set; } = default!;
 
+        public bool Connected { get; set; }
+        public DateTime ConnectedDate { get; set; }
+        public DateTime? DisconnectedDate { get; set; }
+
         public ApplicationUser? User { get; set; }
         public Project? Project { get; set; }
         public GithubRepo? Repo { get; set; }

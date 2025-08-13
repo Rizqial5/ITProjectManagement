@@ -161,17 +161,19 @@ namespace ProjectManagement.App.Repository
                 // deleete composite first
                 _dbContext.GithubRepoConnecteds.Remove(existData);
 
-
-                // delete table repo
-
-                if(repo != null)
-                {
-
-                    _dbContext.GithubRepos.Remove(repo);
-                }
+                //delete all connected repo
 
 
-                await _dbContext.SaveChangesAsync();
+                // dont delete data repo but give the flag isDisconnectedTrue
+
+                //if(repo != null)
+                //{
+
+                //    _dbContext.GithubRepos.Remove(repo);
+                //}
+
+
+                //await _dbContext.SaveChangesAsync();
 
                 await transaction.CommitAsync();
 
