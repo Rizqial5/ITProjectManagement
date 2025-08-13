@@ -101,41 +101,62 @@ namespace ProjectManagement.App.Repository
 
         public async Task<ResponseResultDto<GithubAuth>> SaveGithubCredentials(CreateGithubAuthDto model)
         {
-            var enryptedToken = _protector.Protect(model.AccessToken);
 
-            var userGihthub = new GithubAuth()
-            {
-                GitHubId = model.GitHubId,
-                AccessToken = enryptedToken,
-                GitHubUsername = model.GitHubUsername,
-                UserId = model.UserId,
-                TokenType = model.TokenType
-            };
-
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
+                await DeleteGithubCreds(model);
+
+                var enryptedToken = _protector.Protect(model.AccessToken);
+
+                var userGihthub = new GithubAuth()
+                {
+                    GitHubId = model.GitHubId,
+                    AccessToken = enryptedToken,
+                    GitHubUsername = model.GitHubUsername,
+                    UserId = model.UserId,
+                    TokenType = model.TokenType
+                };
+
+            
                 await _dbContext.GithubAuths.AddAsync(userGihthub);
 
                 await _dbContext.SaveChangesAsync();
 
                 userGihthub.AccessToken = _protector.Unprotect(userGihthub.AccessToken);
 
+                await transaction.CommitAsync();
+
                 return new()
                 {
                     Success = true,
                     Data = userGihthub,
-                };  
+                };
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
+                await transaction.RollbackAsync();
+
                 return new()
                 {
                     Success = false,
                     Message = ex.Message,
                 };
             }
-            
 
+
+        }
+
+        private async Task DeleteGithubCreds(CreateGithubAuthDto model)
+        {
+            var existingCreds = await _dbContext.GithubAuths.FirstOrDefaultAsync(i => i.UserId == model.UserId);
+
+            if (existingCreds != null)
+            {
+                _dbContext.GithubAuths.Remove(existingCreds);
+
+                await _dbContext.SaveChangesAsync();
+            }
         }
     }
 }
