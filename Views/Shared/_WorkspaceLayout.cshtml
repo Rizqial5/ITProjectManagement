@@ -143,6 +143,15 @@
         </script>
     }
 
+    @if (TempData["RepoNotificationFailed"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                ejs.notifications.ToastUtility.show('@TempData["RepoNotificationFailed"]', 'Error', 3000);
+            });
+        </script>
+    }
+
     <script>
         var projectId = '@ViewBag.ProjectID';
         var projectName = '@ViewBag.ProjectName';

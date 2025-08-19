@@ -1,13 +1,39 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProjectManagement.App.Repository.Interface;
+using ProjectManagement.App.ViewModel;
 
 namespace ProjectManagement.App.Controllers
 {
     public class TaskController : Controller
     {
-        [HttpGet("/project/{projectId}/task/{taskId}")]
-        public IActionResult Details(int projectId, int taskId)
+        private readonly ITaskRepository _taskRepository;
+
+        public TaskController(ITaskRepository taskRepository)
         {
-            return View();
+            _taskRepository = taskRepository;
+        }
+
+        [HttpGet("/project/{projectId}/task/{taskId}")]
+        public async Task<IActionResult> Details(int projectId, int taskId)
+        {
+            var taskItem = await _taskRepository.GetAsync(projectId, taskId);
+
+            if(taskItem == null)
+            {
+                TempData["RepoNotificationFailed"] = "Task is not exists";
+                return RedirectToAction("Index", "Workspace", new { ProjectID = projectId });
+            }
+
+            var taskModel = new TaskViewModel()
+            {
+                TaskId = taskItem.Id,
+                Title = taskItem.Title,
+                Description = taskItem.Description,
+                Status = taskItem.Status.ToString()
+
+            };
+
+            return View(taskModel);
         }
     }
 }
