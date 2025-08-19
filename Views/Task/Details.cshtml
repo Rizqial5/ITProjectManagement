@@ -1,0 +1,77 @@
+﻿@using Syncfusion.EJ2.Navigations
+@{
+    Layout = "_WorkspaceLayout";
+
+    var overviewHeader = new TabHeader() { Text = "Overview" };
+    var commitHeader = new TabHeader() { Text = "Commit" };
+
+    var overviewContent = "#overview-section";
+    var commitContent = "#commit-section";
+}
+
+
+<style>
+    .task-detail-page {
+        padding: 20px;
+    }
+
+    .task-header {
+        margin-bottom: 20px;
+    }
+
+        .task-header h2 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+    .badge {
+        margin-left: 10px;
+        padding: 5px 10px;
+        border-radius: 6px;
+    }
+
+    .comments-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .comments-section li {
+        border-bottom: 1px solid #eee;
+        padding: 8px 0;
+    }
+</style>
+
+<div class="task-detail-page">
+
+    <!-- Header -->
+    <div class="task-header">
+        <h2>Task @* #@Model.TaskCode - @Model.Title *@</h2>
+@*         <span class="badge badge-info">@Model.Status</span>
+        <span class="due-date">Due: @Model.DueDate.ToString("dd MMM yyyy")</span> *@
+    </div>
+
+    <ejs-tab id="taskTabs">
+        <e-tab-tabitems>
+            <!-- Overview -->
+            <e-tab-tabitem header="overviewHeader" content="@overviewContent"></e-tab-tabitem>
+            <e-tab-tabitem header="commitHeader" content="@commitContent"></e-tab-tabitem>
+
+        </e-tab-tabitems>
+    </ejs-tab>
+    <!-- Tabbed View -->
+</div>
+
+<div id="overview-section" style="display: none">
+    <p><b>Description:</b> "Test"</p>
+    <p><b>Assignee:</b> "Test"</p>
+    <p><b>Priority:</b> "Test"</p>
+</div>
+
+<div id="commit-section" style="display: none">
+    <p><b>Commit:</b> "Test"</p>
+    <p><b>Assignee:</b> "Test"</p>
+    <p><b>Priority:</b> "Test"</p>
+</div>
+
+
+

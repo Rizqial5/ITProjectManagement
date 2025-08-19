@@ -71,6 +71,7 @@
             <ejs-grid id="TaskGrid"
                       allowPaging="true"
                       allowSorting="true"
+                      commandClick="onCommandClick"
                       toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
                       editSettings="@(new Syncfusion.EJ2.Grids.GridEditSettings { AllowAdding = true, AllowEditing = true, AllowDeleting = true, Mode = Syncfusion.EJ2.Grids.EditMode.Normal })"
                       height="400">
@@ -88,6 +89,15 @@
                                    width="150"
                                    edit="@(new { create = "StatusCreate", read = "StatusRead", write = "StatusWrite", destroy = "StatusDestroy" })"
                                    editType="dropdownedit">
+                    </e-grid-column>
+
+                    <e-grid-column headerText="Actions"
+                                   width="120"
+                                   textAlign="Center"
+                                   commands="@(new List<object>
+                                    {
+                                        new { type = "None", buttonOption= new { content = "Details", cssClass = "e-primary" }}
+                                    })">
                     </e-grid-column>
                 </e-grid-columns>
             </ejs-grid>
@@ -260,6 +270,18 @@
             });
 
             grid.appendTo("#githubGridContainer");
+        }
+    }
+
+    function onCommandClick(args) {
+        if (args.commandColumn && args.commandColumn.buttonOption.content === "Details") {
+            var rowData = args.rowData;
+            var taskId = rowData.Id;
+            var projectId = rowData.ProjectId;
+
+            // Redirect menggunakan Url.Action
+            window.location.href = `/project/${projectId}/task/${taskId}`;
+
         }
     }
 </script>
