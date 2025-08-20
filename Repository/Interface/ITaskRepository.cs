@@ -12,5 +12,6 @@ namespace ProjectManagement.App.Repository.Interface
         Task<bool> DeleteAsync(int projectId, int taskId);
 
         Task<IEnumerable<CommitDto>> GetAllCommitAsync(int projectId);
+        Task<IEnumerable<CommitDto>> GetAllIntegratedCommitAsync(int projectId);
     }
 }

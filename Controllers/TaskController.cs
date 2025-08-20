@@ -46,7 +46,7 @@ namespace ProjectManagement.App.Controllers
         [HttpPost]
         public async Task<IActionResult> GetCommitRepo([FromBody] DataManagerRequest DataManagerRequest, int projectId)
         {
-            var commitData = await _taskRepository.GetAllCommitAsync(projectId);
+            var commitData = await _taskRepository.GetAllIntegratedCommitAsync(projectId);
 
             DataOperations dataOperations = new();
             var result = dataOperations.Execute(commitData, DataManagerRequest);
