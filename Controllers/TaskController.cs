@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
+using System.Security.Claims;
 
 namespace ProjectManagement.App.Controllers
 {
@@ -37,5 +39,24 @@ namespace ProjectManagement.App.Controllers
 
             return View(taskModel);
         }
+
+
+        //[HttpGet]
+        //public async Task<IActionResult> GetCommitRepo(string repoName)
+        //{
+        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+
+
+
+        //    var response = await _authRepository.GetGithubCreds(userId!);
+        //    var githubData = response.Data;
+
+        //    var creds = await _githubService.CheckLatestCommitAsync(githubData.AccessToken, githubData.GitHubUsername, repoName, "");
+
+        //    return Json(new { Succes = true });
+
+        //}
+
     }
 }

@@ -215,27 +215,6 @@ namespace ProjectManagement.App.Controllers
                 
             });
         }
-
-        [HttpGet]
-        public async Task<IActionResult> GetCommitRepo(string repoName)
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-
-       
-
-            var response = await _authRepository.GetGithubCreds(userId!);
-            var githubData = response.Data;
-
-            var creds = await _githubService.CheckLatestCommitAsync(githubData.AccessToken, githubData.GitHubUsername, repoName, "");
-
-            return Json(new { Succes = true });
-
-        }
-
-
-
-
     }
 }
 
