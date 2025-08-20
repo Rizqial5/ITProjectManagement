@@ -58,6 +58,16 @@
     }
 </style>
 
+<div class="mb-3">
+    <ejs-breadcrumb id="breadcrumb" separatorTemplate=">" cssClass="e-breadcrumb">
+        <e-breadcrumb-items>
+            <e-breadcrumb-item text="Projects" url="@Url.Action("Index", "Home")"></e-breadcrumb-item>
+            <e-breadcrumb-item text="@Model.ProjectName" url="@Url.Action("Index", "Workspace", new { ProjectID = Model.ProjectId, ProjectName = Model.ProjectName })"></e-breadcrumb-item>
+            <e-breadcrumb-item text="Task #@Model.TaskId" url="@Url.Action("Details", "Task", new { projectId = Model.ProjectId, taskId = Model.TaskId })"></e-breadcrumb-item>
+        </e-breadcrumb-items>
+    </ejs-breadcrumb>
+</div>
+
 
 <div class="task-detail-page">
     <!-- Header -->
@@ -85,30 +95,12 @@
 
 <!-- Overview Section -->
 <div id="overview-section" class="section-page ms-2" style="display: none">
-    <div class="card shadow-sm mb-3">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">Overview</h5>
-        </div>
-        <div class="card-body">
-            <p><b>Description:</b> @Model.Description</p>
-            <p><b>Assignee:</b> "Test"</p>
-            <p><b>Priority:</b> "Test"</p>
-        </div>
-    </div>
+    <partial name='_OverviewSection' model='Model' />
 </div>
 
 <!-- Commit Section -->
 <div id="commit-section" class="section-page ms-2" style="display: none">
-    <div class="card shadow-sm mb-3">
-        <div class="card-header bg-light">
-            <h5 class="mb-0">Commit</h5>
-        </div>
-        <div class="card-body">
-            <p><b>Commit:</b> "Test"</p>
-            <p><b>Assignee:</b> "Test"</p>
-            <p><b>Priority:</b> "Test"</p>
-        </div>
-    </div>
+    <partial name='_CommitSection' model='Model' />
 </div>
 
 

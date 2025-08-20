@@ -28,6 +28,8 @@ namespace ProjectManagement.App.Controllers
             {
                 TaskId = taskItem.Id,
                 Title = taskItem.Title,
+                ProjectName = taskItem.Project.Name,
+                ProjectId = taskItem.Project.Id,
                 Description = taskItem.Description,
                 Status = taskItem.Status.ToString()
 

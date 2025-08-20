@@ -152,7 +152,7 @@
 
     function onTaskActionBegin(args) {
         if (args.requestType === 'save' || args.requestType === 'delete') {
-            args.data.ProjectId = @Model.ProjectID;
+            args.data.ProjectId = @Model.ProjectID
         }
         if (args.requestType === 'save') {
             if (args.action === 'add') {

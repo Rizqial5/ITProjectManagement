@@ -23,7 +23,7 @@ namespace ProjectManagement.App.Repository
 
         public async Task<TaskItem?> GetAsync(int projectId, int taskId)
         {
-            return await _dbContext.TaskItems
+            return await _dbContext.TaskItems.Include(i=> i.Project)
                 .FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == taskId);
         }
 
