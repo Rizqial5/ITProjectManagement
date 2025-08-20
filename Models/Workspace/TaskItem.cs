@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using ProjectManagement.App.Models.Enum;
+using ProjectManagement.App.Models.Github;
 
-namespace ProjectManagement.App.Models
+namespace ProjectManagement.App.Models.Workspace
 {
     public class TaskItem
     {
@@ -26,5 +27,7 @@ namespace ProjectManagement.App.Models
 
         [ForeignKey("AssignedUserId")]
         public ApplicationUser? AssignedUser { get; set; }
+
+        public ICollection<GithubCommit> Commits { get; set; } = new List<GithubCommit>();
     }
 }

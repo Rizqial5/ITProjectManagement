@@ -133,13 +133,32 @@
     <ejs-scripts></ejs-scripts>
     @await RenderSectionAsync("Scripts", required: false)
 
+    @* Notifikasi dari TempData *@
+    @if (TempData["RepoNotification"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                ejs.notifications.ToastUtility.show('@TempData["RepoNotification"]', 'Success', 3000);
+            });
+        </script>
+    }
+
+    @if (TempData["RepoNotificationFailed"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                ejs.notifications.ToastUtility.show('@TempData["RepoNotificationFailed"]', 'Error', 3000);
+            });
+        </script>
+    }
+
     <script>
         var projectId = '@ViewBag.ProjectID';
         var projectName = '@ViewBag.ProjectName';
 
         function onDashboardViewClick() {
             $('#kanbanView').hide();
-            $('#TaskGrid').show();
+            $('#workspaceContent').show();
         }
 
 
@@ -147,7 +166,7 @@
 
             loadKanbanScripts();
 
-            $('#TaskGrid').hide();
+            $('#workspaceContent').hide();
             $('#kanbanView').show();
         }
 

@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Data;
+using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Project;
-using ProjectManagement.App.Models;
+using ProjectManagement.App.DTO.Workspace;
+using ProjectManagement.App.Models.Github;
+using ProjectManagement.App.Models.Workspace;
 using ProjectManagement.App.Repository.Interface;
 
 namespace ProjectManagement.App.Repository
@@ -32,6 +35,96 @@ namespace ProjectManagement.App.Repository
             await _dbContext.SaveChangesAsync();
         }
 
+ 
+        public async Task<ResponseResultDto<GitHubRepoDto>> CheckConnectedProject(int projectId)
+        {
+            var existData = await _dbContext.GithubRepoConnecteds
+                .Include(c=> c.Repo).ThenInclude(r=> r.Commits)
+                .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.Connected);
+
+            if (existData == null)
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = "Data is Not exists"
+                };
+            }
+
+            var repoDto = new GitHubRepoDto
+            {
+                Name = existData.Repo.RepoName,
+                RepoId = existData.Repo.RepoId,
+                Html_Url = existData.Repo.RepoUrl,
+                Commits = existData.Repo.Commits
+               
+            };
+
+            return new()
+            {
+                Success = true,
+                Data = repoDto
+                
+            };
+        }
+        
+
+        public async Task<ResponseResultDto> ConnectRepo(string userId, int projectId, GitHubRepoDto githubRepoDto)
+        {
+
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                // first create repo data
+
+                var newRepo = new GithubRepo
+                {
+                    RepoId = githubRepoDto.RepoId,
+                    RepoName = githubRepoDto.Name,
+                    RepoUrl = githubRepoDto.Html_Url,
+                };
+
+                await _dbContext.GithubRepos.AddAsync(newRepo);
+                await _dbContext.SaveChangesAsync();
+
+                var newGithubConnected = new GithubRepoConnected
+                {
+                    ProjectId = projectId,
+                    RepoId = newRepo.RepoId,
+                    UserId = userId,
+                    Connected = true,
+                    ConnectedDate = DateTime.UtcNow,
+                    
+                };
+
+                await _dbContext.GithubRepoConnecteds.AddAsync(newGithubConnected);
+
+                await _dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return new()
+                {
+                    Success = true,
+                    Message = "Repo succesfully connected"
+                };
+            }
+            catch (Exception ex) 
+            {
+                await transaction.RollbackAsync();
+
+                return new()
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+
+            }
+
+
+        }
+
         public async Task<bool> DeleteAsync(int[] id, string userId)
         {
             var projectSelected = await _dbContext.Projects
@@ -45,6 +138,54 @@ namespace ProjectManagement.App.Repository
                 return true;
             }
             return false;
+        }
+
+        public async Task<ResponseResultDto> DisconnectRepo(string userId, int projectId)
+        {
+          
+
+            try
+            {
+                var existData = await _dbContext.GithubRepoConnecteds
+                .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.UserId == userId && i.Connected);
+
+                if (existData == null)
+                {
+                    return new()
+                    {
+                        Success = false,
+                        Message = "No connected repository found for this project."
+                    };
+                }
+
+
+
+                // chnage flag in composite 
+                existData.Connected = false;
+                existData.DisconnectedDate = DateTime.UtcNow;
+
+
+
+                await _dbContext.SaveChangesAsync();
+
+
+                return new()
+                {
+                    Success = true,
+                    Message = "Project has succesfully disconencted"
+                };
+            }
+            catch (Exception ex) 
+            {
+
+                return new()
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
+
+
         }
 
         public async Task<IEnumerable<Project>> GetAllAsync(string userId)

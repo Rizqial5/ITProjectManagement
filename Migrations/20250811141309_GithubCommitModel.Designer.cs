@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectManagement.App.Data;
 
@@ -11,9 +12,11 @@ using ProjectManagement.App.Data;
 namespace ProjectManagement.App.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250811141309_GithubCommitModel")]
+    partial class GithubCommitModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -299,7 +302,7 @@ namespace ProjectManagement.App.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("TaskId")
+                    b.Property<int>("TaskId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -318,9 +321,6 @@ namespace ProjectManagement.App.Migrations
                 {
                     b.Property<int>("RepoId")
                         .HasColumnType("int");
-
-                    b.Property<DateTimeOffset?>("LastKnownCommitDate")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("RepoName")
                         .IsRequired()
@@ -345,15 +345,6 @@ namespace ProjectManagement.App.Migrations
 
                     b.Property<int>("RepoId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Connected")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("ConnectedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DisconnectedDate")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("ProjectId", "UserId", "RepoId");
 
@@ -503,7 +494,9 @@ namespace ProjectManagement.App.Migrations
 
                     b.HasOne("ProjectManagement.App.Models.Workspace.TaskItem", "Task")
                         .WithMany("Commits")
-                        .HasForeignKey("TaskId");
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Repo");
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectManagement.App.Data;
 
@@ -11,9 +12,11 @@ using ProjectManagement.App.Data;
 namespace ProjectManagement.App.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250805150337_GithubAuthModelRevisse")]
+    partial class GithubAuthModelRevisse
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -223,7 +226,7 @@ namespace ProjectManagement.App.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("ProjectManagement.App.Models.Github.GithubAuth", b =>
+            modelBuilder.Entity("ProjectManagement.App.Models.GithubAuth", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -239,9 +242,11 @@ namespace ProjectManagement.App.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("GitHubAvatarUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GitHubEmail")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("GitHubId")
@@ -252,9 +257,11 @@ namespace ProjectManagement.App.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Scope")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TokenType")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -271,100 +278,7 @@ namespace ProjectManagement.App.Migrations
                     b.ToTable("GithubAuths");
                 });
 
-            modelBuilder.Entity("ProjectManagement.App.Models.Github.GithubCommit", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AuthorEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("AuthorName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CommitDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RepoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Sha")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("TaskId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RepoId");
-
-                    b.HasIndex("Sha")
-                        .IsUnique();
-
-                    b.HasIndex("TaskId");
-
-                    b.ToTable("GithubCommits");
-                });
-
-            modelBuilder.Entity("ProjectManagement.App.Models.Github.GithubRepo", b =>
-                {
-                    b.Property<int>("RepoId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset?>("LastKnownCommitDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("RepoName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RepoUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("RepoId");
-
-                    b.ToTable("GithubRepos");
-                });
-
-            modelBuilder.Entity("ProjectManagement.App.Models.Github.GithubRepoConnected", b =>
-                {
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("RepoId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Connected")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("ConnectedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DisconnectedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ProjectId", "UserId", "RepoId");
-
-                    b.HasIndex("RepoId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("GithubRepoConnecteds");
-                });
-
-            modelBuilder.Entity("ProjectManagement.App.Models.Workspace.Project", b =>
+            modelBuilder.Entity("ProjectManagement.App.Models.Project", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -396,7 +310,7 @@ namespace ProjectManagement.App.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("ProjectManagement.App.Models.Workspace.TaskItem", b =>
+            modelBuilder.Entity("ProjectManagement.App.Models.TaskItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -482,7 +396,7 @@ namespace ProjectManagement.App.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ProjectManagement.App.Models.Github.GithubAuth", b =>
+            modelBuilder.Entity("ProjectManagement.App.Models.GithubAuth", b =>
                 {
                     b.HasOne("ProjectManagement.App.Models.ApplicationUser", "User")
                         .WithMany()
@@ -493,51 +407,7 @@ namespace ProjectManagement.App.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ProjectManagement.App.Models.Github.GithubCommit", b =>
-                {
-                    b.HasOne("ProjectManagement.App.Models.Github.GithubRepo", "Repo")
-                        .WithMany("Commits")
-                        .HasForeignKey("RepoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProjectManagement.App.Models.Workspace.TaskItem", "Task")
-                        .WithMany("Commits")
-                        .HasForeignKey("TaskId");
-
-                    b.Navigation("Repo");
-
-                    b.Navigation("Task");
-                });
-
-            modelBuilder.Entity("ProjectManagement.App.Models.Github.GithubRepoConnected", b =>
-                {
-                    b.HasOne("ProjectManagement.App.Models.Workspace.Project", "Project")
-                        .WithMany("GithubRepoConnecteds")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProjectManagement.App.Models.Github.GithubRepo", "Repo")
-                        .WithMany()
-                        .HasForeignKey("RepoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProjectManagement.App.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-
-                    b.Navigation("Repo");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ProjectManagement.App.Models.Workspace.Project", b =>
+            modelBuilder.Entity("ProjectManagement.App.Models.Project", b =>
                 {
                     b.HasOne("ProjectManagement.App.Models.ApplicationUser", "ProjectOwner")
                         .WithMany()
@@ -546,13 +416,13 @@ namespace ProjectManagement.App.Migrations
                     b.Navigation("ProjectOwner");
                 });
 
-            modelBuilder.Entity("ProjectManagement.App.Models.Workspace.TaskItem", b =>
+            modelBuilder.Entity("ProjectManagement.App.Models.TaskItem", b =>
                 {
                     b.HasOne("ProjectManagement.App.Models.ApplicationUser", "AssignedUser")
                         .WithMany("AssignedTasks")
                         .HasForeignKey("AssignedUserId");
 
-                    b.HasOne("ProjectManagement.App.Models.Workspace.Project", "Project")
+                    b.HasOne("ProjectManagement.App.Models.Project", "Project")
                         .WithMany("Tasks")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -568,21 +438,9 @@ namespace ProjectManagement.App.Migrations
                     b.Navigation("AssignedTasks");
                 });
 
-            modelBuilder.Entity("ProjectManagement.App.Models.Github.GithubRepo", b =>
+            modelBuilder.Entity("ProjectManagement.App.Models.Project", b =>
                 {
-                    b.Navigation("Commits");
-                });
-
-            modelBuilder.Entity("ProjectManagement.App.Models.Workspace.Project", b =>
-                {
-                    b.Navigation("GithubRepoConnecteds");
-
                     b.Navigation("Tasks");
-                });
-
-            modelBuilder.Entity("ProjectManagement.App.Models.Workspace.TaskItem", b =>
-                {
-                    b.Navigation("Commits");
                 });
 #pragma warning restore 612, 618
         }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectManagement.App.Data;
 
@@ -11,9 +12,11 @@ using ProjectManagement.App.Data;
 namespace ProjectManagement.App.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250811141528_ModifyGithubCommitColumn")]
+    partial class ModifyGithubCommitColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -319,9 +322,6 @@ namespace ProjectManagement.App.Migrations
                     b.Property<int>("RepoId")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset?>("LastKnownCommitDate")
-                        .HasColumnType("datetimeoffset");
-
                     b.Property<string>("RepoName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -345,15 +345,6 @@ namespace ProjectManagement.App.Migrations
 
                     b.Property<int>("RepoId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Connected")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("ConnectedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DisconnectedDate")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("ProjectId", "UserId", "RepoId");
 

@@ -1,0 +1,107 @@
+﻿@using ProjectManagement.App.ViewModel
+@using Syncfusion.EJ2.Navigations
+@model TaskViewModel;
+@{
+    Layout = "_WorkspaceLayout";
+
+    var overviewContent = "#overview-section";
+    var commitContent = "#commit-section";
+}
+<style>
+
+
+    .container{
+        max-width: 100% !important;
+    }
+
+    .task-detail-page {
+        padding: 20px;
+    }
+
+    .task-header {
+        margin-bottom: 20px;
+    }
+
+    .card-header{
+        background-color: white !important;
+    }
+
+    .task-header h2 {
+        margin: 0;
+        font-size: 27px;
+    }
+
+    .section-page {
+        margin-top : 15px;
+    }
+
+    .badge {
+        --bs-badge-color: #000000;
+        font-size: 13px;
+        padding: 4px;
+    }
+    
+    .card {
+        background-color: #fff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+
+    .comments-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .comments-section li {
+        border-bottom: 1px solid #eee;
+        padding: 8px 0;
+    }
+</style>
+
+<div class="mb-3">
+    <ejs-breadcrumb id="breadcrumb" separatorTemplate=">" cssClass="e-breadcrumb">
+        <e-breadcrumb-items>
+            <e-breadcrumb-item text="Projects" url="@Url.Action("Index", "Home")"></e-breadcrumb-item>
+            <e-breadcrumb-item text="@Model.ProjectName" url="@Url.Action("Index", "Workspace", new { ProjectID = Model.ProjectId, ProjectName = Model.ProjectName })"></e-breadcrumb-item>
+            <e-breadcrumb-item text="Task #@Model.TaskId" url="@Url.Action("Details", "Task", new { projectId = Model.ProjectId, taskId = Model.TaskId })"></e-breadcrumb-item>
+        </e-breadcrumb-items>
+    </ejs-breadcrumb>
+</div>
+
+
+<div class="task-detail-page">
+    <!-- Header -->
+    <div class="mb-3">
+        <div>
+            <h4 class="mb-0">Task #@Model.TaskId - @Model.Title</h4>
+            <small class="text-muted">Status: <span class="badge bg-info">@Model.Status</span></small>
+        </div>
+        @* <span class="due-date text-muted">Due: @Model.DueDate.ToString("dd MMM yyyy")</span> *@
+    </div>
+    <hr />
+    <!-- Body -->
+    <div class="task-body">
+        <ejs-tab id="taskTabs" cssClass="e-fill">
+            <e-tab-tabitems>
+                <!-- Overview -->
+                <e-tab-tabitem header=@(new() {Text = "Overview"}) content="@overviewContent"></e-tab-tabitem>
+                <e-tab-tabitem header=@(new() { Text = "Commit" }) content="@commitContent"></e-tab-tabitem>
+            </e-tab-tabitems>
+        </ejs-tab>
+    </div>
+</div>
+
+
+
+<!-- Overview Section -->
+<div id="overview-section" class="section-page ms-2" style="display: none">
+    <partial name='_OverviewSection' model='Model' />
+</div>
+
+<!-- Commit Section -->
+<div id="commit-section" class="section-page ms-2" style="display: none">
+    <partial name='_CommitSection' model='Model' />
+</div>
+
+
+

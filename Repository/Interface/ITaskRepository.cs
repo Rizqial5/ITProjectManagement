@@ -1,4 +1,4 @@
-using ProjectManagement.App.Models;
+using ProjectManagement.App.Models.Workspace;
 
 namespace ProjectManagement.App.Repository.Interface
 {

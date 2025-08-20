@@ -4,6 +4,9 @@ using ProjectManagement.App.Data;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
+using ProjectManagement.App.Services;
+using ProjectManagement.App.Services.Interfaces;
+using System.Net.Http.Headers;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,9 +31,25 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//Repositories
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<IGithubRepository, GithubRepository>();
+
+//Services
+builder.Services.AddScoped<IGithubService, GithubService>();
+
+
+builder.Services.AddHttpClient("Github", client =>
+{
+    client.BaseAddress = new Uri("https://api.github.com/");
+    client.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("ProjectManagementApp", "1.0"));
+});
+
+builder.Services.AddDataProtection();
+
+builder.Services.AddSession();
 
 
 if (Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), @"node_modules", @"@syncfusion")))
@@ -69,6 +88,8 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapStaticAssets();
 

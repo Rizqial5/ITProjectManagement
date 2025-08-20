@@ -10,6 +10,7 @@
                      .Select(s => new { Value = s.ToString(), Text = s.ToString() })
                      .ToList();
     var statusListJson = System.Text.Json.JsonSerializer.Serialize(statusList);
+    string repoName = ViewBag.RepoName;
 }
 
 <div>
@@ -17,30 +18,93 @@
     <hr />
 
     <div class="board-content">
+        <div id="workspaceContent">
 
-        <ejs-grid id="TaskGrid"
-                  allowPaging="true"
-                  allowSorting="true"
-                  toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
-                  editSettings="@(new Syncfusion.EJ2.Grids.GridEditSettings { AllowAdding = true, AllowEditing = true, AllowDeleting = true, Mode = Syncfusion.EJ2.Grids.EditMode.Normal })"
-                  height="400">
-            <e-data-manager url='@Url.Action("GetTasks", "Workspace", new { projectId = Model.ProjectID })'
-                            insertUrl='@Url.Action("AddTask", "Workspace")?projectId=@Model.ProjectID'
-                            updateUrl='@Url.Action("UpdateTask", "Workspace")?projectId=@Model.ProjectID'
-                            removeUrl='@Url.Action("DeleteTask", "Workspace")?projectId=@Model.ProjectID'
-                            adaptor="UrlAdaptor"></e-data-manager>
-            <e-grid-columns>
-                <e-grid-column field="Id" headerText="ID" isPrimaryKey="true" visible="false"></e-grid-column>
-                <e-grid-column field="Title" headerText="Title" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
-                <e-grid-column field="Description" headerText="Description" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
-                <e-grid-column field="Status"
-                               headerText="Status"
-                               width="150"
-                               edit="@(new { create = "StatusCreate", read = "StatusRead", write = "StatusWrite", destroy = "StatusDestroy" })"
-                               editType="dropdownedit">
-                </e-grid-column>
-            </e-grid-columns>
-        </ejs-grid>
+            <div class="mb-3">
+                @if (ViewBag.IsConnected)
+                {
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 500; font-size: 1rem; color: #333;">
+                            Connected to <strong>Github Repo</strong>:
+                            <a href="@ViewBag.RepoUrl"
+                               target="_blank"
+                               style="color: #007acc; text-decoration: none;">
+                                @ViewBag.RepoName
+                            </a>
+                        </span>
+
+                        <ejs-button id="disconnectRepoButton"
+                                    class="mt-3"
+                                    isPrimary="true"
+                                    content="Disconnect Repo"
+                                    onclick="disconnectRepo()">
+                        </ejs-button>
+                    </div>
+                }
+                else
+                {
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 500; font-size: 1rem; color: #999;">
+                            Not connected to any <strong>Github Repo</strong>
+                        </span>
+
+                        <ejs-button id="connectRepoButton"
+                                    class="mt-3"
+                                    isPrimary="true"
+                                    content="Connect to Repo"
+                                    onclick="showGithubDialog()">
+                        </ejs-button>
+                    </div>
+                }
+
+
+                <ejs-button id="showCommit"
+                            class="mt-3"
+                            isPrimary="true"
+                            content="Show Commit"
+                            onclick="showCommit()">
+                </ejs-button>
+
+            </div>
+
+
+            <ejs-grid id="TaskGrid"
+                      allowPaging="true"
+                      allowSorting="true"
+                      commandClick="onCommandClick"
+                      toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
+                      editSettings="@(new Syncfusion.EJ2.Grids.GridEditSettings { AllowAdding = true, AllowEditing = true, AllowDeleting = true, Mode = Syncfusion.EJ2.Grids.EditMode.Normal })"
+                      height="400">
+                <e-data-manager url='@Url.Action("GetTasks", "Workspace", new { projectId = Model.ProjectID })'
+                                insertUrl='@Url.Action("AddTask", "Workspace")?projectId=@Model.ProjectID'
+                                updateUrl='@Url.Action("UpdateTask", "Workspace")?projectId=@Model.ProjectID'
+                                removeUrl='@Url.Action("DeleteTask", "Workspace")?projectId=@Model.ProjectID'
+                                adaptor="UrlAdaptor"></e-data-manager>
+                <e-grid-columns>
+                    <e-grid-column field="Id" headerText="ID" isPrimaryKey="true" visible="false"></e-grid-column>
+                    <e-grid-column field="Title" headerText="Title" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
+                    <e-grid-column field="Description" headerText="Description" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
+                    <e-grid-column field="Status"
+                                   headerText="Status"
+                                   width="150"
+                                   edit="@(new { create = "StatusCreate", read = "StatusRead", write = "StatusWrite", destroy = "StatusDestroy" })"
+                                   editType="dropdownedit">
+                    </e-grid-column>
+
+                    <e-grid-column headerText="Actions"
+                                   width="120"
+                                   textAlign="Center"
+                                   commands="@(new List<object>
+                                    {
+                                        new { type = "None", buttonOption= new { content = "Details", cssClass = "e-primary" }}
+                                    })">
+                    </e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
+
+
+        </div>
+
 
         <div id="kanbanView" style="display:none;">
             <partial name="_KanbanView" model="@Model"></partial>
@@ -48,8 +112,10 @@
 
 
     </div>
+</div>
 
-   
+<div id="githubTarget">
+    <partial name="_GithubDialog"></partial>
 </div>
 
 <script>
@@ -86,7 +152,7 @@
 
     function onTaskActionBegin(args) {
         if (args.requestType === 'save' || args.requestType === 'delete') {
-            args.data.ProjectId = @Model.ProjectID;
+            args.data.ProjectId = @Model.ProjectID
         }
         if (args.requestType === 'save') {
             if (args.action === 'add') {
@@ -97,6 +163,125 @@
         }
         if (args.requestType === 'delete') {
             args.url = '@Url.Action("DeleteTask", "Workspace")?projectId=@Model.ProjectID';
+        }
+    }
+
+    function showCommit(){
+        var repoName = "@repoName"
+
+        $.ajax({
+            url: '@Url.Action("GetCommitRepo", "Workspace")',
+            type: "GET",
+            data: {
+                repoName: repoName 
+            },
+            success: function (response) {
+                if (response.Success) {
+
+                    window.location.reload();
+
+                } else {
+                    ejs.notifications.ToastUtility.show(response.Message, 'Error', 3000);
+                }
+            },
+            error: function (xhr, status, error) {
+
+                console.error(error);
+                ejs.notifications.ToastUtility.show("Error when disconnect repo", 'Error', 3000);
+            }
+        });
+    };
+
+    function disconnectRepo(){
+        var projectId = @ViewBag.ProjectID
+
+        $.ajax({
+            url: '@Url.Action("DisconnectRepo", "Workspace")',
+            type: "POST",
+            data: {
+                projectId: projectId ,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() // kalau pakai antiforgery
+            },
+            success: function (response) {
+                if (response.Success) {
+
+                    window.location.reload();
+                    
+                } else {
+                    ejs.notifications.ToastUtility.show(response.Message, 'Error', 3000);
+                }
+            },
+            error: function (xhr, status, error) {
+
+                console.error(error);
+                ejs.notifications.ToastUtility.show("Error when disconnect repo", 'Error', 3000);
+            }
+        });
+    };
+    
+
+    function showGithubDialog(){
+        // Tampilkan dialog
+        var dialogObj = document.getElementById("githubDialog").ej2_instances[0];
+
+        if (!dialogObj.beforeOpenSet) {
+            dialogObj.beforeOpen = function () {
+                var githubGrid = document.getElementById("Github")?.ej2_instances?.[0];
+                if (githubGrid) githubGrid.refresh();
+            };
+            dialogObj.beforeOpenSet = true; // custom flag agar tidak set dua kali
+        }
+
+        dialogObj.show();
+
+        var checkGrid = $("#Github").length > 0;
+
+        // Cek apakah grid sudah pernah dibuat
+        if (!checkGrid) {
+
+            $("#githubGridContainer").empty()
+
+            var grid = new ej.grids.Grid({
+                id: "Github",
+                dataSource: new ej.data.DataManager({
+                    url: '@Url.Action("ShowGithubRepo", "GithubAuth")',
+                    adaptor: new ej.data.UrlAdaptor()
+                }),
+                allowPaging: true,
+                allowSorting: true,
+                allowFiltering: true,
+                height: 400,
+                commandClick: onCommandClick,
+                columns: [
+                    { field: "Name", headerText: "Name", width: 200 },
+                    {
+                        field: "Html_Url", headerText: "URL", width: 300,
+                        template: '<a href="${Html_Url}">${Html_Url}</a>'
+                    },
+                    { field: "Description", headerText: "Description", width: 250 },
+                    {
+                        headerText: "Actions", width: 120, textAlign: "Center",
+                        commands: [{
+                            type: "Connect",
+                            buttonOption: { content: "Connect", cssClass: "e-primary" }
+                        }]
+                    }
+                ]
+            });
+
+            grid.appendTo("#githubGridContainer");
+        }
+    }
+
+    function onCommandClick(args) {
+        if (args.commandColumn && args.commandColumn.buttonOption.content === "Details") {
+            var rowData = args.rowData;
+            var taskId = rowData.Id;
+            var projectId = rowData.ProjectId;
+
+            // Redirect menggunakan Url.Action
+            window.location.href = `/project/${projectId}/task/${taskId}`;
+
         }
     }
 </script>

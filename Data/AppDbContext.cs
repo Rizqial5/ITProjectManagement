@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Models;
+using ProjectManagement.App.Models.Github;
+using ProjectManagement.App.Models.Workspace;
+using System.Reflection.Emit;
 
 namespace ProjectManagement.App.Data
 {
@@ -11,6 +14,40 @@ namespace ProjectManagement.App.Data
 
         public DbSet<Project> Projects { get; set; }
         public DbSet<TaskItem> TaskItems { get; set; }
+        public DbSet<GithubAuth> GithubAuths { get; set; }
+        public DbSet<GithubRepo> GithubRepos { get; set; }
+        public DbSet<GithubRepoConnected> GithubRepoConnecteds { get; set; }
+        public DbSet<GithubCommit> GithubCommits { get; set; }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            //GithubCommits
+            builder.Entity<GithubCommit>().HasIndex(c=> c.Sha).IsUnique();
+
+
+            builder.Entity<GithubRepo>()
+                .Property(r => r.RepoId)
+                .ValueGeneratedNever(); // <-
+
+            builder.Entity<GithubRepoConnected>()
+                .HasKey(c => new { c.ProjectId, c.UserId, c.RepoId });
+
+            builder.Entity<GithubRepoConnected>()
+                .HasOne(c => c.User)
+                .WithMany()
+                .HasForeignKey(c => c.UserId);
+
+            builder.Entity<GithubRepoConnected>()
+                .HasOne(c => c.Project)
+                .WithMany(p=> p.GithubRepoConnecteds)
+                .HasForeignKey(c => c.ProjectId);
+
+            builder.Entity<GithubRepoConnected>()
+                .HasOne(c => c.Repo)
+                .WithMany()
+                .HasForeignKey(c => c.RepoId);
+        }
     }
 }
