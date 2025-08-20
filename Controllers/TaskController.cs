@@ -2,7 +2,9 @@
 using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
+using Syncfusion.EJ2.Base;
 using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ProjectManagement.App.Controllers
 {
@@ -41,22 +43,17 @@ namespace ProjectManagement.App.Controllers
         }
 
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetCommitRepo(string repoName)
-        //{
-        //    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        [HttpPost]
+        public async Task<IActionResult> GetCommitRepo([FromBody] DataManagerRequest DataManagerRequest, int projectId)
+        {
+            var commitData = await _taskRepository.GetAllCommitAsync(projectId);
 
+            DataOperations dataOperations = new();
+            var result = dataOperations.Execute(commitData, DataManagerRequest);
 
+            return Json(new { result = result, count = commitData.Count()});
 
-
-        //    var response = await _authRepository.GetGithubCreds(userId!);
-        //    var githubData = response.Data;
-
-        //    var creds = await _githubService.CheckLatestCommitAsync(githubData.AccessToken, githubData.GitHubUsername, repoName, "");
-
-        //    return Json(new { Succes = true });
-
-        //}
+        }
 
     }
 }

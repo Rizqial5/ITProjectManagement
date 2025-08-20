@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Data;
+using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Workspace;
 using ProjectManagement.App.Repository.Interface;
 
@@ -57,6 +58,27 @@ namespace ProjectManagement.App.Repository
             _dbContext.TaskItems.Remove(task);
             await _dbContext.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<IEnumerable<CommitDto>> GetAllCommitAsync(int projectId)
+        {
+            var commmitQuery = await _dbContext.GithubRepoConnecteds
+                .Include(i=> i.Repo)
+                    .ThenInclude(i=> i!.Commits)
+                .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.Connected);
+
+            var commitData = commmitQuery.Repo.Commits.Select(i => new CommitDto
+            {
+                AuthorName = i.AuthorName,
+                CommitDate = i.CommitDate,
+                Message = i.Message,
+                Id = i.Id,
+                IsIntegrated = i.isAssignedTask
+            });
+
+            return commitData;
+
+                
         }
     }
 }

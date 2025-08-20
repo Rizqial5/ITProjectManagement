@@ -1,3 +1,4 @@
+using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Workspace;
 
 namespace ProjectManagement.App.Repository.Interface
@@ -9,5 +10,7 @@ namespace ProjectManagement.App.Repository.Interface
         Task AddAsync(int projectId, TaskItem task);
         Task<bool> UpdateAsync(int projectId, TaskItem task);
         Task<bool> DeleteAsync(int projectId, int taskId);
+
+        Task<IEnumerable<CommitDto>> GetAllCommitAsync(int projectId);
     }
 }
