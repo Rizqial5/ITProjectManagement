@@ -58,47 +58,57 @@
     }
 </style>
 
-<div class="container my-4">
-    <div class="card  rounded-3 border-0">
-        <!-- Header -->
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <div>
-                <h4 class="mb-0">Task #@Model.TaskId - @Model.Title</h4>
-                <small class="text-muted">Status: <span class="badge bg-info">@Model.Status</span></small>
-            </div>
-            @* <span class="due-date text-muted">Due: @Model.DueDate.ToString("dd MMM yyyy")</span> *@
-        </div>
 
-        <!-- Body -->
-        <div class="mt-2">
-            <ejs-splitter id="taskTabs" orientation="Vertical" r style="border: 0px">
-                <e-splitter-panes >
-                    <!-- Overview -->
-                    <e-splitter-pane content="@overviewContent" resizable="false"></e-splitter-pane>
-                    <e-splitter-pane content="@commitContent" resizable="false"></e-splitter-pane>
-                </e-splitter-panes>
-            </ejs-splitter>
-
+<div class="task-detail-page">
+    <!-- Header -->
+    <div class="mb-3">
+        <div>
+            <h4 class="mb-0">Task #@Model.TaskId - @Model.Title</h4>
+            <small class="text-muted">Status: <span class="badge bg-info">@Model.Status</span></small>
         </div>
+        @* <span class="due-date text-muted">Due: @Model.DueDate.ToString("dd MMM yyyy")</span> *@
+    </div>
+    <hr />
+    <!-- Body -->
+    <div class="task-body">
+        <ejs-tab id="taskTabs" cssClass="e-fill">
+            <e-tab-tabitems>
+                <!-- Overview -->
+                <e-tab-tabitem header=@(new() {Text = "Overview"}) content="@overviewContent"></e-tab-tabitem>
+                <e-tab-tabitem header=@(new() { Text = "Commit" }) content="@commitContent"></e-tab-tabitem>
+            </e-tab-tabitems>
+        </ejs-tab>
     </div>
 </div>
 
 
+
+<!-- Overview Section -->
 <div id="overview-section" class="section-page ms-2" style="display: none">
-
-    <h4>Overview</h4>
-
-    <p><b>Description:</b> @Model.Description</p>
-    <p><b>Assignee:</b> "Test"</p>
-    <p><b>Priority:</b> "Test"</p>
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Overview</h5>
+        </div>
+        <div class="card-body">
+            <p><b>Description:</b> @Model.Description</p>
+            <p><b>Assignee:</b> "Test"</p>
+            <p><b>Priority:</b> "Test"</p>
+        </div>
+    </div>
 </div>
 
+<!-- Commit Section -->
 <div id="commit-section" class="section-page ms-2" style="display: none">
-
-    <h4>Commit</h4>
-    <p><b>Commit:</b> "Test"</p>
-    <p><b>Assignee:</b> "Test"</p>
-    <p><b>Priority:</b> "Test"</p>
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Commit</h5>
+        </div>
+        <div class="card-body">
+            <p><b>Commit:</b> "Test"</p>
+            <p><b>Assignee:</b> "Test"</p>
+            <p><b>Priority:</b> "Test"</p>
+        </div>
+    </div>
 </div>
 
 
