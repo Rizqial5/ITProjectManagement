@@ -2,8 +2,16 @@
 @model TaskViewModel
 
 <div class="card shadow-sm mb-3">
-    <div class="card-header bg-light">
-        <h5 class="mb-0">Integrated Commit</h5>
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Commit Linked</h5>
+        <ejs-button id="addLinkedCommitButton"
+                    isPrimary="true"
+                    content="Add Linked Commit"
+                    iconCss="e-icons e-plus"
+                    iconPosition="Left"
+                    onclick="showCommitDialog()">
+        </ejs-button>
+
     </div>
     <div class="card-body">
         <ejs-grid id="CommitGrid"
@@ -37,3 +45,9 @@
         </ejs-grid>
     </div>
 </div>
+
+<script>
+    function showCommitDialog(){
+        console.log("show commit");
+    }
+</script>
