@@ -89,7 +89,7 @@ namespace ProjectManagement.App.Repository
                    .ThenInclude(i => i!.Commits)
                .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.Connected);
 
-            var commitData = commmitQuery.Repo.Commits.Select(i => new CommitDto
+            var commitData = commmitQuery.Repo.Commits.Where(i => !i.isAssignedTask).Select(i => new CommitDto
             {
                 AuthorName = i.AuthorName,
                 CommitDate = i.CommitDate,
