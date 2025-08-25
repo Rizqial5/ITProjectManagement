@@ -84,11 +84,11 @@ namespace ProjectManagement.App.Repository
         public async Task<IEnumerable<CommitDto>> GetAllCommitAsync(int projectId)
         {
             var commmitQuery = await _dbContext.GithubRepoConnecteds
-            .Include(i => i.Repo)
-                .ThenInclude(i => i!.Commits)
-            .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.Connected);
+               .Include(i => i.Repo)
+                   .ThenInclude(i => i!.Commits)
+               .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.Connected);
 
-            var commitData = commmitQuery.Repo.Commits.Where(i => !i.isAssignedTask).Select(i => new CommitDto
+            var commitData = commmitQuery.Repo.Commits.Select(i => new CommitDto
             {
                 AuthorName = i.AuthorName,
                 CommitDate = i.CommitDate,

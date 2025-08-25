@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProjectManagement.App.Models.Workspace;
 using System.ComponentModel.DataAnnotations;
 
 namespace ProjectManagement.App.Models.Github
@@ -14,5 +15,6 @@ namespace ProjectManagement.App.Models.Github
         public DateTimeOffset? LastKnownCommitDate { get; set; }
         // Commit
         public ICollection<GithubCommit> Commits { get; set; } = new List<GithubCommit>();
+        public Project? Project { get; set; }
     }
 }

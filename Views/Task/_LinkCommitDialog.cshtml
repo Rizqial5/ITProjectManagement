@@ -1,0 +1,24 @@
+﻿@using ProjectManagement.App.ViewModel
+@model TaskViewModel
+
+<div class="p-3">
+    <ejs-grid id="ExistingCommitGrid"
+              allowPaging="true"
+              allowSorting="true"
+              height="400">
+        <e-data-manager url='@Url.Action("GetAvailableCommit", "Task", new { projectId = Model.ProjectId })'
+                        adaptor="UrlAdaptor"></e-data-manager>
+        <e-grid-columns>
+            <e-grid-column field="Id" headerText="ID" isPrimaryKey="true" visible="false"></e-grid-column>
+            <e-grid-column field="Message" headerText="Message" width="200" textAlign="Left"></e-grid-column>
+            <e-grid-column field="AuthorName" headerText="Author Name" width="50" textAlign="Left"></e-grid-column>
+            <e-grid-column field="CommitDate"
+                           headerText="Commit Date"
+                           width="200"
+                           type="date"
+                           format="dd MMMM yyyy"
+                           textAlign="Left"></e-grid-column>
+
+        </e-grid-columns>
+    </ejs-grid>
+</div>

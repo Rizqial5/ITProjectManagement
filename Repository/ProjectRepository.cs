@@ -39,7 +39,7 @@ namespace ProjectManagement.App.Repository
         public async Task<ResponseResultDto<GitHubRepoDto>> CheckConnectedProject(int projectId)
         {
             var existData = await _dbContext.GithubRepoConnecteds
-                .Include(c=> c.Repo).ThenInclude(r=> r.Commits)
+                .Include(c=> c.Repo).ThenInclude(r=> r!.Commits)
                 .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.Connected);
 
             if (existData == null)

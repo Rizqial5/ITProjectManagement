@@ -91,6 +91,16 @@
     </div>
 </div>
 
+<div id="dialogCommit">
+    <ejs-dialog id="connectCommitDialog" header="Avaialable Commit"
+                width="80%" visible="false" showCloseIcon="true" isModal="true"
+                target="#dialogCommit">
+        <e-content-template>
+            <partial name="_LinkCommitDialog" model="Model"></partial>
+        </e-content-template>
+    </ejs-dialog>
+</div>
+
 
 
 <!-- Overview Section -->
@@ -103,5 +113,12 @@
     <partial name='_CommitSection' model='Model' />
 </div>
 
+
+<script>
+    function showCommitDialog(){
+        var dialog = document.getElementById("connectCommitDialog").ej2_instances[0];
+        dialog.show();
+    }
+</script>
 
 

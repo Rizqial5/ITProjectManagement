@@ -55,5 +55,17 @@ namespace ProjectManagement.App.Controllers
 
         }
 
+        [HttpPost]
+        public async Task<IActionResult> GetAvailableCommit([FromBody] DataManagerRequest DataManagerRequest, int projectId)
+        {
+            var commitData = await _taskRepository.GetAllCommitAsync(projectId);
+
+            DataOperations dataOperations = new();
+            var result = dataOperations.Execute(commitData, DataManagerRequest);
+
+            return Json(new { result = result, count = commitData.Count() });
+
+        }
+
     }
 }
