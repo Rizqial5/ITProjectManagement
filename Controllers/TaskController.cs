@@ -67,5 +67,23 @@ namespace ProjectManagement.App.Controllers
 
         }
 
+        [HttpPost]
+        public async Task<IActionResult> LinkCommit(int commitId, int repoId, int taskId)
+        {
+            try
+            {
+                var result = await _taskRepository.ConnectCommitToTaskAsync(repoId, commitId, taskId);
+
+
+                return Json(new { success = true });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+
+
+        }
+
     }
 }

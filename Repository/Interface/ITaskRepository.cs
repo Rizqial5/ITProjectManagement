@@ -1,3 +1,4 @@
+using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Workspace;
 
@@ -13,5 +14,6 @@ namespace ProjectManagement.App.Repository.Interface
 
         Task<IEnumerable<CommitDto>> GetAllCommitAsync(int projectId);
         Task<IEnumerable<CommitDto>> GetAllIntegratedCommitAsync(int projectId);
+        Task<ResponseResultDto> ConnectCommitToTaskAsync(int repoId, int commitId, int taskId);
     }
 }

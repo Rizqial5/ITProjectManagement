@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Data;
+using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Workspace;
 using ProjectManagement.App.Repository.Interface;
@@ -97,10 +98,29 @@ namespace ProjectManagement.App.Repository
                 Id = i.Id,
                 RepoId = i.RepoId,
                 IsIntegrated = i.isAssignedTask
-            });
+            }).OrderByDescending(i => i.CommitDate);
 
             return commitData;
 
+        }
+
+        public async Task<ResponseResultDto> ConnectCommitToTaskAsync(int repoId, int commitId, int taskId)
+        {
+            var checkExistingCommit = await _dbContext.GithubCommits.FirstOrDefaultAsync(i => i.RepoId == repoId && i.Id == commitId);
+
+            ArgumentNullException.ThrowIfNull(checkExistingCommit);
+
+            checkExistingCommit.TaskId = taskId;
+
+            await _dbContext.SaveChangesAsync();
+
+            return new()
+            {
+                Success = true,
+                Message = string.Empty
+            };
+
+            
         }
     }
 }
