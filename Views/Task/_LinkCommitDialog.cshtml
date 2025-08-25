@@ -5,11 +5,13 @@
     <ejs-grid id="ExistingCommitGrid"
               allowPaging="true"
               allowSorting="true"
+              commandClick="onExistingCommandClick"
               height="400">
         <e-data-manager url='@Url.Action("GetAvailableCommit", "Task", new { projectId = Model.ProjectId })'
                         adaptor="UrlAdaptor"></e-data-manager>
         <e-grid-columns>
             <e-grid-column field="Id" headerText="ID" isPrimaryKey="true" visible="false"></e-grid-column>
+            <e-grid-column field="Sha" headerText="Sha" visible="false"></e-grid-column>
             <e-grid-column field="Message" headerText="Message" width="200" textAlign="Left"></e-grid-column>
             <e-grid-column field="AuthorName" headerText="Author Name" width="50" textAlign="Left"></e-grid-column>
             <e-grid-column field="CommitDate"
@@ -19,6 +21,28 @@
                            format="dd MMMM yyyy"
                            textAlign="Left"></e-grid-column>
 
+            <e-grid-column headerText="Actions"
+                            width="120"
+                            textAlign="Center"
+                            commands="@(new List<object>
+                            {
+                                new { type = "None", buttonOption= new { content = "Link", cssClass = "e-primary" }}
+                            })">
+            </e-grid-column>
+
         </e-grid-columns>
     </ejs-grid>
 </div>
+
+<script>
+    function onExistingCommandClick(args){
+        if (args.commandColumn && args.commandColumn.buttonOption.content === "Link") {
+            var rowData = args.rowData;
+            var commitId = rowData.Id;
+            var RepoId = rowData.RepoId;
+
+            console.log("Linked");
+
+        }
+    }
+</script>

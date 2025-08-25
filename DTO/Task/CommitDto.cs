@@ -7,5 +7,7 @@
         public string AuthorName { get; set; }
         public DateTime CommitDate { get; set; }
         public bool IsIntegrated { get; set; }
+        public string Sha{ get; set; }
+        public int RepoId { get; set; }
     }
 }

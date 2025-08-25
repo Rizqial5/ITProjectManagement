@@ -93,7 +93,9 @@ namespace ProjectManagement.App.Repository
                 AuthorName = i.AuthorName,
                 CommitDate = i.CommitDate,
                 Message = i.Message,
+                Sha = i.Sha,
                 Id = i.Id,
+                RepoId = i.RepoId,
                 IsIntegrated = i.isAssignedTask
             });
 
