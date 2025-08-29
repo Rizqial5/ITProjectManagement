@@ -38,36 +38,44 @@ namespace ProjectManagement.App.Controllers
 
         public async Task<IActionResult> Index(WorkspaceViewModel workspaceViewModel)
         {
-
-            ViewBag.ProjectID = workspaceViewModel.ProjectID;
-            ViewBag.ProjectName = workspaceViewModel.ProjectName;
-
-            ViewBag.DllStatus = new List<SelectListItem>
+            try
             {
-                new("ToDo", "0"),
-                new("InProgess", "1"),
-                new("Done", "2"),
-            };
+                ViewBag.ProjectID = workspaceViewModel.ProjectID;
+                ViewBag.ProjectName = workspaceViewModel.ProjectName;
+
+                ViewBag.DllStatus = new List<SelectListItem>
+                {
+                    new("ToDo", "0"),
+                    new("InProgess", "1"),
+                    new("Done", "2"),
+                };
 
 
-            // Check if Project has Connected with repo
-            var checkConnectProject = await _projectRepository.CheckConnectedProject(workspaceViewModel.ProjectID);
+                // Check if Project has Connected with repo
+                var checkConnectProject = await _projectRepository.CheckConnectedProject(workspaceViewModel.ProjectID);
 
-            
-            if(checkConnectProject.Success)
-            {
-                ViewBag.RepoName = checkConnectProject.Data.Name;
-                ViewBag.RepoUrl = checkConnectProject.Data.Html_Url;
 
-                //Check and sync latest commit
-                await SynchronizeCommitAsync(checkConnectProject);
+                if (checkConnectProject.Success)
+                {
+                    ViewBag.RepoName = checkConnectProject.Data.Name;
+                    ViewBag.RepoUrl = checkConnectProject.Data.Html_Url;
 
+                    //Check and sync latest commit
+                    await SynchronizeCommitAsync(checkConnectProject);
+
+                }
+
+                ViewBag.IsConnected = checkConnectProject.Success;
+
+                // workspaceViewModel.ProjectID dan ProjectName akan terisi dari query string
+                return View(workspaceViewModel);
             }
-
-            ViewBag.IsConnected = checkConnectProject.Success;
-
-            // workspaceViewModel.ProjectID dan ProjectName akan terisi dari query string
-            return View(workspaceViewModel);
+            catch (Exception ex)
+            {
+                TempData["RepoNotificationFailed"] = ex.Message;
+                return RedirectToAction("Index", "Home");
+            }
+           
         }
 
         private async Task SynchronizeCommitAsync(ResponseResultDto<GitHubRepoDto> checkConnectProject)
@@ -76,6 +84,14 @@ namespace ProjectManagement.App.Controllers
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var response = await _authRepository.GetGithubCreds(userId!);
+
+            if(!response.Success)
+            {
+                var errMessage = "User github credential is expired or not found";
+                
+                throw new Exception(errMessage);
+            }
+
             var githubData = response.Data;
 
             repoData.RepoOwner = githubData.GitHubUsername;
