@@ -128,8 +128,19 @@
     }
 
     function setTaskToDone(taskId){
-
-        console.log(taskId);
+        showConfirmationDialog(
+            "Mark as Done",
+            "Are you sure you want to set this task as done?",
+            function () {
+                // YES action
+                ejs.notifications.ToastUtility.show("Task marked as done!", "Success", 3000);
+                // TODO: panggil Ajax ke controller kalau perlu
+            },
+            function () {
+                // NO action
+                console.log("User cancelled");
+            }
+        );
     }
 </script>
 

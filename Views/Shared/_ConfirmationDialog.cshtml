@@ -1,0 +1,53 @@
+﻿@* _ConfirmationDialog.cshtml *@
+<ejs-dialog id="globalConfirmDialog"
+            header="Confirm"
+            content="Are you sure?"
+            visible="false"
+            showCloseIcon="false"
+            isModal="true"
+            width="400px"
+            target="body">
+    <e-dialog-buttons>
+        <e-dialog-dialogbutton buttonModel="@(new Syncfusion.EJ2.Buttons.Button { Content = "Yes", IsPrimary = true })" click="onGlobalYesClick"></e-dialog-dialogbutton>
+        <e-dialog-dialogbutton buttonModel="@(new Syncfusion.EJ2.Buttons.Button { Content = "No" })" click="onGlobalNoClick"></e-dialog-dialogbutton>
+    </e-dialog-buttons>
+</ejs-dialog>
+
+<script>
+    // Variabel global untuk simpan callback
+    var confirmYesAction = null;
+    var confirmNoAction = null;
+
+    // Fungsi untuk panggil dialog dari mana saja
+    function showConfirmationDialog(title, description, yesAction, noAction) {
+        var dialog = document.getElementById("globalConfirmDialog").ej2_instances[0];
+
+        dialog.header = title || "Confirmation";
+        dialog.content = description || "Are you sure?";
+
+        confirmYesAction = yesAction;
+        confirmNoAction = noAction;
+
+        dialog.show();
+    }
+
+    function onGlobalYesClick() {
+        if (typeof confirmYesAction === "function") {
+            confirmYesAction();
+        }
+        closeConfirmationDialog();
+    }
+
+    function onGlobalNoClick() {
+        if (typeof confirmNoAction === "function") {
+            confirmNoAction();
+        }
+        closeConfirmationDialog();
+    }
+
+    function closeConfirmationDialog() {
+        var dialog = document.getElementById("globalConfirmDialog").ej2_instances[0];
+        dialog.hide();
+    }
+</script>
+
