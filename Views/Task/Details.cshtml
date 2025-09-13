@@ -128,12 +128,33 @@
     }
 
     function setTaskToDone(taskId){
+
+        var projectId = @Model.ProjectId
+
         showConfirmationDialog(
             "Mark as Done",
             "Are you sure you want to set this task as done?",
             function () {
                 // YES action
-                ejs.notifications.ToastUtility.show("Task marked as done!", "Success", 3000);
+
+                $.ajax({
+                    url: '@Url.Action("SetToDone", "Task")',
+                    type: "POST",
+                    data: {
+                        taskId: taskId,
+                        projectId: projectId
+                    },
+                    success: function (response) {
+                      
+                        location.reload();
+             
+                    },
+                    error: function (xhr, status, error) {
+
+                        console.error(error);
+                        location.reload();
+                    }
+                });
                 // TODO: panggil Ajax ke controller kalau perlu
             },
             function () {

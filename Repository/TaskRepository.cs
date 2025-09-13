@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Data;
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Task;
+using ProjectManagement.App.Models.Enum;
 using ProjectManagement.App.Models.Workspace;
 using ProjectManagement.App.Repository.Interface;
 
@@ -134,6 +135,36 @@ namespace ProjectManagement.App.Repository
             
 
             return totalCommit.Value;
+        }
+
+        public async Task<ResponseResultDto> SetTaskStatus(int projectId, int taskId, Status setStatus)
+        {
+            try
+            {
+                var checkTask = await _dbContext.TaskItems
+                .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.Id == taskId);
+
+                if (checkTask == null) return new() { Success = false, Message = "Task is not found" };
+
+                checkTask.Status = setStatus;
+
+                await _dbContext.SaveChangesAsync();
+
+                return new()
+                {
+                    Success = true,
+                    Message = "Task has been successfully set to done"
+                };
+
+            }
+            catch (Exception ex)
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }     
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProjectManagement.App.Models.Enum;
 using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
@@ -81,6 +82,37 @@ namespace ProjectManagement.App.Controllers
             }
             catch(Exception ex)
             {
+                return Json(new { success = false, message = ex.Message });
+            }
+
+
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> SetToDone(int taskId, int projectId)
+        {
+            try
+            {
+                var status = Status.Done;
+
+                var result = await _taskRepository.SetTaskStatus(projectId, taskId, status);
+
+                if(result.Success)
+                {
+                    TempData["RepoNotification"] = result.Message;
+                }
+                else
+                {
+                    TempData["RepoNotificationFailed"] = result.Message;
+                }
+
+                    return Json(new { success = result.Success, message = result.Message });
+            }
+            catch (Exception ex)
+            {
+
+                TempData["RepoNotificationFailed"] = ex.Message;
                 return Json(new { success = false, message = ex.Message });
             }
 

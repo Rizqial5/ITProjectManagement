@@ -1,5 +1,6 @@
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Task;
+using ProjectManagement.App.Models.Enum;
 using ProjectManagement.App.Models.Workspace;
 
 namespace ProjectManagement.App.Repository.Interface
@@ -16,5 +17,6 @@ namespace ProjectManagement.App.Repository.Interface
         Task<IEnumerable<CommitDto>> GetAllIntegratedCommitAsync(int projectId);
         Task<int> GetTotalIntegratedCommit(int projectId);
         Task<ResponseResultDto> ConnectCommitToTaskAsync(int repoId, int commitId, int taskId);
+        Task<ResponseResultDto> SetTaskStatus(int projectId, int taskId, Status setStatus);
     }
 }
