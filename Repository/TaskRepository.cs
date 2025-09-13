@@ -62,14 +62,14 @@ namespace ProjectManagement.App.Repository
             return true;
         }
 
-        public async Task<IEnumerable<CommitDto>> GetAllIntegratedCommitAsync(int projectId)
+        public async Task<IEnumerable<CommitDto>> GetAllIntegratedCommitAsync(int projectId, int taskId)
         {
             var commmitQuery = await _dbContext.GithubRepoConnecteds
                 .Include(i=> i.Repo)
                     .ThenInclude(i=> i!.Commits)
                 .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.Connected);
 
-            var commitData = commmitQuery.Repo.Commits.Where(i=> i.isAssignedTask).Select(i => new CommitDto
+            var commitData = commmitQuery.Repo.Commits.Where(i=> i.isAssignedTask && i.TaskId == taskId).Select(i => new CommitDto
             {
                 AuthorName = i.AuthorName,
                 CommitDate = i.CommitDate,
@@ -124,14 +124,14 @@ namespace ProjectManagement.App.Repository
             
         }
 
-        public async Task<int> GetTotalIntegratedCommit(int projectId)
+        public async Task<int> GetTotalIntegratedCommit(int projectId, int taskId)
         {
             var commmitQuery = await _dbContext.GithubRepoConnecteds
                 .Include(i => i.Repo)
                     .ThenInclude(i => i!.Commits)
                 .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.Connected);
 
-            var totalCommit = commmitQuery?.Repo?.Commits.Where(i => i.isAssignedTask).Count();
+            var totalCommit = commmitQuery?.Repo?.Commits.Where(i => i.isAssignedTask && i.TaskId == taskId).Count();
             
 
             return totalCommit.Value;

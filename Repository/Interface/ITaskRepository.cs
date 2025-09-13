@@ -14,8 +14,8 @@ namespace ProjectManagement.App.Repository.Interface
         Task<bool> DeleteAsync(int projectId, int taskId);
 
         Task<IEnumerable<CommitDto>> GetAllCommitAsync(int projectId);
-        Task<IEnumerable<CommitDto>> GetAllIntegratedCommitAsync(int projectId);
-        Task<int> GetTotalIntegratedCommit(int projectId);
+        Task<IEnumerable<CommitDto>> GetAllIntegratedCommitAsync(int projectId, int taskId);
+        Task<int> GetTotalIntegratedCommit(int projectId, int taskId);
         Task<ResponseResultDto> ConnectCommitToTaskAsync(int repoId, int commitId, int taskId);
         Task<ResponseResultDto> SetTaskStatus(int projectId, int taskId, Status setStatus);
     }

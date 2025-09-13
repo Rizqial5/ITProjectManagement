@@ -76,14 +76,18 @@
             <h4 class="mb-0">Task #@Model.TaskId - @Model.Title</h4>
             <small class="text-muted">Status: <span class="badge bg-info">@Model.Status</span></small>
         </div>
-        <div>
-            <ejs-button id="setToDoneButton"
-                        cssClass="e-primary"
-                        content="Set to Done"
-                        iconCss="bi bi-check2-circle"
-                        onclick="setTaskToDone(@Model.TaskId)">
-            </ejs-button>
-        </div>
+
+        @if(Model.Status != "Done")
+        {
+            <div>
+                <ejs-button id="setToDoneButton"
+                            cssClass="e-primary"
+                            content="Set to Done"
+                            iconCss="bi bi-check2-circle"
+                            onclick="setTaskToDone(@Model.TaskId)">
+                </ejs-button>
+            </div>
+        }
     </div>
     <hr />
     <!-- Body -->

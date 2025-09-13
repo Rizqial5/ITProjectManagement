@@ -22,7 +22,7 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> Details(int projectId, int taskId)
         {
             var taskItem = await _taskRepository.GetAsync(projectId, taskId);
-            var countCommit = await _taskRepository.GetTotalIntegratedCommit(projectId);
+            var countCommit = await _taskRepository.GetTotalIntegratedCommit(projectId, taskId);
 
             if(taskItem == null)
             {
@@ -47,9 +47,9 @@ namespace ProjectManagement.App.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> GetCommitRepo([FromBody] DataManagerRequest DataManagerRequest, int projectId)
+        public async Task<IActionResult> GetCommitRepo([FromBody] DataManagerRequest DataManagerRequest, int projectId, int taskId)
         {
-            var commitData = await _taskRepository.GetAllIntegratedCommitAsync(projectId);
+            var commitData = await _taskRepository.GetAllIntegratedCommitAsync(projectId, taskId);
 
             DataOperations dataOperations = new();
             var result = dataOperations.Execute(commitData, DataManagerRequest);
