@@ -71,12 +71,19 @@
 
 <div class="task-detail-page">
     <!-- Header -->
-    <div class="mb-3">
+    <div class="mb-3 d-flex justify-content-between align-items-center">
         <div>
             <h4 class="mb-0">Task #@Model.TaskId - @Model.Title</h4>
             <small class="text-muted">Status: <span class="badge bg-info">@Model.Status</span></small>
         </div>
-        @* <span class="due-date text-muted">Due: @Model.DueDate.ToString("dd MMM yyyy")</span> *@
+        <div>
+            <ejs-button id="setToDoneButton"
+                        cssClass="e-primary"
+                        content="Set to Done"
+                        iconCss="bi bi-check2-circle"
+                        onclick="setTaskToDone(@Model.TaskId)">
+            </ejs-button>
+        </div>
     </div>
     <hr />
     <!-- Body -->
@@ -118,6 +125,11 @@
     function showCommitDialog(){
         var dialog = document.getElementById("connectCommitDialog").ej2_instances[0];
         dialog.show();
+    }
+
+    function setTaskToDone(taskId){
+
+        console.log(taskId);
     }
 </script>
 
