@@ -21,6 +21,7 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> Details(int projectId, int taskId)
         {
             var taskItem = await _taskRepository.GetAsync(projectId, taskId);
+            var countCommit = await _taskRepository.GetTotalIntegratedCommit(projectId);
 
             if(taskItem == null)
             {
@@ -35,8 +36,9 @@ namespace ProjectManagement.App.Controllers
                 ProjectName = taskItem.Project.Name,
                 ProjectId = taskItem.Project.Id,
                 Description = taskItem.Description,
-                Status = taskItem.Status.ToString()
-
+                Status = taskItem.Status.ToString(),
+                TotalLinkedCommits = countCommit
+                
             };
 
             return View(taskModel);

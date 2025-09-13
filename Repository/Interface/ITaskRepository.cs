@@ -14,6 +14,7 @@ namespace ProjectManagement.App.Repository.Interface
 
         Task<IEnumerable<CommitDto>> GetAllCommitAsync(int projectId);
         Task<IEnumerable<CommitDto>> GetAllIntegratedCommitAsync(int projectId);
+        Task<int> GetTotalIntegratedCommit(int projectId);
         Task<ResponseResultDto> ConnectCommitToTaskAsync(int repoId, int commitId, int taskId);
     }
 }

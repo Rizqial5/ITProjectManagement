@@ -122,5 +122,18 @@ namespace ProjectManagement.App.Repository
 
             
         }
+
+        public async Task<int> GetTotalIntegratedCommit(int projectId)
+        {
+            var commmitQuery = await _dbContext.GithubRepoConnecteds
+                .Include(i => i.Repo)
+                    .ThenInclude(i => i!.Commits)
+                .FirstOrDefaultAsync(i => i.ProjectId == projectId && i.Connected);
+
+            var totalCommit = commmitQuery?.Repo?.Commits.Where(i => i.isAssignedTask).Count();
+            
+
+            return totalCommit.Value;
+        }
     }
 }
