@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Enum;
 using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
 using Syncfusion.EJ2.Base;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ProjectManagement.App.Controllers
@@ -18,11 +20,11 @@ namespace ProjectManagement.App.Controllers
             _taskRepository = taskRepository;
         }
 
-        [HttpGet("/project/{projectId}/task/{taskId}")]
-        public async Task<IActionResult> Details(int projectId, int taskId)
+        [HttpGet("/project/{projectId}/task/{taskId}_{isConnected}")]
+        public async Task<IActionResult> Details(int projectId, int taskId, bool isConnected)
         {
             var taskItem = await _taskRepository.GetAsync(projectId, taskId);
-            var countCommit = await _taskRepository.GetTotalIntegratedCommit(projectId, taskId);
+            var countCommit = isConnected ? await _taskRepository.GetTotalIntegratedCommit(projectId, taskId) : 0;
 
             if(taskItem == null)
             {
@@ -38,7 +40,8 @@ namespace ProjectManagement.App.Controllers
                 ProjectId = taskItem.Project.Id,
                 Description = taskItem.Description,
                 Status = taskItem.Status.ToString(),
-                TotalLinkedCommits = countCommit
+                TotalLinkedCommits = countCommit,
+                isConnectedRepo = isConnected
                 
             };
 
@@ -47,21 +50,46 @@ namespace ProjectManagement.App.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> GetCommitRepo([FromBody] DataManagerRequest DataManagerRequest, int projectId, int taskId)
+        public async Task<IActionResult> GetCommitRepo([FromBody] DataManagerRequest DataManagerRequest, int projectId, int taskId, bool isConnected)
         {
-            var commitData = await _taskRepository.GetAllIntegratedCommitAsync(projectId, taskId);
+            IEnumerable<CommitDto> commitData;
+
+
+            if (isConnected)
+            {
+                commitData = await _taskRepository.GetAllIntegratedCommitAsync(projectId, taskId);
+
+                
+            }
+            else
+            {
+                commitData = new List<CommitDto>(0);
+            }
 
             DataOperations dataOperations = new();
             var result = dataOperations.Execute(commitData, DataManagerRequest);
+
 
             return Json(new { result = result, count = commitData.Count()});
 
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetAvailableCommit([FromBody] DataManagerRequest DataManagerRequest, int projectId)
+        public async Task<IActionResult> GetAvailableCommit([FromBody] DataManagerRequest DataManagerRequest, int projectId, bool isConnected)
         {
-            var commitData = await _taskRepository.GetAllCommitAsync(projectId);
+            IEnumerable<CommitDto> commitData;
+
+
+            if (isConnected)
+            {
+                commitData = await _taskRepository.GetAllCommitAsync(projectId);
+
+
+            }
+            else
+            {
+                commitData = new List<CommitDto>(0);
+            }
 
             DataOperations dataOperations = new();
             var result = dataOperations.Execute(commitData, DataManagerRequest);

@@ -9,5 +9,6 @@
         public string ProjectName { get; set; }
         public int ProjectId { get; set; }
         public int? TotalLinkedCommits { get; set; } = 0;
+        public bool? isConnectedRepo { get; set; } = false;
     }
 }

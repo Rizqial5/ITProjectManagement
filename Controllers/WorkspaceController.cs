@@ -65,7 +65,8 @@ namespace ProjectManagement.App.Controllers
 
                 }
 
-                ViewBag.IsConnected = checkConnectProject.Success;
+
+                workspaceViewModel.IsConnectedToGithubRepo = checkConnectProject.Success;
 
                 // workspaceViewModel.ProjectID dan ProjectName akan terisi dari query string
                 return View(workspaceViewModel);

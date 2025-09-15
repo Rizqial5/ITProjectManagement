@@ -7,7 +7,7 @@
               allowSorting="true"
               commandClick="onExistingCommandClick"
               height="400">
-        <e-data-manager url='@Url.Action("GetAvailableCommit", "Task", new { projectId = Model.ProjectId })'
+        <e-data-manager url='@Url.Action("GetAvailableCommit", "Task", new { projectId = Model.ProjectId, isConnected = Model.isConnectedRepo })'
                         adaptor="UrlAdaptor"></e-data-manager>
         <e-grid-columns>
             <e-grid-column field="Id" headerText="ID" isPrimaryKey="true" visible="false"></e-grid-column>

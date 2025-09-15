@@ -6,5 +6,6 @@ namespace ProjectManagement.App.ViewModel.Workspace
     {
         public string ProjectName { get; set; }
         public int ProjectID { get; set; }
+        public bool IsConnectedToGithubRepo { get; set; }
     }
 }
