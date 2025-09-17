@@ -46,35 +46,58 @@
         background-color: #f9f9f9;
     }
 
-        .card-projects .icon-circle {
-            background-color: #3b82f6;
-        }
+    .card-activity-project {
+        padding: 10px;
+        box-shadow: 0 0px;
+        line-height: normal;
+        border-radius: 0px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        cursor: pointer; /* default untuk semua */
+    }
+
+    .card-activity-project:hover {
+        background-color: #e1dcdc;
+        cursor: pointer; /* telunjuk */
+        box-shadow: 0 0px;
+    }
+
+
+    .card-projects .icon-circle {
+        background-color: #3b82f6;
+    }
 
     .card-tasks {
         background-color: #fff4e6;
     }
 
-        .card-tasks .icon-circle {
-            background-color: #f97316;
-        }
+    .card-tasks .icon-circle {
+        background-color: #f97316;
+    }
 
     .card-team {
         background-color: #e6fff4;
     }
 
-        .card-team .icon-circle {
-            background-color: #10b981;
-        }
+    .card-team .icon-circle {
+        background-color: #10b981;
+    }
 
     .card-overdue {
         background-color: #ffe6e6;
     }
 
-        .card-overdue .icon-circle {
-            background-color: #ef4444;
-        }
+    .card-overdue .icon-circle {
+        background-color: #ef4444;
+    }
 
     .recent-project-page {
+        border-radius: 12px; /* sudut rounded */
+        border-color: black;
+        padding: 20px; /* ruang dalam */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* efek bayangan kertas */
+    }
+
+    .activity-tab {
         border-radius: 12px; /* sudut rounded */
         border-color: black;
         padding: 20px; /* ruang dalam */
@@ -92,6 +115,22 @@
         font-size: 0.75rem;
         padding: 0.4em 0.6em;
         border-radius: 8px;
+    }
+
+    .icon-container{
+        flex: 0 !important;
+        color: black;
+    }
+
+    .icon-list {
+        width: 29px;
+        height: 54px;
+        border-radius: 50%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        font-size: 17px;
+        color: black;
     }
 
 </style>
@@ -211,6 +250,69 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="col-xs-12 col-md-12 col-lg-4">
+        <div tabindex="0" class="activity-tab mb-3" id="card_activity">
+            <div class="activity-header mb-3">
+                <div class="e-card-header-caption">
+                    <div class="activity-header"><h5>Recent Activity</h5></div>
+                </div>
+            </div>
+            <div class="activity-content row card-layout">
+
+                <div tabindex="0" class="e-card e-card-horizontal card-activity-project">
+                    <div class="icon-container">
+                        <div class="icon-list">
+                            <i class="fas fa-check-square"></i>
+                        </div>
+                    </div>
+                    <div class='e-card-stacked'>
+                        <div class="e-card-header-title"><h6>Implement product catalog</h6></div>
+                        <small>John Doe • In Progress</small>
+                        <small>7 commits</small>
+                    </div>
+                </div>
+
+                <div tabindex="0" class="e-card e-card-horizontal card-activity-project">
+                    <div class="icon-container">
+                        <div class="icon-list">
+                            <i class="fas fa-check-square"></i>
+                        </div>
+                    </div>
+                    <div class='e-card-stacked'>
+                        <div class="e-card-header-title"><h6>Implement product catalog</h6></div>
+                        <small>John Doe • In Progress</small>
+                        <small>7 commits</small>
+                    </div>
+                </div>
+
+                <div tabindex="0" class="e-card e-card-horizontal card-activity-project">
+                    <div class="icon-container">
+                        <div class="icon-list">
+                            <i class="fas fa-check-square"></i>
+                        </div>
+                    </div>
+                    <div class='e-card-stacked'>
+                        <div class="e-card-header-title"><h6>Implement product catalog</h6></div>
+                        <small>John Doe • In Progress</small>
+                        <small>7 commits</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+@* 
+        <div tabindex="0" class="e-card" id="card_quick_actions">
+            <div class="e-card-header">
+                <div class="e-card-header-caption">
+                    <div class="e-card-header-title">Quick Actions</div>
+                </div>
+            </div>
+            <div class="e-card-content">
+                <ejs-button content="Create New Task" iconCss="e-icons e-plus" cssClass="e-primary w-100 mb-2"></ejs-button>
+                <ejs-button content="Add Project" iconCss="e-icons e-plus" cssClass="w-100 mb-2"></ejs-button>
+                <ejs-button content="Invite Members" iconCss="e-icons e-people" cssClass="w-100"></ejs-button>
+            </div>
+        </div> *@
     </div>
 </div>
 
