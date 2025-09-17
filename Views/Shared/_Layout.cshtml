@@ -23,6 +23,14 @@
             padding-left: 20px;
             padding-right: 20px;
         }
+
+        .notification-badge {
+            position: absolute;
+            top: 2px;
+            right: -5px;
+            font-size: 0.7rem;
+            padding: 3px 6px;
+        }
     </style>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
@@ -35,6 +43,13 @@
                     <ul class="navbar-nav">
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
+                            <!-- Notification Icon -->
+                            <li class="nav-item position-relative">
+                                <a class="nav-link text-dark" href="#">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="badge bg-danger rounded-pill notification-badge">3</span>
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <span class="nav-link text-dark">Hey, @User.Identity.Name!</span>
                             </li>
