@@ -54,8 +54,19 @@ namespace ProjectManagement.App.Controllers
             {
                 Id = i.Id,
                 Title = i.Name,
-                Description = i.Description ?? string.Empty
+                Description = i.Description ?? string.Empty,
+                Status = i.Tasks.FirstOrDefault().Status,
+                TaskTotal = i.Tasks.Count,
+                TaskComplete = i.Tasks.Where(i => i.Status == Models.Enum.Status.Done).Count()
             });
+
+            DashboardViewModel dashboardData = new()
+            {
+                TotalProjects = showData.Count(),
+                RecentProjects = showData,
+                TotalTasks = showData.Sum(i=> i.TaskTotal),
+                TotalCompletedTasks = showData.Sum(i=> i.TaskComplete)
+            }; 
 
 
             if (!showData.Any())
@@ -63,7 +74,7 @@ namespace ProjectManagement.App.Controllers
                 ViewBag.IsProjectEmpty = true;
             }
 
-            return View(showData);
+            return View(dashboardData);
         }
 
         [HttpPost]

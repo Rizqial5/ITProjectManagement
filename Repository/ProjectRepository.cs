@@ -191,6 +191,7 @@ namespace ProjectManagement.App.Repository
         public async Task<IEnumerable<Project>> GetAllAsync(string userId)
         {
             return await _dbContext.Projects
+                .Include(i=> i.Tasks)
                 .Where(p => p.ProjectOwnerUserId == userId)
                 .ToListAsync();
         }

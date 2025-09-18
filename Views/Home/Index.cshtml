@@ -4,11 +4,11 @@
 @{
     ViewData["Title"] = "Home Page";
 
-   
+    int idProgress = 1;   
 
 }
 
-@model IEnumerable<ProjectViewModel>
+@model DashboardViewModel
 
 <style>
 
@@ -151,8 +151,8 @@
                     <div tabindex="0" class="e-card e-card-horizontal card-projects">
                         <div class='e-card-stacked'>
                             <div class="e-card-header-title">Total Projects</div>
-                            <h3>4</h3>
-                            <div class="e-card-sub-title">1 completed</div>
+                            <h3>@Model.TotalProjects</h3>
+                            <div class="e-card-sub-title"> 3 completed</div>
                         </div>
                         <div>
                             <div class="icon-circle">
@@ -168,8 +168,8 @@
                     <div tabindex="0" class="e-card e-card-horizontal card-tasks">
                         <div class='e-card-stacked'>
                             <div class="e-card-header-title">Total Tasks</div>
-                            <h3>9</h3>
-                            <div class="e-card-sub-title">3 completed</div>
+                            <h3>@Model.TotalTasks</h3>
+                            <div class="e-card-sub-title">@Model.TotalCompletedTasks completed</div>
                         </div>
                         <div>
                             <div class="icon-circle">
@@ -227,18 +227,27 @@
                 </div>
             </div>
             <div class="recent-content row card-layout">
-                <div tabindex="0" class="e-card e-card-horizontal card-recent-project">
-                    <div class='e-card-stacked'>
-                        <div class="e-card-header-title"><h6>E-commerce Platform <span class="badge bg-info">In Progress</span></h6></div>
-                        <small>
-                            <i class="fas fa-clock me-1"></i> Due 3/15/2024 •
-                            <i class="fas fa-users me-1"></i> 3 members •
-                            <i class="fab fa-github me-1"></i> Connected
-                        </small>
-                        <ejs-progressbar id="proj1" type="Linear" value="75"></ejs-progressbar>
+                @foreach (var item in Model.RecentProjects)
+                {
+                    
+                    var nameProgress = $"progress{idProgress}";
+                    
+                    <div tabindex="0" class="e-card e-card-horizontal card-recent-project">
+                        <div class='e-card-stacked'>
+                            <div class="e-card-header-title"><h6>@item.Title <span class="badge bg-info"> @item.Status</span></h6></div>
+                            <small>
+                                <i class="fas fa-clock me-1"></i> Due 3/15/2024 •
+                                <i class="fas fa-users me-1"></i> 3 members •
+                                <i class="fab fa-github me-1"></i> Connected
+                            </small>
+                            <ejs-progressbar id=@nameProgress type="Linear" value="75"></ejs-progressbar>
+                        </div>
                     </div>
-                </div>
-                <div tabindex="0" class="e-card e-card-horizontal card-recent-project">
+
+                    idProgress++;
+                }
+
+@*                 <div tabindex="0" class="e-card e-card-horizontal card-recent-project">
                     <div class='e-card-stacked'>
                         <div class="e-card-header-title"><h6>Marketing Website <span class="badge bg-success">Completed</span></h6></div>
                         <small>
@@ -259,7 +268,7 @@
                         </small>
                         <ejs-progressbar id="proj3" type="Linear" value="40"></ejs-progressbar>
                     </div>
-                </div>
+                </div> *@
             </div>
         </div>
     </div>

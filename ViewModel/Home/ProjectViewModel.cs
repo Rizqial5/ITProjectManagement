@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ProjectManagement.App.Models.Enum;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProjectManagement.App.ViewModel.Home
 {
@@ -12,5 +13,9 @@ namespace ProjectManagement.App.ViewModel.Home
 
         [Required]
         public string Description { get; set; } = string.Empty;
+
+        public Status Status { get; set; }
+        public int TaskTotal { get; set; }
+        public int TaskComplete { get; set; }
     }
 }
