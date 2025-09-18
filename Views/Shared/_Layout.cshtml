@@ -4,22 +4,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ProjectManagement.App</title>
-    <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ProjectManagement.App.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/ej2/material.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.21.0/dist/jquery.validate.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>
     <script src="~/js/ej2/ej2.min.js"></script>
 </head>
 <body>
     <style>
         .custom-container {
-            max-width: 1800px; /* Bisa sesuaikan 1200px, 1400px, dsb */
-            margin: 0 auto; /* Biar tetap center */
+            max-width: 1800px;
+            margin: 0 auto;
             padding-left: 20px;
             padding-right: 20px;
         }
@@ -31,83 +28,128 @@
             font-size: 0.7rem;
             padding: 3px 6px;
         }
-    </style>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        Test
-                    </ul>
 
-                    <ul class="navbar-nav">
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
-                        {
-                            <!-- Notification Icon -->
-                            <li class="nav-item position-relative">
-                                <a class="nav-link text-dark" href="#">
-                                    <i class="fas fa-bell"></i>
-                                    <span class="badge bg-danger rounded-pill notification-badge">3</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <span class="nav-link text-dark">Hey, @User.Identity.Name!</span>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
+        /* wrapper global */
+        .app-wrapper {
+            display: flex;
+            flex-direction: row;
+            margin-top: 56px; /* tinggi navbar */
+            height: calc(100vh - 56px);
+            overflow: hidden;
+        }
+
+        /* sidebar syncfusion fix di layout */
+        .e-sidebar {
+            z-index: 1020;
+            height: 100%;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+        }
+
+            .sidebar-menu a:hover {
+                background: #f1f1f1;
+            }
+
+        /* konten shrink otomatis */
+        .main-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+    </style>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow fixed-top">
+        <div class="container-fluid">
+            <button id="sidebarToggle" class="btn btn-outline-primary btn-sm me-2">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="@Url.Action("Index", "Home")">ProjectManagement</a>
+
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item position-relative">
+                            <a class="nav-link text-dark" href="#">
+                                <i class="fas fa-bell"></i>
+                                <span class="badge bg-danger rounded-pill notification-badge">3</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <span class="nav-link text-dark">Hey, @User.Identity.Name!</span>
+                        </li>
+                        <li class="nav-item">
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
+                        </li>
+                    }
+                </ul>
             </div>
-        </nav>
-    </header>
-    <div class="container-fluid custom-container">
-        <main role="main" >
-            @RenderBody()
-        </main>
+        </div>
+    </nav>
+
+    <!-- Wrapper (sidebar + content) -->
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar" class="e-sidebar">
+            <div class="sidebar-menu">
+                <a href="@Url.Action("Index", "Home")"><i class="fas fa-home me-2"></i> Home</a>
+                <a href="#"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
+                <a href="#"><i class="fas fa-columns me-2"></i> Kanban</a>
+            </div>
+        </div>
+
+        <!-- Konten utama -->
+        <div class="main-wrapper">
+            <div class="container-fluid custom-container">
+                <main role="main">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
     </div>
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2024 - ProjectManagement.App - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2024 - ProjectManagement.App -
+            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
 
-    @* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-	<ejs-scripts></ejs-scripts>
+    <ejs-scripts></ejs-scripts>
     @await RenderSectionAsync("Scripts", required: false)
 
-    @* Notifikasi dari TempData *@
-    @if (TempData["RepoNotification"] != null)
-    {
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                ejs.notifications.ToastUtility.show('@TempData["RepoNotification"]', 'Success', 3000);
-            });
-        </script>
-    }
+    <script>
+        // Init Sidebar Syncfusion
+        var sidebarObj = new ej.navigations.Sidebar({
+            width: '250px',
+            type: 'Push',   // konten ikut terdorong
+            isOpen: true    // default terbuka
+        });
+        sidebarObj.appendTo('#sidebar');
 
-    @if (TempData["RepoNotificationFailed"] != null)
-    {
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                ejs.notifications.ToastUtility.show('@TempData["RepoNotificationFailed"]', 'Error', 3000);
-            });
-        </script>
-    }
+        document.getElementById('sidebarToggle').addEventListener('click', function () {
+            sidebarObj.toggle();
+        });
+    </script>
 </body>
 </html>
