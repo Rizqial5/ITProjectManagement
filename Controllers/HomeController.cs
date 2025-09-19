@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO.Project;
 using ProjectManagement.App.Models;
@@ -20,6 +21,7 @@ namespace ProjectManagement.App.Controllers
             _projectRepository = projectRepository;
         }
 
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             //Check if there is project 
@@ -55,10 +57,10 @@ namespace ProjectManagement.App.Controllers
                 Id = i.Id,
                 Title = i.Name,
                 Description = i.Description ?? string.Empty,
-                Status = i.Tasks.FirstOrDefault().Status,
+                Status = i.Tasks.Count != 0 ? i.Tasks.FirstOrDefault().Status : Models.Enum.Status.ToDo,
                 TaskTotal = i.Tasks.Count,
-                TaskComplete = i.Tasks.Where(i => i.Status == Models.Enum.Status.Done).Count()
-            });
+                TaskComplete = i.Tasks.Count != 0 ? i.Tasks.Where(i => i.Status == Models.Enum.Status.Done).Count() : 0
+            }).Take(3);
 
             DashboardViewModel dashboardData = new()
             {
@@ -81,19 +83,31 @@ namespace ProjectManagement.App.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateProject(CreateProjectDto createProjectDto)
         {
-            if (!ModelState.IsValid)
+            try
             {
+                if (!ModelState.IsValid)
+                {
+
+                    return Json(new { success = false });
+                }
+
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                createProjectDto.ProjectOwnerUserId = userId;
+
+                await _projectRepository.AddAsync(createProjectDto);
+
+                TempData["RepoNotification"] = "Project successfully created";
+
+                 return Json(new { success = true });
+            }
+            catch(Exception ex)
+            {
+                TempData["RepoNotificationFailed"] = "Error when create project " + ex.Message;
 
                 return Json(new { success = false });
             }
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            createProjectDto.ProjectOwnerUserId = userId;
-
-            await _projectRepository.AddAsync(createProjectDto);
-
-            return Json(new { success = true });
         }
 
         [HttpPost]

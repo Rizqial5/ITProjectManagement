@@ -12,7 +12,7 @@ namespace ProjectManagement.App.TagHelper
 
         public void Init(TagHelperContext context)
         {
-            
+
         }
 
         public Task ProcessAsync(TagHelperContext context, TagHelperOutput output)

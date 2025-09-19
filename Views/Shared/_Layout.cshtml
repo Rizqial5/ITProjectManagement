@@ -9,8 +9,15 @@
     <link rel="stylesheet" href="~/ProjectManagement.App.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/ej2/material.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="~/js/ej2/ej2.min.js"></script>
+    <!-- jQuery Validation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+
+    <!-- jQuery Unobtrusive Validation (ASP.NET Core) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+
 </head>
 <body>
     <style>
@@ -63,6 +70,9 @@
             transition: all 0.3s ease;
         }
     </style>
+
+
+    <div id="dialogTarget"></div>
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow fixed-top">
@@ -133,10 +143,30 @@
         </div>
     </footer>
 
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <ejs-scripts></ejs-scripts>
     @await RenderSectionAsync("Scripts", required: false)
+
+    @* Notifikasi dari TempData *@
+    @if (TempData["RepoNotification"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                ejs.notifications.ToastUtility.show('@TempData["RepoNotification"]', 'Success', 3000);
+            });
+        </script>
+    }
+
+    @if (TempData["RepoNotificationFailed"] != null)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                ejs.notifications.ToastUtility.show('@TempData["RepoNotificationFailed"]', 'Error', 3000);
+            });
+        </script>
+    }
 
     <script>
         // Init Sidebar Syncfusion
