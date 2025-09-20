@@ -1,0 +1,92 @@
+﻿@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.ViewModel.Home
+@using Syncfusion.EJ2.Grids
+@using ProjectManagement.App.Models.Enum
+
+@{
+    ViewData["Title"] = "Projects";
+    var statusData = Enum.GetNames<Status>().ToArray();
+    string[] filterName = ["Name", "Date"];
+}
+
+<style>
+    .custom-radius{
+        border-radius:10px
+    }
+</style>
+
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Project</h2>
+        <p>Manage and track all your projects in one place</p>
+    </div>
+    <ejs-button id="btnNewProject" cssClass="create-project-dsb" content="New Project" isPrimary="true" iconCss="e-icons e-plus" onclick="createProject()"></ejs-button>
+</div>
+
+<div class="border bg-card text-card-foreground custom-radius shadow-sm">
+    <div class="p-3 d-flex align-items-center gap-3">
+        <!-- Search box -->
+        <ejs-textbox id="searchInput" placeholder="Search..." floatLabelType="Never"></ejs-textbox>
+
+        <!-- Status dropdown -->
+        <ejs-dropdownlist id="statusFilter"
+                          placeholder="Select Status"
+                          floatLabelType="Never"
+                          dataSource='statusData'>
+        </ejs-dropdownlist>
+
+        <!-- Search filter dropdown -->
+        <ejs-dropdownlist id="fieldFilter"
+                          placeholder="Search By"
+                          floatLabelType="Never"
+                          dataSource='filterName'>
+        </ejs-dropdownlist>
+    </div>
+</div>
+
+<div class="e-card-resize-container">
+    <div class="row card-layout">
+        <div class="col-md-2">
+            <div tabindex="0" class="e-card e-card-vertical card-tasks">
+                <div class='e-card-stacked'>
+                    <div class="e-card-header-title">Total Tasks</div>
+                    <h3>Test</h3>
+                    <div class="e-card-sub-title">completed</div>
+                </div>
+                <div>
+                    <div class="icon-circle">
+                        <i class="fas fa-check-square"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div tabindex="0" class="e-card e-card-vertical card-tasks">
+                <div class='e-card-stacked'>
+                    <div class="e-card-header-title">Total Tasks</div>
+                    <h3>Test</h3>
+                    <div class="e-card-sub-title">completed</div>
+                </div>
+                <div>
+                    <div class="icon-circle">
+                        <i class="fas fa-check-square"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+
+<ejs-dialog id="createProjectDialog" header="Create new Project"
+            width="500px" visible="false" showCloseIcon="true" isModal="true"
+            target="#dialogTarget">
+    <e-content-template>
+        <partial name="_CreateProjectDialog" model="new CreateProjectDto()"></partial>
+    </e-content-template>
+</ejs-dialog>
+

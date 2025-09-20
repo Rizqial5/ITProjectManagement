@@ -69,6 +69,13 @@
             margin-top: 10px;
             transition: all 0.3s ease;
         }
+
+        .link-font {
+            text-decoration: auto;
+            color: #2a2cde;
+            font-weight: bold;
+        }
+
     </style>
 
 
@@ -122,7 +129,7 @@
             <div class="sidebar-menu">
                 <a href="@Url.Action("Index", "Home")"><i class="fas fa-home me-2"></i> Home</a>
                 <a href="#"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
-                <a href="#"><i class="fas fa-columns me-2"></i> Kanban</a>
+                <a href="@Url.Action("Page", "Projects")"><i class="fas fa-columns me-2"></i> Projects</a>
             </div>
         </div>
 
@@ -145,8 +152,9 @@
 
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     <ejs-scripts></ejs-scripts>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/project.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
     @* Notifikasi dari TempData *@
