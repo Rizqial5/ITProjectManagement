@@ -1,92 +1,262 @@
 ﻿@using ProjectManagement.App.DTO.Project
-@using ProjectManagement.App.ViewModel.Home
-@using Syncfusion.EJ2.Grids
 @using ProjectManagement.App.Models.Enum
-
+@using ProjectManagement.App.ViewModel.Project
+@model IEnumerable<ProjectCardViewModel>
 @{
     ViewData["Title"] = "Projects";
-    var statusData = Enum.GetNames<Status>().ToArray();
-    string[] filterName = ["Name", "Date"];
+    var statusList = Enum.GetNames<Status>().ToArray();
+    var sortList = new[] { "Name", "Date" };
+
+    
 }
 
 <style>
-    .custom-radius{
-        border-radius:10px
+    .project-header {
+        margin-top: 32px;
+        margin-bottom: 16px;
+    }
+    .project-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+    .project-desc {
+        color: #6b7280;
+        margin-bottom: 0;
+    }
+    .project-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    .project-searchbar {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 24px 24px 16px 24px;
+        margin-bottom: 32px;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+    .project-cards-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+    }
+    .project-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        padding: 24px 20px 16px 20px;
+        width: 100%;
+        max-width: 340px;
+        min-width: 280px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: box-shadow 0.2s;
+    }
+    .project-card:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    .project-card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .project-card-status {
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 8px;
+        padding: 2px 10px;
+        margin-bottom: 8px;
+        display: inline-block;
+    }
+    .status-inprogress { background: #e0e7ff; color: #2563eb; }
+    .status-completed { background: #d1fae5; color: #059669; }
+    .project-card-desc {
+        color: #6b7280;
+        font-size: 0.98rem;
+        margin-bottom: 10px;
+    }
+    .project-card-progress-label {
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin-bottom: 2px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .project-card-progress {
+        margin-bottom: 10px;
+    }
+    .project-card-info {
+        display: flex;
+        gap: 18px;
+        font-size: 0.95rem;
+        color: #444;
+        margin-bottom: 8px;
+    }
+    .project-card-info i {
+        margin-right: 4px;
+    }
+    .project-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+    }
+    .project-card-members {
+        display: flex;
+        gap: 4px;
+    }
+    .project-card-member {
+        background: #e0e7ff;
+        color: #2563eb;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border: 2px solid #fff;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .project-card-view-btn {
+        padding: 4px 16px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        background: #fff7ed;
+        color: #f97316;
+        border: 1px solid #fde68a;
+        transition: background 0.2s, color 0.2s;
+    }
+    .project-card-view-btn:hover {
+        background: #f97316;
+        color: #fff;
+        border-color: #f97316;
     }
 </style>
 
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-        <h2 class="mb-0">Project</h2>
-        <p>Manage and track all your projects in one place</p>
-    </div>
-    <ejs-button id="btnNewProject" cssClass="create-project-dsb" content="New Project" isPrimary="true" iconCss="e-icons e-plus" onclick="createProject()"></ejs-button>
-</div>
-
-<div class="border bg-card text-card-foreground custom-radius shadow-sm">
-    <div class="p-3 d-flex align-items-center gap-3">
-        <!-- Search box -->
-        <ejs-textbox id="searchInput" placeholder="Search..." floatLabelType="Never"></ejs-textbox>
-
-        <!-- Status dropdown -->
-        <ejs-dropdownlist id="statusFilter"
-                          placeholder="Select Status"
-                          floatLabelType="Never"
-                          dataSource='statusData'>
-        </ejs-dropdownlist>
-
-        <!-- Search filter dropdown -->
-        <ejs-dropdownlist id="fieldFilter"
-                          placeholder="Search By"
-                          floatLabelType="Never"
-                          dataSource='filterName'>
-        </ejs-dropdownlist>
+<div class="project-header">
+    <div class="project-toolbar">
+        <div>
+            <h2 class="project-title">Projects</h2>
+            <p class="project-desc">Manage and track all your projects in one place</p>
+        </div>
+        <ejs-button id="btnNewProject" cssClass="e-primary" content="New Project" iconCss="e-icons e-plus" isPrimary="true" onclick="createProject()"></ejs-button>
     </div>
 </div>
 
-<div class="e-card-resize-container">
-    <div class="row card-layout">
-        <div class="col-md-2">
-            <div tabindex="0" class="e-card e-card-vertical card-tasks">
-                <div class='e-card-stacked'>
-                    <div class="e-card-header-title">Total Tasks</div>
-                    <h3>Test</h3>
-                    <div class="e-card-sub-title">completed</div>
+<div class="project-searchbar">
+    <ejs-textbox id="searchInput" placeholder="Search projects..." floatLabelType="Never" width="260px"></ejs-textbox>
+    <ejs-dropdownlist id="statusFilter"
+                      placeholder="All Status"
+                      floatLabelType="Never"
+                      dataSource="statusList"
+                      allowFiltering="false"
+                      width="160px">
+    </ejs-dropdownlist>
+    <ejs-dropdownlist id="sortFilter"
+                      placeholder="Name"
+                      floatLabelType="Never"
+                      dataSource="sortList"
+                      allowFiltering="false"
+                      width="140px">
+    </ejs-dropdownlist>
+</div>
+
+<div class="project-cards-row" id="projectCardsRow">
+    @foreach (var project in Model)
+    {
+        var statusClass = project.Status == Status.Done ? "status-completed" : "status-inprogress";
+        var statusText = project.Status == Status.Done ? "Completed" : "In Progress";
+
+        <div class="project-card" data-title="@project.Title" data-status="@project.Status" data-members="4">
+            <div>
+                <div class="project-card-title">
+                    @project.Title
+                    <span class="project-card-status @statusClass">@statusText</span>
                 </div>
-                <div>
-                    <div class="icon-circle">
-                        <i class="fas fa-check-square"></i>
-                    </div>
+                <div class="project-card-desc">@project.Description</div>
+                <div class="project-card-progress-label">
+                    <span>Progress</span>
+                    <span>@project.Progress%</span>
+                </div>
+                <div class="project-card-progress">
+                    <ejs-progressbar id="progress_@project.Id" type="Linear" value="@project.Progress" height="6px" trackThickness="6" progressThickness="6"></ejs-progressbar>
+                </div>
+                <div class="project-card-info">
+                    <span><i class="fas fa-tasks"></i> @project.CompletedTasks/@project.TotalTasks tasks</span>
+                    <span><i class="fas fa-users"></i> 0 members</span>
+                </div>
+                <div class="project-card-info">
+                    <span><i class="fas fa-calendar-alt"></i> Due @project.DueDate.ToString("M/d/yyyy")</span>
+                    @if (project.IsConnected)
+                    {
+                        <span><i class="fab fa-github"></i> Connected</span>
+                    }
                 </div>
             </div>
-        </div>
-
-        <div class="col-md-2">
-            <div tabindex="0" class="e-card e-card-vertical card-tasks">
-                <div class='e-card-stacked'>
-                    <div class="e-card-header-title">Total Tasks</div>
-                    <h3>Test</h3>
-                    <div class="e-card-sub-title">completed</div>
-                </div>
-                <div>
-                    <div class="icon-circle">
-                        <i class="fas fa-check-square"></i>
-                    </div>
-                </div>
+            <div class="project-card-footer">
+                <ejs-button id="view_@project.Id" content="View Details" cssClass="project-card-view-btn" onclick="viewProjectDetails('@Url.Action("Details", "Projects", new { id = project.Id })')"></ejs-button>
             </div>
         </div>
-        </div>
-    </div>
+    }
 </div>
 
+@section Scripts {
+    <ejs-scripts></ejs-scripts>
+    <script>
+        // Real-time search & filter
+        function filterProjects() {
+            var search = $('#searchInput').val().toLowerCase();
+            var status = $('#statusFilter').val();
+            var sort = $('#sortFilter').val();
+            var $cards = $('#projectCardsRow .project-card');
 
+            $cards.each(function () {
+                var $card = $(this);
+                var title = $card.data('title').toLowerCase();
+                var cardStatus = $card.data('status');
+                var show = true;
 
-<ejs-dialog id="createProjectDialog" header="Create new Project"
-            width="500px" visible="false" showCloseIcon="true" isModal="true"
-            target="#dialogTarget">
-    <e-content-template>
-        <partial name="_CreateProjectDialog" model="new CreateProjectDto()"></partial>
-    </e-content-template>
-</ejs-dialog>
+                if (search && !title.includes(search)) show = false;
+                if (status && status !== cardStatus) show = false;
+
+                $card.toggle(show);
+            });
+
+            // Optional: sort by name or date
+            if (sort === "Name") {
+                $cards.sort(function (a, b) {
+                    return $(a).data('title').localeCompare($(b).data('title'));
+                });
+            }
+            // Add sort by date if needed
+            $('#projectCardsRow').html($cards);
+        }
+
+        $('#searchInput').on('input', filterProjects);
+        $('#statusFilter').on('change', filterProjects);
+        $('#sortFilter').on('change', filterProjects);
+
+        function viewProjectDetails(url) {
+            // Implementasi navigasi ke detail project
+
+            window.location.href = url;
+        }
+        function createProject() {
+            // Implementasi open dialog atau redirect
+            // Contoh: buka dialog Syncfusion
+            $('#createProjectDialog').ej2_instances[0].show();
+        }
+    </script>
+}
 
