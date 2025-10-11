@@ -142,6 +142,11 @@
         color: #fff;
         border-color: #f97316;
     }
+
+    .connect-button{
+        border-radius: 8px;
+    }
+
 </style>
 
 <div class="project-header">
@@ -202,10 +207,23 @@
                     {
                         <span><i class="fab fa-github"></i> Connected</span>
                     }
+                    else
+                    {
+                        <span><i class="fab fa-github"></i> Not Connected</span>
+                    }
                 </div>
             </div>
             <div class="project-card-footer">
                 <ejs-button id="view_@project.Id" content="View Details" cssClass="project-card-view-btn" onclick="viewProjectDetails('@Url.Action("Details", "Projects", new { id = project.Id })')"></ejs-button>
+                @if (!project.IsConnected)
+                {
+                    <ejs-button id="github_@project.Id" content="Connect to Github"
+                                cssClass="e-primary connect-button"
+                                onclick="connectProject('@project.Id')">
+                    </ejs-button>
+                }
+
+
             </div>
         </div>
     }
@@ -256,6 +274,10 @@
             // Implementasi open dialog atau redirect
             // Contoh: buka dialog Syncfusion
             $('#createProjectDialog').ej2_instances[0].show();
+        }
+
+        function connectProject(id) {
+            console.log("connecting... " + id )
         }
     </script>
 }
