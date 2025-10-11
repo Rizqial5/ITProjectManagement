@@ -145,6 +145,22 @@
 
     .connect-button{
         border-radius: 8px;
+        background-color: #181717;
+        color: #ffffff;
+    }
+
+
+    .connect-button:hover {
+        background-color: #24292e; /* Warna hitam GitHub yang sedikit lebih terang */
+        box-shadow: 0 2px 8px rgba(24, 23, 23, 0.4);
+        color: #ffffff;
+        cursor: pointer;
+    }
+
+    .connect-button:active {
+        background-color: #0d1117; /* Lebih gelap ketika ditekan */
+        box-shadow: none;
+        color: #ffffff;
     }
 
 </style>
@@ -223,7 +239,7 @@
                 @if (!project.IsConnected)
                 {
                     <ejs-button id="github_@project.Id" content="Connect Repo"
-                                cssClass="e-primary connect-button"
+                                cssClass="connect-button"
                                 iconCss="fab fa-github"
                                 onclick="showGithubDialog('@project.Id')">
                     </ejs-button>

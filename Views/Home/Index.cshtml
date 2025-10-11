@@ -28,6 +28,30 @@
         font-size: 15px;
     }
 
+    .connect-github-dsb {
+        height: 40px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 500;
+        background-color: #181717;
+        color: #ffffff;
+        border: none;
+    }
+
+    .connect-github-dsb:hover {
+        background-color: #24292e; /* Warna hitam GitHub yang sedikit lebih terang */
+        box-shadow: 0 2px 8px rgba(24, 23, 23, 0.4);
+            color: #ffffff;
+        cursor: pointer;
+    }
+
+    .connect-github-dsb:active {
+        background-color: #0d1117; /* Lebih gelap ketika ditekan */
+        box-shadow: none;
+            color: #ffffff;
+    }
+
+
     .e-card.e-card-horizontal .e-card-stacked{
         flex: 5;
     }
@@ -156,9 +180,8 @@
                     isPrimary="true"
                     iconCss="e-icons e-plus" onclick="createProject()"></ejs-button>
         <ejs-button id="btnConnctGithub"
-                    cssClass="create-project-dsb"
+                    cssClass="connect-github-dsb"
                     content="Connect Github"
-                    isPrimary="true"
                     iconCss="fab fa-github" onclick="connectGithub()"></ejs-button>
     </div>
 
