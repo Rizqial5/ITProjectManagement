@@ -214,11 +214,17 @@
                 </div>
             </div>
             <div class="project-card-footer">
-                <ejs-button id="view_@project.Id" content="View Details" cssClass="project-card-view-btn" onclick="viewProjectDetails('@Url.Action("Details", "Projects", new { id = project.Id })')"></ejs-button>
+                <ejs-button id="view_@project.Id" 
+                    content="View Details"
+                    cssClass="project-card-view-btn"
+                    onclick="viewProjectDetails('@Url.Action("Details", "Projects", new { id = project.Id })')">
+                </ejs-button>
+
                 @if (!project.IsConnected)
                 {
-                    <ejs-button id="github_@project.Id" content="Connect to Github"
+                    <ejs-button id="github_@project.Id" content="Connect Repo"
                                 cssClass="e-primary connect-button"
+                                iconCss="fab fa-github"
                                 onclick="showGithubDialog('@project.Id')">
                     </ejs-button>
                 }
@@ -229,9 +235,7 @@
     }
 </div>
 
-<div id="githubTarget">
-    <partial name="_GithubDialog" ></partial>
-</div>
+<partial name="_GithubDialog"></partial>
 
 @section Scripts {
     <ejs-scripts></ejs-scripts>
@@ -284,60 +288,6 @@
             console.log("connecting... " + id )
         }
 
-        function showGithubDialog(id){
-            // Tampilkan dialog
-            var dialogObj = document.getElementById("githubDialog").ej2_instances[0];
-
-            if (!dialogObj.beforeOpenSet) {
-                dialogObj.beforeOpen = function () {
-                    var githubGrid = document.getElementById("Github")?.ej2_instances?.[0];
-                    if (githubGrid) githubGrid.refresh();
-                };
-                dialogObj.beforeOpenSet = true; // custom flag agar tidak set dua kali
-            }
-
-            projectId = id;
-
-            dialogObj.show();
-
-            var checkGrid = $("#Github").length > 0;
-
-            // Cek apakah grid sudah pernah dibuat
-            if (!checkGrid) {
-
-                $("#githubGridContainer").empty()
-
-                var grid = new ej.grids.Grid({
-                    id: "Github",
-                    dataSource: new ej.data.DataManager({
-                        url: '@Url.Action("ShowGithubRepo", "GithubAuth")',
-                        adaptor: new ej.data.UrlAdaptor()
-                    }),
-                    allowPaging: true,
-                    allowSorting: true,
-                    allowFiltering: true,
-                    height: 400,
-                    commandClick: onGithubGrid,
-                    columns: [
-                        { field: "Name", headerText: "Name", width: 200 },
-                        {
-                            field: "Html_Url", headerText: "URL", width: 300,
-                            template: '<a href="${Html_Url}">${Html_Url}</a>'
-                        },
-                        { field: "Description", headerText: "Description", width: 250 },
-                        {
-                            headerText: "Actions", width: 120, textAlign: "Center",
-                            commands: [{
-                                type: "Connect",
-                                buttonOption: { content: "Connect", cssClass: "e-primary" }
-                            }]
-                        }
-                    ]
-                });
-
-                grid.appendTo("#githubGridContainer");
-            }
-        }
     </script>
 }
 
