@@ -117,6 +117,8 @@ namespace ProjectManagement.App.Controllers
 
             }
 
+            TempData["RepoNotification"] = "Connected to Github";
+
             return RedirectToAction("Index", "Home");
         }
 
