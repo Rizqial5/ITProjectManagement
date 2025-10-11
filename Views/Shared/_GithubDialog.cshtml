@@ -13,6 +13,9 @@
 </script>
  *@
 <script>
+
+     var projectId;
+
     function onGithubGrid(args)
     {
         var type = args.commandColumn.type;
@@ -26,7 +29,6 @@
                 Html_Url: data.Html_Url,
                 Description : data.Description
             }
-            var projectId = @ViewBag.ProjectID
 
             $.ajax({
                 type: 'POST',
