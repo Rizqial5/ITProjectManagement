@@ -11,123 +11,6 @@
 }
 
 <style>
-    .project-header {
-        margin-top: 32px;
-        margin-bottom: 16px;
-    }
-    .project-title {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0;
-    }
-    .project-desc {
-        color: #6b7280;
-        margin-bottom: 0;
-    }
-    .project-toolbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
-    }
-    .project-searchbar {
-        background: #f8fafc;
-        border-radius: 12px;
-        padding: 24px 24px 16px 24px;
-        margin-bottom: 32px;
-        display: flex;
-        gap: 16px;
-        align-items: center;
-    }
-    .project-cards-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 24px;
-    }
-    .project-card {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-        padding: 24px 20px 16px 20px;
-        width: 100%;
-        max-width: 340px;
-        min-width: 280px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        transition: box-shadow 0.2s;
-    }
-    .project-card:hover {
-        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    }
-    .project-card-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 4px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .project-card-status {
-        font-size: 0.85rem;
-        font-weight: 500;
-        border-radius: 8px;
-        padding: 2px 10px;
-        margin-bottom: 8px;
-        display: inline-block;
-    }
-    .status-inprogress { background: #e0e7ff; color: #2563eb; }
-    .status-completed { background: #d1fae5; color: #059669; }
-    .project-card-desc {
-        color: #6b7280;
-        font-size: 0.98rem;
-        margin-bottom: 10px;
-    }
-    .project-card-progress-label {
-        font-size: 0.95rem;
-        font-weight: 500;
-        margin-bottom: 2px;
-        display: flex;
-        justify-content: space-between;
-    }
-    .project-card-progress {
-        margin-bottom: 10px;
-    }
-    .project-card-info {
-        display: flex;
-        gap: 18px;
-        font-size: 0.95rem;
-        color: #444;
-        margin-bottom: 8px;
-    }
-    .project-card-info i {
-        margin-right: 4px;
-    }
-    .project-card-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 8px;
-    }
-    .project-card-members {
-        display: flex;
-        gap: 4px;
-    }
-    .project-card-member {
-        background: #e0e7ff;
-        color: #2563eb;
-        border-radius: 50%;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-size: 0.95rem;
-        border: 2px solid #fff;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-    }
     .project-card-view-btn {
         padding: 4px 16px;
         border-radius: 8px;
@@ -137,31 +20,32 @@
         border: 1px solid #fde68a;
         transition: background 0.2s, color 0.2s;
     }
-    .project-card-view-btn:hover {
-        background: #f97316;
-        color: #fff;
-        border-color: #f97316;
-    }
 
-    .connect-button{
+        .project-card-view-btn:hover {
+            background: #f97316;
+            color: #fff;
+            border-color: #f97316;
+        }
+
+    .connect-button {
         border-radius: 8px;
         background-color: #181717;
         color: #ffffff;
     }
 
 
-    .connect-button:hover {
-        background-color: #24292e; /* Warna hitam GitHub yang sedikit lebih terang */
-        box-shadow: 0 2px 8px rgba(24, 23, 23, 0.4);
-        color: #ffffff;
-        cursor: pointer;
-    }
+        .connect-button:hover {
+            background-color: #24292e; /* Warna hitam GitHub yang sedikit lebih terang */
+            box-shadow: 0 2px 8px rgba(24, 23, 23, 0.4);
+            color: #ffffff;
+            cursor: pointer;
+        }
 
-    .connect-button:active {
-        background-color: #0d1117; /* Lebih gelap ketika ditekan */
-        box-shadow: none;
-        color: #ffffff;
-    }
+        .connect-button:active {
+            background-color: #0d1117; /* Lebih gelap ketika ditekan */
+            box-shadow: none;
+            color: #ffffff;
+        }
 
 </style>
 
@@ -252,6 +136,14 @@
 </div>
 
 <partial name="_GithubDialog"></partial>
+<ejs-dialog id="createProjectDialog" header="Create new Project"
+            width="500px" visible="false" showCloseIcon="true" isModal="true"
+            target="#dialogTarget">
+    <e-content-template>
+        <partial name="_CreateProjectDialog" model="new CreateProjectDto()"></partial>
+    </e-content-template>
+</ejs-dialog>
+
 
 @section Scripts {
     <ejs-scripts></ejs-scripts>
@@ -293,11 +185,6 @@
             // Implementasi navigasi ke detail project
 
             window.location.href = url;
-        }
-        function createProject() {
-            // Implementasi open dialog atau redirect
-            // Contoh: buka dialog Syncfusion
-            $('#createProjectDialog').ej2_instances[0].show();
         }
 
         function connectProject(id) {
