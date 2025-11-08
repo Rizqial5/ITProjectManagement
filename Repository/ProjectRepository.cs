@@ -193,6 +193,7 @@ namespace ProjectManagement.App.Repository
         {
             return await _dbContext.Projects
                 .Include(i=> i.Tasks)
+                .Include(i=>i.GithubRepoConnecteds)
                 .Where(p => p.ProjectOwnerUserId == userId)
                 .ToListAsync();
         }

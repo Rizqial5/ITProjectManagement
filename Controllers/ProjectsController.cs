@@ -29,7 +29,7 @@ namespace ProjectManagement.App.Controllers
                 TotalTasks = i.Tasks.Count,
                 CompletedTasks = i.Tasks.Count != 0 ? i.Tasks.Where(i => i.Status == Models.Enum.Status.Done).Count() : 0,
                 DueDate = i.EndDate,
-                IsConnected = false
+                IsConnected = i.GithubRepoConnecteds.Any(i => i.Connected)
             });
 
 

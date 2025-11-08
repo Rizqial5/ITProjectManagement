@@ -13,6 +13,8 @@ namespace ProjectManagement.App.ViewModel.Project
         public float Progress => TotalTasks != 0 ? ((float)CompletedTasks / TotalTasks) * 100 : 0;
         public DateTime DueDate { get; set; }
         public bool IsConnected { get; set; }
+
+        public int RepoId { get; set; }
         //public List<MemberViewModel> Members { get; set; } = new();
     }
 }

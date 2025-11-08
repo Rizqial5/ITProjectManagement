@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Github;
@@ -220,17 +221,31 @@ namespace ProjectManagement.App.Controllers
         [HttpPost]
         public async Task<IActionResult> DisconnectRepo(int projectId)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            var response = await _projectRepository.DisconnectRepo(userId, projectId);
-
-            TempData["RepoNotification"] = "Project has successfully disconnected";
-
-            return Json(new
+            try
             {
-                Success = response.Success,
-                
-            });
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var response = await _projectRepository.DisconnectRepo(userId, projectId);
+
+                TempData["RepoNotification"] = "Project has successfully disconnected";
+
+                return Json(new
+                {
+                    Success = response.Success,
+
+                });
+            }
+            catch(Exception ex)
+            {
+                TempData["RepoNotificationFailed"] = "Error Disconnect Project " + ex.Message;
+
+                return Json(new
+                {
+                    Success = false,
+
+                });
+            }
+
         }
     }
 }

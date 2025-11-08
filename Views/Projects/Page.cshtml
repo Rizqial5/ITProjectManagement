@@ -33,6 +33,19 @@
         color: #ffffff;
     }
 
+    .disconnect-button{
+        border-radius: 8px;
+        background-color: #d61111;
+        color: #ffffff;
+    }
+
+    .disconnect-button:hover {
+        background-color: #f50606; /* Warna hitam GitHub yang sedikit lebih terang */
+        box-shadow: 0 2px 8px rgba(24, 23, 23, 0.4);
+        color: #ffffff;
+        cursor: pointer;
+    }
+
 
         .connect-button:hover {
             background-color: #24292e; /* Warna hitam GitHub yang sedikit lebih terang */
@@ -128,6 +141,13 @@
                                 onclick="showGithubDialog('@project.Id')">
                     </ejs-button>
                 }
+                else
+                {
+                    <ejs-button id="github_@project.Id" content="Disconnect Repo"
+                                cssClass="disconnect-button"
+                                onclick="disconnectRepo('@project.Id')">
+                    </ejs-button>
+                }
 
 
             </div>
@@ -189,6 +209,40 @@
 
         function connectProject(id) {
             console.log("connecting... " + id )
+        }
+        s
+
+        function disconnectRepo(id,repoId) {
+            showConfirmationDialog(
+                "Disconnect project",
+                "Are you sure you want to disconnect this project from github repo?",
+                function () {
+                    // YES action
+
+                    $.ajax({
+                        url: '@Url.Action("DisconnectRepo", "Workspace")',
+                        type: "POST",
+                        data: {
+                            projectId: id
+                        },
+                        success: function (response) {
+
+                            location.reload();
+
+                        },
+                        error: function (xhr, status, error) {
+
+                            console.error(error);
+                            location.reload();
+                        }
+                    });
+                    // TODO: panggil Ajax ke controller kalau perlu
+                },
+                function () {
+                    // NO action
+                    console.log("User cancelled");
+                }
+            );
         }
 
     </script>
