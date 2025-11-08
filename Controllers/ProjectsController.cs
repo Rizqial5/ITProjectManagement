@@ -28,7 +28,7 @@ namespace ProjectManagement.App.Controllers
                 Status = i.Tasks.Count != 0 ? i.Tasks.FirstOrDefault().Status : Models.Enum.Status.ToDo,
                 TotalTasks = i.Tasks.Count,
                 CompletedTasks = i.Tasks.Count != 0 ? i.Tasks.Where(i => i.Status == Models.Enum.Status.Done).Count() : 0,
-                DueDate = DateTime.MaxValue,
+                DueDate = i.EndDate,
                 IsConnected = false
             });
 

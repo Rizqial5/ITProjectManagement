@@ -16,6 +16,12 @@
 		@* <span asp-validation-for="Description"></span> *@
 	</div>
 
+    <div class="mb-3">
+        <label asp-for="EndDate" class="form-label"></label>
+        <ejs-datepicker ejs-for="EndDate" class="form-control"></ejs-datepicker>
+        @* <span asp-validation-for="Description"></span> *@
+    </div>
+
 	<div class="text-end mb-3" >
 		<ejs-button id="submit"  isPrimary="true" content="Add Project"/>
 	</div>

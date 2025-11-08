@@ -13,9 +13,13 @@ namespace ProjectManagement.App.Models.Workspace
         [MaxLength(100)]
         public string Name { get; set; }
 
+        [MaxLength(300)]
         public string? Description { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        public DateTime EndDate { get; set; } 
 
         // Relasi: 1 Project memiliki banyak TaskItem
         [JsonIgnore]

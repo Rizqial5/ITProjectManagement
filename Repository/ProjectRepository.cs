@@ -28,6 +28,7 @@ namespace ProjectManagement.App.Repository
                 Name = project.Title,
                 Description = project.Description,
                 CreatedAt = DateTime.UtcNow,
+                EndDate = project.EndDate,
                 ProjectOwnerUserId = project.ProjectOwnerUserId
             };
 
