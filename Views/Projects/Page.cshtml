@@ -7,10 +7,17 @@
     var statusList = Enum.GetNames<Status>().ToArray();
     var sortList = new[] { "Name", "Date" };
 
-    
 }
-
 <style>
+
+        .e-list-template .e-list-item {
+        width: 32%;
+        margin: 0.5%;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+
     .project-card-view-btn {
         padding: 4px 16px;
         border-radius: 8px;
@@ -62,6 +69,8 @@
 
 </style>
 
+
+
 <div class="project-header">
     <div class="project-toolbar">
         <div>
@@ -89,6 +98,7 @@
                       width="140px">
     </ejs-dropdownlist>
 </div>
+
 
 <div class="project-cards-row" id="projectCardsRow">
     @foreach (var project in Model)
@@ -155,6 +165,10 @@
     }
 </div>
 
+<ejs-pager id="ProjectPager" pageSize="6" totalRecordsCount="@Model.Count()" class="mt-3">
+
+</ejs-pager>
+
 <partial name="_GithubDialog"></partial>
 <ejs-dialog id="createProjectDialog" header="Create new Project"
             width="500px" visible="false" showCloseIcon="true" isModal="true"
@@ -165,8 +179,12 @@
 </ejs-dialog>
 
 
+
+
 @section Scripts {
     <ejs-scripts></ejs-scripts>
+
+
     <script>
         // Real-time search & filter
         function filterProjects() {
@@ -210,7 +228,7 @@
         function connectProject(id) {
             console.log("connecting... " + id )
         }
-        s
+        
 
         function disconnectRepo(id,repoId) {
             showConfirmationDialog(
