@@ -226,12 +226,13 @@
         </div>
     </div>
 
+
     <div class="details-overview-row">
         <div class="details-overview-card">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="details-overview-title">Project Overview</span>
                 <div class="details-overview-meta">
-                    <span><i class="fas fa-calendar-alt"></i> Due @Model.DueDate.ToString("M/d/yyyy")</span>
+                    <span><i class="fas fa-calendar-alt"></i> Due @Model.DueDate.ToString("dd-MMM-yyyy")</span>
                     @if (Model.IsConnected)
                     {
                         <span><i class="fab fa-github"></i> Connected</span>
