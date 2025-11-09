@@ -30,10 +30,19 @@ namespace ProjectManagement.App.Repository
                 .FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == taskId);
         }
 
-        public async Task AddAsync(int projectId, TaskItem task)
+        public async Task AddAsync(int projectId, CreateTaskDto task)
         {
-            task.ProjectId = projectId;
-            await _dbContext.TaskItems.AddAsync(task);
+
+
+            TaskItem taskItem = new()
+            {
+                Title = task.Title,
+                Description = task.Description,
+                Status = task.Status,
+                TargetDate = task.TargetDate,
+                ProjectId = task.ProjectID
+            };
+            await _dbContext.TaskItems.AddAsync(taskItem);
             await _dbContext.SaveChangesAsync();
         }
 

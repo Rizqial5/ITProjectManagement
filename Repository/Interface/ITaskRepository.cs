@@ -9,7 +9,7 @@ namespace ProjectManagement.App.Repository.Interface
     {
         Task<IEnumerable<TaskItem>> GetAllAsync(int projectId);
         Task<TaskItem?> GetAsync(int projectId, int taskId);
-        Task AddAsync(int projectId, TaskItem task);
+        Task AddAsync(int projectId, CreateTaskDto task);
         Task<bool> UpdateAsync(int projectId, TaskItem task);
         Task<bool> DeleteAsync(int projectId, int taskId);
 

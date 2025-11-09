@@ -1,4 +1,5 @@
 ﻿@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.DTO.Task
 @model ProjectDetailsDto
 @{
     ViewData["Title"] = "Project Details";
@@ -203,6 +204,9 @@
     }
 </style>
 
+
+<partial name="_CreateTaskDialog" model="new CreateTaskDto() {ProjectTitle = Model.Title, ProjectID = Model.Id}"></partial>
+
 <div>
     <div class="details-header">
         <a href="javascript:history.back()" class="btn btn-link p-0" style="font-size:1.5rem;"><i class="fas fa-arrow-left"></i></a>
@@ -296,7 +300,7 @@
     <div class="details-tasks-card mt-4">
         <div class="details-tasks-header">
             <span style="font-weight:600;font-size:1.1rem;">Project Tasks</span>
-            <ejs-button id="addTaskButton" content="Add Task" cssClass="e-primary" iconCss="e-icons e-plus" isPrimary="true"></ejs-button>
+            <ejs-button id="addTaskButton" content="Add Task" cssClass="e-primary" iconCss="e-icons e-plus" isPrimary="true" onclick="showCreateTaskDialog()"></ejs-button>
         </div>
 
         @if(Model.Tasks.Any())
@@ -312,7 +316,7 @@
                     </div>
                     <div class="details-task-badges">
                         <span class="badge @(task.Priority == "Low" ? "badge-priority-low" : "badge-priority-high")">@task.Priority</span>
-                        <span class="badge @(task.Status == "To Do" ? "badge-status-todo" : "badge-status-inprogress")">@task.Status</span>
+                        <span class="badge @(task.Status == "ToDo" ? "badge-status-todo" : "badge-status-inprogress")">@task.Status</span>
                     </div>
                     @if (task.Commits > 0)
                     {

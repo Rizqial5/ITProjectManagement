@@ -147,5 +147,26 @@ namespace ProjectManagement.App.Controllers
 
         }
 
+
+        [HttpPost]
+        public async Task<IActionResult> AddTask(CreateTaskDto newTask, int projectId)
+        {
+            try
+            {
+                await _taskRepository.AddAsync(projectId, newTask);
+
+                TempData["RepoNotification"] = $"Task {newTask.Title} added succesfully";
+
+                return Json(new { success = true });
+            }
+            catch(Exception ex)
+            {
+                TempData["RepoNotificationFailed"] = ex.Message;
+
+                return Json(new { success = false });
+            }
+
+        }
+
     }
 }

@@ -77,6 +77,7 @@ namespace ProjectManagement.App.Controllers
 
             var data = new ProjectDetailsDto()
             {
+                Id = project.Id,
                 Title = project.Title,
                 Description = project.Description,
                 Status = project.Status.ToString(),
@@ -85,15 +86,17 @@ namespace ProjectManagement.App.Controllers
                 Progress = project.Progress,
                 TotalTasks = project.TotalTasks,
                 CompletedTasks = project.CompletedTasks,
-                TotalCommits = projectData.Tasks.Sum(i=> i.Commits.Count()),
+                TotalCommits = projectData.Tasks.Sum(i => i.Commits.Count()),
                 Members = new string[] { "Test", "Agus" },
                 Tasks = projectData.Tasks.Any() ? projectData.Tasks.Select(i => new ProjectTaskDto()
                 {
                     Id = i.Id,
                     Title = i.Title,
                     Description = i.Description,
-                    Commits = i.Commits.Count()
-                }).ToArray() : Array.Empty<ProjectTaskDto>()
+                    Commits = i.Commits.Count(),
+                    DueDate = i.TargetDate,
+                    Status = i.Status.ToString()
+                }).OrderByDescending(i => i.DueDate).ToArray() : Array.Empty<ProjectTaskDto>()
 
             };
 

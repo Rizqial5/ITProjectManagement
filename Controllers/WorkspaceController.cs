@@ -148,14 +148,14 @@ namespace ProjectManagement.App.Controllers
             });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddTask([FromBody] ExpandoObject value, int projectId)
-        {
-            var task = value.ToTaskItemFromPayload();
-            task.ProjectId = projectId;
-            await _taskRepository.AddAsync(projectId, task);
-            return Json(new {success= true});
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> AddTask([FromBody] ExpandoObject value, int projectId)
+        //{
+        //    var task = value.ToTaskItemFromPayload();
+        //    task.ProjectId = projectId;
+        //    await _taskRepository.AddAsync(projectId, task);
+        //    return Json(new {success= true});
+        //}
 
         [HttpPost]
         public async Task<IActionResult> UpdateTask([FromBody] TaskItem value, int projectId)
