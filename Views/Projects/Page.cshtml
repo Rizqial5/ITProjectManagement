@@ -8,66 +8,7 @@
     var sortList = new[] { "Name", "Date" };
 
 }
-<style>
 
-        .e-list-template .e-list-item {
-        width: 32%;
-        margin: 0.5%;
-        display: inline-block;
-        vertical-align: top;
-    }
-
-
-    .project-card-view-btn {
-        padding: 4px 16px;
-        border-radius: 8px;
-        font-size: 0.8rem;
-        background: #fff7ed;
-        color: #f97316;
-        border: 1px solid #fde68a;
-        transition: background 0.2s, color 0.2s;
-    }
-
-        .project-card-view-btn:hover {
-            background: #f97316;
-            color: #fff;
-            border-color: #f97316;
-        }
-
-    .connect-button {
-        border-radius: 8px;
-        background-color: #181717;
-        color: #ffffff;
-    }
-
-    .disconnect-button{
-        border-radius: 8px;
-        background-color: #d61111;
-        color: #ffffff;
-    }
-
-    .disconnect-button:hover {
-        background-color: #f50606; /* Warna hitam GitHub yang sedikit lebih terang */
-        box-shadow: 0 2px 8px rgba(24, 23, 23, 0.4);
-        color: #ffffff;
-        cursor: pointer;
-    }
-
-
-        .connect-button:hover {
-            background-color: #24292e; /* Warna hitam GitHub yang sedikit lebih terang */
-            box-shadow: 0 2px 8px rgba(24, 23, 23, 0.4);
-            color: #ffffff;
-            cursor: pointer;
-        }
-
-        .connect-button:active {
-            background-color: #0d1117; /* Lebih gelap ketika ditekan */
-            box-shadow: none;
-            color: #ffffff;
-        }
-
-</style>
 
 
 
@@ -101,72 +42,14 @@
 
 
 <div class="project-cards-row" id="projectCardsRow">
-    @foreach (var project in Model)
-    {
-        var statusClass = project.Status == Status.Done ? "status-completed" : "status-inprogress";
-        var statusText = project.Status == Status.Done ? "Completed" : "In Progress";
-
-        <div class="project-card" data-title="@project.Title" data-status="@project.Status" data-members="4">
-            <div>
-                <div class="project-card-title">
-                    @project.Title
-                    <span class="project-card-status @statusClass">@statusText</span>
-                </div>
-                <div class="project-card-desc">@project.Description</div>
-                <div class="project-card-progress-label">
-                    <span>Progress</span>
-                    <span>@project.Progress%</span>
-                </div>
-                <div class="project-card-progress">
-                    <ejs-progressbar id="progress_@project.Id" type="Linear" value="@project.Progress" height="6px" trackThickness="6" progressThickness="6"></ejs-progressbar>
-                </div>
-                <div class="project-card-info">
-                    <span><i class="fas fa-tasks"></i> @project.CompletedTasks/@project.TotalTasks tasks</span>
-                    <span><i class="fas fa-users"></i> 0 members</span>
-                </div>
-                <div class="project-card-info">
-                    <span><i class="fas fa-calendar-alt"></i> Due @project.DueDate.ToString("M/d/yyyy")</span>
-                    @if (project.IsConnected)
-                    {
-                        <span><i class="fab fa-github"></i> Connected</span>
-                    }
-                    else
-                    {
-                        <span><i class="fab fa-github"></i> Not Connected</span>
-                    }
-                </div>
-            </div>
-            <div class="project-card-footer">
-                <ejs-button id="view_@project.Id" 
-                    content="View Details"
-                    cssClass="project-card-view-btn"
-                    onclick="viewProjectDetails('@Url.Action("Details", "Projects", new { id = project.Id })')">
-                </ejs-button>
-
-                @if (!project.IsConnected)
-                {
-                    <ejs-button id="github_@project.Id" content="Connect Repo"
-                                cssClass="connect-button"
-                                iconCss="fab fa-github"
-                                onclick="showGithubDialog('@project.Id')">
-                    </ejs-button>
-                }
-                else
-                {
-                    <ejs-button id="github_@project.Id" content="Disconnect Repo"
-                                cssClass="disconnect-button"
-                                onclick="disconnectRepo('@project.Id')">
-                    </ejs-button>
-                }
-
-
-            </div>
-        </div>
-    }
+    @await Html.PartialAsync("_ProjectCardListPartial", Model)
 </div>
 
-<ejs-pager id="ProjectPager" pageSize="6" totalRecordsCount="@Model.Count()" class="mt-3">
-
+<ejs-pager id="ProjectPager"
+           pageSize="@ViewBag.PageSize"
+           totalRecordsCount="@ViewBag.TotalRecords"
+           pageSizes="true"
+            class="mt-3">
 </ejs-pager>
 
 <partial name="_GithubDialog"></partial>
@@ -186,6 +69,32 @@
 
 
     <script>
+
+        document.addEventListener("DOMContentLoaded", setPagerClick)
+
+        function setPagerClick() {
+
+            var pager = document.getElementById("ProjectPager").ej2_instances[0];
+            pager.click = onPagerClick;
+        }
+
+        function onPagerClick(args) {
+            $.ajax({
+                url: '@Url.Action("GetPagedProjects", "Projects")',
+                type: 'POST',
+                data: {
+                    currentPage: args.currentPage,
+                    pageSize: this.pageSize
+                },
+                success: function (result) {
+                    $("#projectCardsRow").html(result);
+                },
+                error: function () {
+                    console.error("Failed to load paged projects.");
+                }
+            });
+        }
+
         // Real-time search & filter
         function filterProjects() {
             var search = $('#searchInput').val().toLowerCase();

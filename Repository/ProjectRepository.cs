@@ -191,11 +191,15 @@ namespace ProjectManagement.App.Repository
 
         public async Task<IEnumerable<Project>> GetAllAsync(string userId)
         {
-            return await _dbContext.Projects
-                .Include(i=> i.Tasks)
-                .Include(i=>i.GithubRepoConnecteds)
+
+            var dataList = await _dbContext.Projects
+                .Include(i => i.Tasks)
+                .Include(i => i.GithubRepoConnecteds)
                 .Where(p => p.ProjectOwnerUserId == userId)
                 .ToListAsync();
+                
+
+            return dataList;
         }
 
         public async Task<Project?> GetAsync(int id, string userId)
