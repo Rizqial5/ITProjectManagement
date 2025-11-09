@@ -1,5 +1,4 @@
 ﻿@using ProjectManagement.App.DTO.Project
-@using Syncfusion.EJ2.ProgressBar
 @model ProjectDetailsDto
 @{
     ViewData["Title"] = "Project Details";
@@ -184,6 +183,20 @@
         align-items: center;
         gap: 4px;
     }
+
+
+    .no-tasks-message {
+        text-align: center;
+        color: #bdbdbd;
+        padding: 40px 0;
+        font-size: 1rem;
+        font-style: italic;
+    }
+
+    .details-tasks-card:has(.no-tasks-message) {
+        justify-content: center; /* vertikal tengah */
+        align-items: center; /* horizontal tengah */
+    }
     @@media (max-width: 991.98px) {
         .details-overview-row { flex-direction: column; gap: 16px; }
         .details-overview-card, .details-overview-card-right { min-width: 0; }
@@ -200,7 +213,16 @@
             <div class="details-desc">@Model.Description</div>
         </div>
         <div class="ms-auto d-flex align-items-center gap-2">
-            <ejs-button content="Connect Repository" cssClass="e-primary details-connect-btn" iconCss="fas fa-link" isPrimary="true"></ejs-button>
+            @if (!Model.IsConnected)
+            {
+                <ejs-button id="connectRepo" content="Connect Repository" cssClass="e-primary details-connect-btn" iconCss="fas fa-link" isPrimary="true"></ejs-button>
+            }
+            else
+            {
+                <ejs-button id="disconnectRepo" content="Disconnect Repository" cssClass="e-primary details-connect-btn" iconCss="fas fa-link" isPrimary="true"></ejs-button>
+            }
+
+
         </div>
     </div>
 
@@ -221,7 +243,11 @@
                 <span>@Model.Progress%</span>
             </div>
             <div class="details-progressbar">
-                <ejs-progressbar id="progressbar" type="Linear" value="@Model.Progress" height="8px" trackThickness="8" progressThickness="8"></ejs-progressbar>
+                <ejs-progressbar id="progress_@Model.Id" type="Linear" 
+                value="@Model.Progress" 
+                height="6px" 
+                width="90%"
+                trackThickness="6" progressThickness="6"></ejs-progressbar>
             </div>
             <div style="color:#6b7280; font-size:0.98rem; margin-bottom:18px;">
                 @($"{Model.CompletedTasks} of {Model.TotalTasks} tasks completed")
@@ -261,6 +287,7 @@
                         <div>@m</div>
                     }
                 }
+
             </div>
         </div>
     </div>
@@ -268,29 +295,40 @@
     <div class="details-tasks-card mt-4">
         <div class="details-tasks-header">
             <span style="font-weight:600;font-size:1.1rem;">Project Tasks</span>
-            <ejs-button content="Add Task" cssClass="e-primary" iconCss="e-icons e-plus" isPrimary="true"></ejs-button>
+            <ejs-button id="addTaskButton" content="Add Task" cssClass="e-primary" iconCss="e-icons e-plus" isPrimary="true"></ejs-button>
         </div>
-        @foreach (var task in Model.Tasks)
+
+        @if(Model.Tasks.Any())
         {
-            <div class="details-task-item">
-                <div class="details-task-title">@task.Title</div>
-                <div class="details-task-desc">@task.Description</div>
-                <div class="details-task-meta">
-                    <span><i class="fas fa-user"></i> @task.Assignee</span>
-                    <span><i class="fas fa-calendar-alt"></i> @task.DueDate.ToString("M/d/yyyy")</span>
-                </div>
-                <div class="details-task-badges">
-                    <span class="badge @(task.Priority == "Low" ? "badge-priority-low" : "badge-priority-high")">@task.Priority</span>
-                    <span class="badge @(task.Status == "To Do" ? "badge-status-todo" : "badge-status-inprogress")">@task.Status</span>
-                </div>
-                @if (task.Commits > 0)
-                {
-                    <div class="details-task-commits">
-                        <i class="fas fa-code-branch"></i> @task.Commits commits
+            @foreach (var task in Model.Tasks)
+            {
+                <div class="details-task-item">
+                    <div class="details-task-title">@task.Title</div>
+                    <div class="details-task-desc">@task.Description</div>
+                    <div class="details-task-meta">
+                        <span><i class="fas fa-user"></i> @task.Assignee</span>
+                        <span><i class="fas fa-calendar-alt"></i> @task.DueDate.ToString("M/d/yyyy")</span>
                     </div>
-                }
+                    <div class="details-task-badges">
+                        <span class="badge @(task.Priority == "Low" ? "badge-priority-low" : "badge-priority-high")">@task.Priority</span>
+                        <span class="badge @(task.Status == "To Do" ? "badge-status-todo" : "badge-status-inprogress")">@task.Status</span>
+                    </div>
+                    @if (task.Commits > 0)
+                    {
+                        <div class="details-task-commits">
+                            <i class="fas fa-code-branch"></i> @task.Commits commits
+                        </div>
+                    }
+                </div>
+            }
+        }
+        else
+        {
+            <div class="no-tasks-message">
+                No Tasks yet
             </div>
         }
+        
     </div>
 </div>
 

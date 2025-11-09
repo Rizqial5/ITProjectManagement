@@ -81,16 +81,20 @@ namespace ProjectManagement.App.Controllers
                 Description = project.Description,
                 Status = project.Status.ToString(),
                 DueDate = project.DueDate,
-                IsConnected = true,
+                IsConnected = project.IsConnected,
                 Progress = project.Progress,
                 TotalTasks = project.TotalTasks,
                 CompletedTasks = project.CompletedTasks,
-                TotalCommits = 0,
+                TotalCommits = projectData.Tasks.Sum(i=> i.Commits.Count()),
                 Members = new string[] { "Test", "Agus" },
-                Tasks = new ProjectTaskDto[] {
-                    new() { Title = "Create project documentation", Description = "Write comprehensive API documentation", Assignee = "Mike Johnson", DueDate = new DateTime(2024,3,15), Priority = "Low", Status = "To Do", Commits = 0 },
-                    new() { Title = "Database optimization", Description = "Optimize queries and add indexing", Assignee = "David Lee", DueDate = new DateTime(2024,3,25), Priority = "High", Status = "In Progress", Commits = 5 }
-                }
+                Tasks = projectData.Tasks.Any() ? projectData.Tasks.Select(i => new ProjectTaskDto()
+                {
+                    Id = i.Id,
+                    Title = i.Title,
+                    Description = i.Description,
+                    Commits = i.Commits.Count()
+                }).ToArray() : Array.Empty<ProjectTaskDto>()
+
             };
 
 

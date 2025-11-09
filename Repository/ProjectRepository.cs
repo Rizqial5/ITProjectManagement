@@ -78,7 +78,7 @@ namespace ProjectManagement.App.Repository
             try
             {
                 // first create repo data
-
+                // check if is on the connected
                 var newRepo = new GithubRepo
                 {
                     RepoId = githubRepoDto.RepoId,
@@ -86,20 +86,32 @@ namespace ProjectManagement.App.Repository
                     RepoUrl = githubRepoDto.Html_Url,
                 };
 
-                await _dbContext.GithubRepos.AddAsync(newRepo);
-                await _dbContext.SaveChangesAsync();
-
-                var newGithubConnected = new GithubRepoConnected
+                if (!_dbContext.GithubRepos.Any(i => i.RepoId == githubRepoDto.RepoId))
                 {
-                    ProjectId = projectId,
-                    RepoId = newRepo.RepoId,
-                    UserId = userId,
-                    Connected = true,
-                    ConnectedDate = DateTime.UtcNow,
-                    
-                };
+                    await _dbContext.GithubRepos.AddAsync(newRepo);
+                }
 
-                await _dbContext.GithubRepoConnecteds.AddAsync(newGithubConnected);
+                var existingConnected = await _dbContext.GithubRepoConnecteds.FirstOrDefaultAsync((i => i.RepoId == githubRepoDto.RepoId
+                && i.ProjectId == projectId));
+
+                if (existingConnected != null)
+                {
+                    existingConnected.Connected = true;
+                }
+                else
+                {
+                    var newGithubConnected = new GithubRepoConnected
+                    {
+                        ProjectId = projectId,
+                        RepoId = newRepo.RepoId,
+                        UserId = userId,
+                        Connected = true,
+                        ConnectedDate = DateTime.UtcNow,
+
+                    };
+
+                    await _dbContext.GithubRepoConnecteds.AddAsync(newGithubConnected);
+                }
 
                 await _dbContext.SaveChangesAsync();
 

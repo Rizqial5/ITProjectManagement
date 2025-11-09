@@ -213,7 +213,17 @@ namespace ProjectManagement.App.Controllers
 
             var response = await _projectRepository.ConnectRepo(userId, projectId, insertRepo);
 
-            return Json(response);
+            if(response.Success)
+            {
+                TempData["RepoNotification"] = response.Message;
+            }
+            else
+            {
+                TempData["RepoNotificationFailed"] = response.Message;
+            }
+
+
+                return Json(response);
 
 
         }

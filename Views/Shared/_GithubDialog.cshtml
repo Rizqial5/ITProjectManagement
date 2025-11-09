@@ -13,7 +13,6 @@
 </script>
  *@
 <script>
-
      var projectId;
 
     function onGithubGrid(args)
@@ -35,14 +34,10 @@
                 url: '@Url.Action("ConnectToRepo", "Workspace")',
                 data: { projectId: projectId, repo: repoData },
                 success: function (response) {
-                    if (response.Success) {
-                         ejs.notifications.ToastUtility.show(response.Message, 'Success', 3000);
-                    } else {
-                        ejs.notifications.ToastUtility.show(response.Message, 'Error', 3000);
-                    }
+                    location.reload();
                 },
                 error: function () {
-                    ejs.notifications.ToastUtility.show('Error contacting server.', 'Error', 3000);
+                    location.reload();
                 }
             });
         }
