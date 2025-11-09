@@ -1,7 +1,297 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using ProjectManagement.App.DTO.Project
+@using Syncfusion.EJ2.ProgressBar
+@model ProjectDetailsDto
 @{
+    ViewData["Title"] = "Project Details";
+    
 }
 
-<h3>Test</h3>
+<style>
+    .details-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 8px;
+    }
+    .details-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+    .details-desc {
+        color: #6b7280;
+        margin-bottom: 0;
+        font-size: 1.1rem;
+    }
+    .details-status-badge {
+        background: #e0e7ff;
+        color: #2563eb;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-radius: 8px;
+        padding: 2px 12px;
+        margin-left: 8px;
+    }
+    .details-connect-btn {
+        margin-left: 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 1rem;
+    }
+    .details-overview-row {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+    .details-overview-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 24px 24px 16px 24px;
+        flex: 2;
+        min-width: 340px;
+        margin-bottom: 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .details-overview-card-right {
+        flex: 1;
+        min-width: 280px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .details-overview-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+    .details-overview-meta {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-size: 0.98rem;
+        color: #6b7280;
+        margin-bottom: 8px;
+    }
+    .details-progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.98rem;
+        margin-bottom: 2px;
+    }
+    .details-progressbar {
+        margin-bottom: 12px;
+    }
+    .details-overview-stats {
+        display: flex;
+        gap: 18px;
+        margin-top: 18px;
+    }
+    .details-stat-card {
+        flex: 1;
+        background: #f1f5ff;
+        border-radius: 12px;
+        padding: 18px 0 10px 0;
+        text-align: center;
+        color: #2563eb;
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+    .details-stat-card.tasks { background: #f1f5ff; color: #2563eb; }
+    .details-stat-card.members { background: #e6fff4; color: #059669; }
+    .details-stat-card.commits { background: #fff7ed; color: #f97316; }
+    .details-stat-label {
+        display: block;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-top: 6px;
+        color: #6b7280;
+    }
+    .details-team-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+    .details-team-list {
+        min-height: 60px;
+    }
+    .details-tasks-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 24px 24px 8px 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .details-tasks-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+    .details-task-item {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 18px 18px 10px 18px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+    .details-task-title {
+        font-weight: 600;
+        font-size: 1.08rem;
+        margin-bottom: 2px;
+    }
+    .details-task-desc {
+        color: #6b7280;
+        font-size: 0.98rem;
+        margin-bottom: 8px;
+    }
+    .details-task-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 0.95rem;
+        color: #444;
+        margin-bottom: 6px;
+    }
+    .details-task-badges {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+    .badge-priority-low { background: #e0f2fe; color: #0284c7; }
+    .badge-priority-high { background: #fee2e2; color: #dc2626; }
+    .badge-status-todo { background: #e0e7ff; color: #2563eb; }
+    .badge-status-inprogress { background: #e0e7ff; color: #2563eb; }
+    .badge {
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 8px;
+        padding: 2px 10px;
+        display: inline-block;
+    }
+    .details-task-commits {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-top: 2px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    @@media (max-width: 991.98px) {
+        .details-overview-row { flex-direction: column; gap: 16px; }
+        .details-overview-card, .details-overview-card-right { min-width: 0; }
+    }
+</style>
+
+<div>
+    <div class="details-header">
+        <a href="javascript:history.back()" class="btn btn-link p-0" style="font-size:1.5rem;"><i class="fas fa-arrow-left"></i></a>
+        <div>
+            <div class="details-title">@Model.Title
+                <span class="details-status-badge">@Model.Status</span>
+            </div>
+            <div class="details-desc">@Model.Description</div>
+        </div>
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <ejs-button content="Connect Repository" cssClass="e-primary details-connect-btn" iconCss="fas fa-link" isPrimary="true"></ejs-button>
+        </div>
+    </div>
+
+    <div class="details-overview-row">
+        <div class="details-overview-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="details-overview-title">Project Overview</span>
+                <div class="details-overview-meta">
+                    <span><i class="fas fa-calendar-alt"></i> Due @Model.DueDate.ToString("M/d/yyyy")</span>
+                    @if (Model.IsConnected)
+                    {
+                        <span><i class="fab fa-github"></i> Connected</span>
+                    }
+                </div>
+            </div>
+            <div class="details-progress-label">
+                <span>Progress</span>
+                <span>@Model.Progress%</span>
+            </div>
+            <div class="details-progressbar">
+                <ejs-progressbar id="progressbar" type="Linear" value="@Model.Progress" height="8px" trackThickness="8" progressThickness="8"></ejs-progressbar>
+            </div>
+            <div style="color:#6b7280; font-size:0.98rem; margin-bottom:18px;">
+                @($"{Model.CompletedTasks} of {Model.TotalTasks} tasks completed")
+            </div>
+            <div class="details-overview-stats">
+                <div class="details-stat-card tasks">
+                    <i class="fas fa-check-square" style="font-size:1.5rem;"></i>
+                    <div>@Model.TotalTasks</div>
+                    <span class="details-stat-label">Total Tasks</span>
+                </div>
+                <div class="details-stat-card members">
+                    <i class="fas fa-users" style="font-size:1.5rem;"></i>
+                    <div>@Model.Members.Length</div>
+                    <span class="details-stat-label">Team Members</span>
+                </div>
+                <div class="details-stat-card commits">
+                    <i class="fas fa-code-branch" style="font-size:1.5rem;"></i>
+                    <div>@Model.TotalCommits</div>
+                    <span class="details-stat-label">Total Commits</span>
+                </div>
+            </div>
+        </div>
+        <div class="details-overview-card-right">
+            <div>
+                <span class="details-team-title"><i class="fas fa-users"></i> Team Members</span>
+                <button class="btn btn-light btn-sm float-end" title="Invite Member"><i class="fas fa-user-plus"></i></button>
+            </div>
+            <div class="details-team-list">
+                @if (!Model.Members.Any())
+                {
+                    <span style="color:#bdbdbd;">No members yet</span>
+                }
+                else
+                {
+                    foreach (var m in Model.Members)
+                    {
+                        <div>@m</div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="details-tasks-card mt-4">
+        <div class="details-tasks-header">
+            <span style="font-weight:600;font-size:1.1rem;">Project Tasks</span>
+            <ejs-button content="Add Task" cssClass="e-primary" iconCss="e-icons e-plus" isPrimary="true"></ejs-button>
+        </div>
+        @foreach (var task in Model.Tasks)
+        {
+            <div class="details-task-item">
+                <div class="details-task-title">@task.Title</div>
+                <div class="details-task-desc">@task.Description</div>
+                <div class="details-task-meta">
+                    <span><i class="fas fa-user"></i> @task.Assignee</span>
+                    <span><i class="fas fa-calendar-alt"></i> @task.DueDate.ToString("M/d/yyyy")</span>
+                </div>
+                <div class="details-task-badges">
+                    <span class="badge @(task.Priority == "Low" ? "badge-priority-low" : "badge-priority-high")">@task.Priority</span>
+                    <span class="badge @(task.Status == "To Do" ? "badge-status-todo" : "badge-status-inprogress")">@task.Status</span>
+                </div>
+                @if (task.Commits > 0)
+                {
+                    <div class="details-task-commits">
+                        <i class="fas fa-code-branch"></i> @task.Commits commits
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<ejs-scripts></ejs-scripts>

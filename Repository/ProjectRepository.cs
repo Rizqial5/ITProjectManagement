@@ -205,6 +205,8 @@ namespace ProjectManagement.App.Repository
         public async Task<Project?> GetAsync(int id, string userId)
         {
             return await _dbContext.Projects
+                .Include(i => i.Tasks)
+                .Include(i => i.GithubRepoConnecteds)
                 .FirstOrDefaultAsync(i => i.Id == id && i.ProjectOwnerUserId == userId);
         }
 
