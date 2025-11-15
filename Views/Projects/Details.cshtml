@@ -140,7 +140,13 @@
         border-radius: 12px;
         padding: 18px 18px 10px 18px;
         margin-bottom: 16px;
+        cursor: pointer;
         box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        transition: background 0.2s, transform 0.1s;
+    }
+
+    .details-task-item:hover {
+        background: #f7f7f7;
     }
     .details-task-title {
         font-weight: 600;
@@ -307,7 +313,17 @@
         {
             @foreach (var task in Model.Tasks)
             {
-                <div class="details-task-item">
+                <div class="details-task-item"
+                hx-get
+                hx-action="Details"
+                hx-controller="Task"
+                hx-route-projectId="@Model.Id"
+                hx-route-taskId="@task.Id"
+                hx-route-isConnected="@Model.IsConnected"
+                hx-target="#main"
+                hx-swap="innerHTML"
+                
+                >
                     <div class="details-task-title">@task.Title</div>
                     <div class="details-task-desc">@task.Description</div>
                     <div class="details-task-meta">

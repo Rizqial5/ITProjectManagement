@@ -1,4 +1,6 @@
-﻿namespace ProjectManagement.App.ViewModel
+﻿using ProjectManagement.App.Models.Github;
+
+namespace ProjectManagement.App.ViewModel
 {
     public class TaskViewModel
     {
@@ -10,5 +12,12 @@
         public int ProjectId { get; set; }
         public int? TotalLinkedCommits { get; set; } = 0;
         public bool? isConnectedRepo { get; set; } = false;
+        public DateTime DueDate { get; set; }
+        public string? Priority { get; set; }
+        public int? Completion { get; set; } // percent
+        public string? AssigneeName { get; set; }
+        public string? AssigneeRole { get; set; }
+
+        public List<GithubCommit> Commits { get; set; }
     }
 }

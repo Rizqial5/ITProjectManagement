@@ -17,7 +17,6 @@
 
     <!-- jQuery Unobtrusive Validation (ASP.NET Core) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
-
 </head>
 <body>
     <style>
@@ -138,7 +137,9 @@
         <div class="main-wrapper">
             <div class="container-fluid custom-container">
                 <main role="main">
-                    @RenderBody()
+                    <div id="main">
+                        @RenderBody()
+                    </div>
                 </main>
             </div>
         </div>
@@ -156,6 +157,8 @@
     <ejs-scripts></ejs-scripts>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/project.js" asp-append-version="true"></script>
+    <script src="~/js/htmx.min.js"></script>
+    <script src="~/js/_hyperscript.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
     @* Notifikasi dari TempData *@
@@ -189,6 +192,7 @@
         document.getElementById('sidebarToggle').addEventListener('click', function () {
             sidebarObj.toggle();
         });
+
     </script>
 </body>
 </html>

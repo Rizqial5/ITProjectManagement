@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Htmx;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Enum;
 using ProjectManagement.App.Repository;
@@ -20,7 +22,7 @@ namespace ProjectManagement.App.Controllers
             _taskRepository = taskRepository;
         }
 
-        [HttpGet("/project/{projectId}/task/{taskId}_{isConnected}")]
+        [Route("task/{projectId:int}/{taskId:int}")]
         public async Task<IActionResult> Details(int projectId, int taskId, bool isConnected)
         {
             var taskItem = await _taskRepository.GetAsync(projectId, taskId);
@@ -40,12 +42,40 @@ namespace ProjectManagement.App.Controllers
                 ProjectId = taskItem.Project.Id,
                 Description = taskItem.Description,
                 Status = taskItem.Status.ToString(),
+                DueDate = taskItem.TargetDate,
                 TotalLinkedCommits = countCommit,
-                isConnectedRepo = isConnected
+                isConnectedRepo = isConnected,
+                Commits = taskItem.Commits.ToList()
                 
             };
 
+            if(Request.IsHtmx())
+            {
+                Response.Htmx(h =>
+                {
+                    h.PushUrl(Request.GetEncodedUrl());
+                });
+
+                return PartialView(taskModel);
+            }
+
             return View(taskModel);
+        }
+
+
+        [HttpGet]
+        public IActionResult ShowLinkCommit(int projectId, bool isConnected)
+        {
+      
+            var model = new TaskViewModel
+            {
+                ProjectId = projectId,
+                isConnectedRepo = isConnected
+            };
+
+
+            return PartialView("_LinkCommitGrid", model);
+
         }
 
 
