@@ -305,16 +305,6 @@
         <div class="task-details-actions">
             <span class="badge badge-priority-low">@priority</span>
             <span class="badge badge-status-todo">@Model.Status</span>
-            <ejs-button id="btnLinkCommit"
-                        content="Link Commit"
-                        cssClass="e-primary"
-                        iconCss="fas fa-link"
-                        hx-get="@Url.Action("ShowLinkCommit", "Task", 
-                                new { projectId = Model.ProjectId, isConnected = Model.isConnectedRepo })"
-                        hx-target="#commitGrid"
-                        hx-trigger="click"
-                        hx-swap="innerHTML">
-            </ejs-button>
         </div>
     </div>
 
@@ -344,7 +334,7 @@
                 </div>
             </div>
             <!-- Linked Commits Card -->
-            <div class="card">
+            <div class="card" style="height:46%">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div class="card-title">
                         <i class="fab fa-git-alt me-1 text-danger"></i>
@@ -359,26 +349,10 @@
                                 hx-swap="innerHTML">
                     </ejs-button>
                 </div>
-                <ul class="commit-list">
-                    @foreach (var commit in Model.Commits)
-                    {
-                        <li class="commit-item">
-                            <span class="commit-sha-wrapper">
-                                <span class="commit-sha">
-                                    <i class="fas fa-code-branch text-secondary"></i>
-                                    @commit.DisplaySHA
-                                </span>
-                                <span class="branch-line"></span>
-                            </span>
-                            <div>
-                                <div class="commit-message">@commit.Message</div>
-                                <div class="commit-meta">by @commit.AuthorName</div>
-                            </div>
-                            <span class="commit-date">@commit.CommitDate.ToString("M/d/yyyy")</span>
-                            <a href="#" class="commit-link" title="View Commit"><i class="fas fa-external-link-alt"></i></a>
-                        </li>
-                    }
-                </ul>
+                <div id="listCommit" style="height:92%">
+                    <partial name="_ListLinkedCommit" model="@Model.Commits"></partial>
+                </div>
+
             </div>
         </div>
         <!-- Right Column -->
@@ -462,7 +436,7 @@
 
     <script>
 
-        let btnCommit =  document.getElementById("btnAddCommit");
+        var btnCommit =  document.getElementById("btnAddCommit");
 
         btnCommit.addEventListener("htmx:afterOnLoad",  () => {
 
@@ -471,4 +445,24 @@
                 openCommitDialog();
             
         });
+
+        function refreshLinkedCommit(repoId, taskId) {
+            $.ajax({
+            url: '@Url.Action("ShowLinkedCommit", "Task")',
+                type: "GET",
+                data: {
+                repoId: repoId,
+                    taskId : taskId
+                },
+                success: function (response) {
+
+                     $("#listCommit").html(response)
+                },
+                error: function (xhr, status, error) {
+
+                    console.error(error);
+                    ejs.notifications.ToastUtility.show("Error when linking commit", 'Error', 3000);
+                }
+            });
+        }
     </script>

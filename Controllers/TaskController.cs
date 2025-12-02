@@ -78,6 +78,17 @@ namespace ProjectManagement.App.Controllers
 
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ShowLinkedCommit(int repoId, int taskId)
+        {
+
+            var model = await _taskRepository.GetLinkedCommit(repoId, taskId);
+
+
+            return PartialView("_ListLinkedCommit", model);
+
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> GetCommitRepo([FromBody] DataManagerRequest DataManagerRequest, int projectId, int taskId, bool isConnected)
@@ -135,11 +146,13 @@ namespace ProjectManagement.App.Controllers
             {
                 var result = await _taskRepository.ConnectCommitToTaskAsync(repoId, commitId, taskId);
 
+                TempData["RepoNotification"] = "Commit has been sucessfully linked";
 
                 return Json(new { success = true });
             }
             catch(Exception ex)
             {
+                TempData["RepoNotificationFailed"] = "Error when linking commit";
                 return Json(new { success = false, message = ex.Message });
             }
 

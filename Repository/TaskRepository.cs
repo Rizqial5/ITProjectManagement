@@ -3,6 +3,7 @@ using ProjectManagement.App.Data;
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Enum;
+using ProjectManagement.App.Models.Github;
 using ProjectManagement.App.Models.Workspace;
 using ProjectManagement.App.Repository.Interface;
 
@@ -176,6 +177,13 @@ namespace ProjectManagement.App.Repository
                     Message = ex.Message
                 };
             }     
+        }
+
+        public async Task<IEnumerable<GithubCommit>> GetLinkedCommit(int repoId, int taskId)
+        {
+            var listCommit = await _dbContext.GithubCommits.Where(i=> i.RepoId == repoId && i.TaskId == taskId).ToListAsync();
+
+            return listCommit;
         }
     }
 }
