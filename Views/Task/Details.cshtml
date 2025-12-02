@@ -459,15 +459,16 @@
 <partial name="_LinkCommitDialog"></partial>
 
 @Html.EJS().ScriptManager()
-<script>
-     document.body.addEventListener("htmx:afterSwap", function (evt) {
 
-        // Pastikan evt.detail dan evt.detail.target aman
-        if (!evt.detail || !evt.detail.target) return;
+    <script>
 
-        // Baru cek id
-        if (evt.detail.target.id === "commitGrid") {
-            openCommitDialog();
-        }
-    });
-</script>
+        let btnCommit =  document.getElementById("btnAddCommit");
+
+        btnCommit.addEventListener("htmx:afterOnLoad",  () => {
+
+            // Pastikan evt.detail dan evt.detail.target aman
+
+                openCommitDialog();
+            
+        });
+    </script>

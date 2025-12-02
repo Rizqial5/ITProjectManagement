@@ -4,7 +4,7 @@
 
 <ejs-dialog id="commitDialog" header="Link Github Commits" 
             width="75%" visible="false" showCloseIcon="true" isModal="true"
-            target="body">
+            target="body" close="closeCommitDialog">
     <e-content-template>
         <div class="content-dialog" id="commitGrid">
         </div>
@@ -49,8 +49,17 @@
 
     function openCommitDialog(){
         var dialogObj = document.getElementById("commitDialog").ej2_instances[0];
-
+        
         dialogObj.show();
+
+    }
+
+    function closeCommitDialog(){
+        var commitDialog = document.getElementById("commitGrid")
+        var contentDialog = document.getElementById("commmitDialogContent");
+
+        commitDialog.removeChild(contentDialog);
+
 
     }
 </script>
