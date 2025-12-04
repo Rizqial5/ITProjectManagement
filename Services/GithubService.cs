@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json.Linq;
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Github;
@@ -16,10 +17,13 @@ namespace ProjectManagement.App.Services
     public class GithubService : IGithubService
     {
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IMemoryCache _cache;
 
-        public GithubService(IHttpClientFactory httpClientFactory)
+        public GithubService(IHttpClientFactory httpClientFactory, IMemoryCache cache)
         {
             _httpClientFactory = httpClientFactory;
+            _cache = cache;
+
         }
 
         public async Task<ResponseResultDto<CommitCheckResultDto>> CheckLatestCommitAsync(string accessToken, string owner, string repoName, string? lastKnownSha)
@@ -160,15 +164,23 @@ namespace ProjectManagement.App.Services
 
         }
 
-        public async Task<bool> IsGithubTokenValid(GithubAuth existingCreds)
+        public async Task<bool> IsGithubTokenValid(string token)
         {
+            if (string.IsNullOrWhiteSpace(token)) return false;
+
+
+
             var client = _httpClientFactory.CreateClient("Github");
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", existingCreds.AccessToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await client.GetAsync("user");
 
-            return response.IsSuccessStatusCode;
+            var valid = response.IsSuccessStatusCode;
+
+            
+
+            return valid;
         }
 
         public async Task<ResponseResultDto<List<GithubCommitApiResponse>>> GetCommitsAsync(GitHubRepoDto repoData , string accessToken)

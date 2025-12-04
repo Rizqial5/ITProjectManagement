@@ -1,4 +1,5 @@
 ﻿@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.Extensions
 @using ProjectManagement.App.ViewModel.Home
 @using Syncfusion.EJ2.Grids
 @{
@@ -179,10 +180,19 @@
                     content="New Project"
                     isPrimary="true"
                     iconCss="e-icons e-plus" onclick="createProject()"></ejs-button>
-        <ejs-button id="btnConnctGithub"
-                    cssClass="connect-github-dsb"
-                    content="Connect Github"
-                    iconCss="fab fa-github" onclick="connectGithub()"></ejs-button>
+
+        @if(!User.IsConnectedGithub())
+        {
+            <ejs-button id="btnConnctGithub"
+                        cssClass="connect-github-dsb"
+                        content="Connect Github"
+            iconCss="fab fa-github" onclick="connectGithub()"></ejs-button>
+        }
+        else
+        {
+            <div>connected to github</div>
+        }
+
     </div>
 
 </div>

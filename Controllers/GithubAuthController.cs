@@ -1,5 +1,8 @@
 ﻿using Azure;
 using Azure.Core;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Github;
@@ -65,7 +68,7 @@ namespace ProjectManagement.App.Controllers
             }
             else
             {
-                var isValid = await _githubService.IsGithubTokenValid(check.Data);
+                var isValid = await _githubService.IsGithubTokenValid(check.Data.AccessToken);
 
                 if (isValid) 
                 {
@@ -105,7 +108,7 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpGet("github/connected")]
-        public IActionResult GitHubConnected()
+        public async Task<IActionResult> GitHubConnected()
         {
             var githubUsername = TempData["GitHubUser"] as string;
             var accessToken = TempData["AccessToken"] as string;
@@ -115,6 +118,18 @@ namespace ProjectManagement.App.Controllers
                 HttpContext.Session.SetString("GitHubToken", accessToken);
                 HttpContext.Session.SetString("GitHubUser", githubUsername);
 
+                var identity = User.Identity as ClaimsIdentity;
+
+                var old = identity.FindFirst("GithubConnected");
+
+                if (old != null)
+                    identity.RemoveClaim(old);
+
+                identity.AddClaim(new Claim("GithubConnected", "true"));
+
+
+                await HttpContext.SignInAsync(
+                    IdentityConstants.ApplicationScheme, new ClaimsPrincipal(identity));
             }
 
             TempData["RepoNotification"] = "Connected to Github";
