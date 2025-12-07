@@ -41,21 +41,21 @@ namespace ProjectManagement.App.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateKanbanData([FromBody] KanbanDTO kanban, int projectId)
         {
-            if (kanban == null || string.IsNullOrEmpty(kanban.Status.ToString()))
-            {
-                return BadRequest(new { success = false, message = "Data tidak valid." });
-            }
+            //if (kanban == null || string.IsNullOrEmpty(kanban.Status.ToString()))
+            //{
+            //    return BadRequest(new { success = false, message = "Data tidak valid." });
+            //}
 
 
-            // UPDATE
-            var existingTask = await _taskRepository.GetAsync(projectId,kanban.Id);
-            if (existingTask == null)
-                return NotFound(new { success = false, message = "Data tidak ditemukan." });
+            //// UPDATE
+            //var existingTask = await _taskRepository.GetAsync(projectId,kanban.Id);
+            //if (existingTask == null)
+            //    return NotFound(new { success = false, message = "Data tidak ditemukan." });
 
-            existingTask.Title = kanban.Title;
-            existingTask.Description = kanban.Description;
-            existingTask.Status = kanban.Status;
-            await _taskRepository.UpdateAsync(projectId,existingTask);
+            //existingTask.Title = kanban.Title;
+            //existingTask.Description = kanban.Description;
+            //existingTask.Status = kanban.Status;
+            //await _taskRepository.UpdateAsync(projectId,existingTask);
 
             return Ok(new { success = true, message = "Data berhasil diubah." });
             

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Enum;
+using ProjectManagement.App.Models.Workspace;
 using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
@@ -94,13 +95,50 @@ namespace ProjectManagement.App.Controllers
         {
             var task = await _taskRepository.GetAsync(projectId,taskId); // Pastikan method ini ada di repository Anda
             if (task == null) return NotFound();
-            var model = new TaskViewModel
+            var model = new EditTaskDescDto
             {
+                ProjectId = projectId,
                 TaskId = task.Id,
                 Description = task.Description,
                 Status = task.Status.ToString()
             };
-            return PartialView("_EditTaskDetails", model);
+            return PartialView("_EditTaskDescPanel", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateTaskDetails(EditTaskDescDto model)
+        {
+            if (ModelState.IsValid)
+            {
+
+                TaskItem updatedData = new()
+                {
+                    Id = model.TaskId,
+                    Description = model.Description,
+                    Status = Enum.Parse<Status>(model.Status.Trim()),
+
+                };
+
+                var success = await _taskRepository.UpdateAsync(model.ProjectId,updatedData);
+
+                if(success)
+                {
+                    var task = await _taskRepository.GetAsync(model.ProjectId, model.TaskId);
+
+                    var updatedModel = new TaskViewModel
+                    {
+                        ProjectId = model.ProjectId,
+                        TaskId = task.Id,
+                        Description = task.Description,
+                        Status = task.Status.ToString()
+                    };
+                    return PartialView("_TaskDescPanel", updatedModel);
+                }
+                // Reload panel
+
+            }
+
+            return PartialView("_EditTaskDescPanel", model);
         }
 
         [HttpGet]

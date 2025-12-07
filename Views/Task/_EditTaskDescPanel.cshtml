@@ -1,0 +1,54 @@
+﻿@using Syncfusion.EJ2
+@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.Models.Enum
+@using ProjectManagement.App.DTO.Task
+@using ProjectManagement.App.ViewModel.Project
+@model EditTaskDescDto
+@{
+    var statusList = Enum.GetNames<Status>().ToArray();
+    var sortList = new[] { "Name", "Date" };
+    var priority = Model.Priority ?? "Low";
+}
+
+
+<form class="card" id="detailsPanel" asp-action="UpdateTaskDetails" asp-controller="Task"
+      hx-post="@Url.Action("UpdateTaskDetails", "Task")"
+      hx-target="#detailsPanel"
+      hx-swap="outerHTML"
+      id="editTaskDetailsForm">
+    <div class="card-title">Edit Task Details</div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card-section mb-3">
+                <label for="Description"><b>Description</b></label>
+                <textarea asp-for="Description" class="form-control" name="Description" rows="3">@Model.Description</textarea>
+            </div>
+            <div class="card-section mb-3">
+                <label asp-for="Status"><b>Status</b></label>
+                <select asp-for="Status" class="form-control" id="Status" name="Status">
+                    <option value="ToDo">To Do</option>
+                    <option value="InProgress">In Progress</option>
+                    <option value="Done">Done</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-section">
+                <div><b>Priority</b></div>
+                <span class="badge badge-priority-low">@priority</span>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" asp-for=TaskId value="@Model.TaskId" />
+    <input type="hidden" asp-for="ProjectId" value="@Model.ProjectId" />
+    <div class="d-flex justify-content-end mt-3">
+        <button type="submit" class="btn btn-success me-2"><i class="fas fa-save"></i> Save</button>
+        <button type="button" class="btn btn-secondary"
+                hx-get="@Url.Action("DetailsPanel", "Task", new { projectId = Model.ProjectId, taskId = Model.TaskId })"
+                hx-target="#detailsPanel"
+                hx-swap="outerHTML">
+            Cancel
+        </button>
+    </div>
+</form>
+@Html.EJS().ScriptManager()

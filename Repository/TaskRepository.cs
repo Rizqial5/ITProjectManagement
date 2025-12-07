@@ -55,9 +55,9 @@ namespace ProjectManagement.App.Repository
                 .FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == task.Id);
             if (existing == null) return false;
 
-            existing.Title = task.Title;
+            existing.Description = task.Description;
             existing.Status = task.Status;
-            existing.AssignedUserId = task.AssignedUserId;
+            //existing.AssignedUserId = task.AssignedUserId;
             // Tambahkan property lain jika ada
 
             await _dbContext.SaveChangesAsync();
