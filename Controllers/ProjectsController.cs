@@ -112,56 +112,54 @@ namespace ProjectManagement.App.Controllers
 
             var checkConnectProject = await _projectRepository.CheckConnectedProject(project.Id);
 
-            //if(checkConnectProject.Success)
-            //{
-            //    await SynchronizeCommitAsync(checkConnectProject);
-            //}
+            if (checkConnectProject.Success)
+            {
+                await SynchronizeCommitAsync(checkConnectProject);
+            }
 
             return View(data);
         }
 
-        //private async Task SynchronizeCommitAsync(ResponseResultDto<GitHubRepoDto> checkConnectProject)
-        //{
-        //    var repoData = checkConnectProject.Data;
+        private async Task SynchronizeCommitAsync(ResponseResultDto<GitHubRepoDto> checkConnectProject)
+        {
+            var repoData = checkConnectProject.Data;
 
 
-        //    if (!User.IsConnectedGithub())
-        //    {
-        //        var errMessage = "User github credential is expired or not found";
+            if (!User.IsConnectedGithub())
+            {
+                var errMessage = "User github credential is expired or not found";
 
-        //        throw new Exception(errMessage);
-        //    }
+                throw new Exception(errMessage);
+            }
 
-        //    var accesToken = User.;
+            var accesToken = User.GetGithubToken();
 
-        //    var githubData = response.Data;
+            repoData.RepoOwner = User.GetGithubUsername();
 
-        //    repoData.RepoOwner = githubData.GitHubUsername;
+            var commitResponse = await _githubService.GetCommitsAsync(repoData, accesToken);
 
-        //    var commitResponse = await _githubService.GetCommitsAsync(repoData, accesToken);
+            if (commitResponse.Success)
+            {
+                var commitData = commitResponse.Data;
 
-        //    if (commitResponse.Success)
-        //    {
-        //        var commitData = commitResponse.Data;
+                var existingShas = repoData.Commits.Select(c => c.Sha).ToHashSet();
 
-        //        var existingShas = repoData.Commits.Select(c => c.Sha).ToHashSet();
+                var newCommits = commitData.Where(c => !existingShas.Contains(c.Sha)).ToList();
 
-        //        var newCommits = commitData.Where(c => !existingShas.Contains(c.Sha)).ToList();
+                if (newCommits.Any())
+                {
+                    var repoResponse = await _githubRepo.InsertGithubCommit(newCommits, repoData.RepoId);
 
-        //        if (newCommits.Any())
-        //        {
-        //            var repoResponse = await _githubRepo.InsertGithubCommit(newCommits, repoData.RepoId);
-
-        //            if (repoResponse.Success)
-        //            {
-        //                TempData["RepoNotification"] = "Commits has been succesfully Synchronize";
-        //            }
-        //            else
-        //            {
-        //                TempData["RepoNotification"] = "Failed to synchronize commit data";
-        //            }
-        //        }
-        //    }
-        //}
+                    if (repoResponse.Success)
+                    {
+                        TempData["RepoNotification"] = "Commits has been succesfully Synchronize";
+                    }
+                    else
+                    {
+                        TempData["RepoNotification"] = "Failed to synchronize commit data";
+                    }
+                }
+            }
+        }
     }
 }

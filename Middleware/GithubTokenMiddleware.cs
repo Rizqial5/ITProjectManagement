@@ -38,27 +38,30 @@ namespace ProjectManagement.App.Middleware
                 });
             }
 
-            // Update claim
-            if (context.User.Identity is ClaimsIdentity identity)
-            {
-                var cekOld = identity.FindFirst("GitHubConnected");
 
-                if (cekOld is not null)
+                if (context.User.Identity is ClaimsIdentity identity)
                 {
-                    identity.RemoveClaim(identity.FindFirst("GitHubConnected"));
-                    identity.AddClaim(new Claim("GitHubConnected", isValid ? "true" : "false"));
+                    var cekOld = identity.FindFirst("GitHubConnected") ?? identity.FindFirst("GithubConnected");
 
-                    identity.RemoveClaim(identity.FindFirst("GitHubToken"));
-                    if (!string.IsNullOrWhiteSpace(token))
-                        identity.AddClaim(new Claim("GitHubToken", token));
+                    if (cekOld is not null)
+                    {
+                        identity.RemoveClaim(cekOld);
+                        identity.AddClaim(new Claim("GitHubConnected", isValid ? "true" : "false"));
 
-                    identity.RemoveClaim(identity.FindFirst("GitHubUser"));
-                    if (!string.IsNullOrWhiteSpace(userName))
-                        identity.AddClaim(new Claim("GitHubUser", userName));
+                        identity.RemoveClaim(identity.FindFirst("GitHubToken"));
+                        if (!string.IsNullOrWhiteSpace(token))
+                            identity.AddClaim(new Claim("GitHubToken", token));
+
+                        identity.RemoveClaim(identity.FindFirst("GitHubUser"));
+                        if (!string.IsNullOrWhiteSpace(userName))
+                            identity.AddClaim(new Claim("GitHubUser", userName));
+                    }
+
+
                 }
+            
+            // Update claim
 
-
-            }
 
             await next(context);
         }

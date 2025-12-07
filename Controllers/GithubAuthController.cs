@@ -102,7 +102,7 @@ namespace ProjectManagement.App.Controllers
 
                 HttpContext.Session.SetString("GitHubToken", accessToken);
                 HttpContext.Session.SetString("GitHubUser", githubUsername);
-                HttpContext.Session.SetString("GithubConnected", "true");
+                HttpContext.Session.SetString("GitHubConnected", "true");
 
                 var identity = User.Identity as ClaimsIdentity;
             
