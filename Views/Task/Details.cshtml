@@ -16,8 +16,11 @@
 }
 
 <style>
+    .commit-container-card{
+        height : 475px;
+    }
     .task-details-container {
-        min-height: 100vh;
+        /* min-height: 100vh; */
     }
 
     .task-details-header {
@@ -334,7 +337,7 @@
                 </div>
             </div>
             <!-- Linked Commits Card -->
-            <div class="card" style="height:46%">
+            <div class="card commit-container-card">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div class="card-title">
                         <i class="fab fa-git-alt me-1 text-danger"></i>
@@ -349,7 +352,7 @@
                                 hx-swap="innerHTML">
                     </ejs-button>
                 </div>
-                <div id="listCommit" style="height:92%">
+                <div id="listCommit" style="max-height:92%; overflow:auto">
                     <partial name="_ListLinkedCommit" model="@Model.Commits"></partial>
                 </div>
 
