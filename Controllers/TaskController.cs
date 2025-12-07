@@ -89,6 +89,34 @@ namespace ProjectManagement.App.Controllers
 
         }
 
+        [HttpGet]
+        public async Task<IActionResult> EditTaskDetails(int projectId,int taskId)
+        {
+            var task = await _taskRepository.GetAsync(projectId,taskId); // Pastikan method ini ada di repository Anda
+            if (task == null) return NotFound();
+            var model = new TaskViewModel
+            {
+                TaskId = task.Id,
+                Description = task.Description,
+                Status = task.Status.ToString()
+            };
+            return PartialView("_EditTaskDetails", model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DetailsPanel(int projectId, int taskId)
+        {
+            var task = await _taskRepository.GetAsync(projectId,taskId);
+            if (task == null) return NotFound();
+            var model = new TaskViewModel
+            {
+                TaskId = task.Id,
+                Description = task.Description,
+                Status = task.Status.ToString()
+            };
+            return PartialView("_TaskDescPanel", model);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> GetCommitRepo([FromBody] DataManagerRequest DataManagerRequest, int projectId, int taskId, bool isConnected)

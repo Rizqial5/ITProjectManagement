@@ -1,21 +1,27 @@
 ﻿@using Syncfusion.EJ2
 @using Syncfusion.EJ2.ProgressBar
 @using Syncfusion.EJ2.Buttons
+@using ProjectManagement.App.Extensions
 @model ProjectManagement.App.ViewModel.TaskViewModel
 
 @{
-    // Dummy data for demo, replace with Model properties as needed
-    var commits = new[] {
-        new { Sha = "a1b2c3d", Message = "Implement user authentication flow", Author = "John Doe", Date = new DateTime(2024,3,8) },
-        new { Sha = "e4f5g6h", Message = "Add login form validation", Author = "John Doe", Date = new DateTime(2024,3,7) },
-        new { Sha = "i7j8k9l", Message = "Fix authentication redirect issue", Author = "John Doe", Date = new DateTime(2024,3,6) }
-    };
+    
     var isOverdue = Model.DueDate < DateTime.Now && Model.Status != "Done";
     var completion = Model.Completion ?? 60; // percent
     var priority = Model.Priority ?? "Low";
 }
 
 <style>
+    .no-repo-connected{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        min-height: 200px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #888;
+    }
     .commit-container-card{
         height : 475px;
     }
@@ -315,47 +321,40 @@
         <!-- Left Column -->
         <div class="task-details-left">
             <!-- Task Details Card -->
-            <div class="card">
-                <div class="card-title">Task Details</div>
-                <div class="row">
-                    <div class="col-md-8">
-                        <div class="card-section">
-                            <div><b>Description</b></div>
-                            <div>@Model.Description</div>
-                        </div>
-                        <div class="card-section">
-                            <div><b>Status</b></div>
-                            <div>@Model.Status</div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card-section">
-                            <div><b>Priority</b></div>
-                            <span class="badge badge-priority-low">@priority</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Linked Commits Card -->
+            <partial name="_TaskDescPanel" model="Model" />
             <div class="card commit-container-card">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="card-title">
-                        <i class="fab fa-git-alt me-1 text-danger"></i>
-                        Linked Commits (@Model.TotalLinkedCommits)
-                    </div>
-                    <ejs-button id="btnAddCommit"
-                                cssClass="e-outline"
-                                iconCss="e-icons e-plus"
-                                hx-get="@Url.Action("ShowLinkCommit", "Task", new { projectId = Model.ProjectId, isConnected = Model.isConnectedRepo })"
-                                hx-target="#commitGrid"
-                                hx-trigger="click"
-                                hx-swap="innerHTML">
-                    </ejs-button>
-                </div>
-                <div id="listCommit" style="max-height:92%; overflow:auto">
-                    <partial name="_ListLinkedCommit" model="@Model.Commits"></partial>
-                </div>
+                @if (User.IsConnectedGithub() && Model.isConnectedRepo.Value)
+                {
+                    <!-- Linked Commits Card -->
+                
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="card-title">
+                                <i class="fab fa-git-alt me-1 text-danger"></i>
+                                Linked Commits (@Model.TotalLinkedCommits)
+                            </div>
+                                <ejs-button id="btnAddCommit"
+                                            cssClass="e-outline"
+                                            iconCss="e-icons e-plus"
+                                            hx-get="@Url.Action("ShowLinkCommit", "Task", new { projectId = Model.ProjectId, isConnected = Model.isConnectedRepo })"
+                                            hx-target="#commitGrid"
+                                            hx-trigger="click"
+                                            hx-swap="innerHTML">
+                                </ejs-button>
+                        
+                        </div>
+                        <div id="listCommit" style="max-height:92%; overflow:auto">
+  
+                                <partial name="_ListLinkedCommit" model="@Model.Commits"></partial>
+                        
 
+                        </div>
+
+                
+                }
+                else
+                {
+                    <div class="text-center no-repo-connected">No repo Connected</div>
+                }
             </div>
         </div>
         <!-- Right Column -->
@@ -449,13 +448,18 @@
         }
     });
 
-    btnCommit.addEventListener("htmx:afterOnLoad",  () => {
+    if(btnCommit) 
+    {
+        btnCommit.addEventListener("htmx:afterOnLoad",  () => {
 
-        // Pastikan evt.detail dan evt.detail.target aman
+            // Pastikan evt.detail dan evt.detail.target aman
 
-            openCommitDialog();
-            
-    });
+                openCommitDialog();
+
+        });
+
+    }
+
 
 
 

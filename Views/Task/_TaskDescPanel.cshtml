@@ -1,0 +1,45 @@
+﻿@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.Models.Enum
+@using ProjectManagement.App.ViewModel.Project
+@using Syncfusion.EJ2
+@model ProjectManagement.App.ViewModel.TaskViewModel
+@{
+    ViewData["Title"] = "Projects";
+    var statusList = Enum.GetNames<Status>().ToArray();
+    var sortList = new[] { "Name", "Date" };
+    var priority = Model.Priority ?? "Low";
+}
+
+
+<div class="card" id="detailsPanel">
+    <div class="card-title d-flex justify-content-between align-items-center">
+        Task Details
+        <ejs-button id="btnEditTaskDetails"
+                    cssClass="e-outline"
+                    iconCss="fas fa-pencil-alt"
+                    hx-get="@Url.Action("EditTaskDetails", "Task", new { projectId = Model.ProjectId, taskId = Model.TaskId })"
+                    hx-target="#detailsPanel"
+                    hx-trigger="click"
+                    hx-swap="outerHTML">
+        </ejs-button>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card-section">
+                <div><b>Description</b></div>
+                <div>@Model.Description</div>
+            </div>
+            <div class="card-section">
+                <div><b>Status</b></div>
+                <div>@Model.Status</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card-section">
+                <div><b>Priority</b></div>
+                <span class="badge badge-priority-low">@priority</span>
+            </div>
+        </div>
+    </div>
+</div>
+@Html.EJS().ScriptManager()
