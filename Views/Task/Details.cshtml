@@ -392,7 +392,9 @@
                                     hx-post="@Url.Action("SetToDone", "Task")"
                                     hx-vals='{"taskId": "@Model.TaskId", "projectId": "@Model.ProjectId"}'
                                     hx-swap="none"
-                                    hx-trigger="click">
+                                    hx-trigger="click"
+                                    >
+                            
                         </ejs-button>
                     }
                 </div>
@@ -434,35 +436,44 @@
 
 @Html.EJS().ScriptManager()
 
-    <script>
+<script>
 
-        var btnCommit =  document.getElementById("btnAddCommit");
+    var btnCommit =  document.getElementById("btnAddCommit");
 
-        btnCommit.addEventListener("htmx:afterOnLoad",  () => {
-
-            // Pastikan evt.detail dan evt.detail.target aman
-
-                openCommitDialog();
-            
-        });
-
-        function refreshLinkedCommit(repoId, taskId) {
-            $.ajax({
-            url: '@Url.Action("ShowLinkedCommit", "Task")',
-                type: "GET",
-                data: {
-                repoId: repoId,
-                    taskId : taskId
-                },
-                success: function (response) {
-
-                     $("#listCommit").html(response)
-                },
-                error: function (xhr, status, error) {
-
-                    console.error(error);
-                    ejs.notifications.ToastUtility.show("Error when linking commit", 'Error', 3000);
-                }
-            });
+    document.body.addEventListener("htmx:afterRequest", function (evt) {
+        if (evt.detail.requestConfig.elt.id === "btnMarkDone") {
+            location.reload();
         }
-    </script>
+    });
+
+    btnCommit.addEventListener("htmx:afterOnLoad",  () => {
+
+        // Pastikan evt.detail dan evt.detail.target aman
+
+            openCommitDialog();
+            
+    });
+
+
+
+
+    function refreshLinkedCommit(repoId, taskId) {
+        $.ajax({
+        url: '@Url.Action("ShowLinkedCommit", "Task")',
+            type: "GET",
+            data: {
+            repoId: repoId,
+                taskId : taskId
+            },
+            success: function (response) {
+
+                    $("#listCommit").html(response)
+            },
+            error: function (xhr, status, error) {
+
+                console.error(error);
+                ejs.notifications.ToastUtility.show("Error when linking commit", 'Error', 3000);
+            }
+        });
+    }
+</script>
