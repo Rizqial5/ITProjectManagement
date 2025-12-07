@@ -8,6 +8,17 @@
     var statusList = Enum.GetNames<Status>().ToArray();
     var sortList = new[] { "Name", "Date" };
     var priority = Model.Priority ?? "Low";
+
+    var desc = Model.Description ?? "";
+    var lines = desc.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+    bool isList =
+        lines.Length > 1 &&                              // lebih dari 1 baris
+        lines.All(l =>
+            l.TrimStart().StartsWith("-") ||             // contoh: "- item"
+            l.TrimStart().StartsWith("*") ||             // contoh: "* item"
+            char.IsDigit(l.TrimStart().FirstOrDefault()) // contoh: "1. item"
+        );
 }
 
 
@@ -27,7 +38,30 @@
         <div class="col-md-8">
             <div class="card-section">
                 <div><b>Description</b></div>
-                <div>@Model.Description</div>
+                @if (isList)
+                {
+                    <ul class="task-description-list">
+                        @foreach (var line in lines)
+                        {
+                            // bersihkan prefix list seperti "-", "*", "1."
+                            var text = line.TrimStart();
+                            text = text.TrimStart('-', '*').Trim();
+
+                            // menghapus numbering "1." , "2." , dst
+                            if (char.IsDigit(text.FirstOrDefault()) && text.Contains("."))
+                            {
+                                var idx = text.IndexOf(".");
+                                if (idx > 0) text = text.Substring(idx + 1).Trim();
+                            }
+
+                            <li>@text</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div>@Model.Description</div>
+                }
             </div>
             <div class="card-section">
                 <div><b>Status</b></div>
