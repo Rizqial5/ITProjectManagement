@@ -21,6 +21,7 @@ namespace ProjectManagement.App.Middleware
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             var token = context.Session.GetString("GitHubToken");
+            var userName = context.Session.GetString("GitHubUser");
             bool isValid = false;
 
             if (!string.IsNullOrWhiteSpace(token)) 
@@ -40,11 +41,23 @@ namespace ProjectManagement.App.Middleware
             // Update claim
             if (context.User.Identity is ClaimsIdentity identity)
             {
-                var oldClaim = identity.FindFirst("GitHubConnected");
-                if (oldClaim != null)
-                    identity.RemoveClaim(oldClaim);
+                var cekOld = identity.FindFirst("GitHubConnected");
 
-                identity.AddClaim(new Claim("GitHubConnected", isValid ? "true" : "false"));
+                if (cekOld is not null)
+                {
+                    identity.RemoveClaim(identity.FindFirst("GitHubConnected"));
+                    identity.AddClaim(new Claim("GitHubConnected", isValid ? "true" : "false"));
+
+                    identity.RemoveClaim(identity.FindFirst("GitHubToken"));
+                    if (!string.IsNullOrWhiteSpace(token))
+                        identity.AddClaim(new Claim("GitHubToken", token));
+
+                    identity.RemoveClaim(identity.FindFirst("GitHubUser"));
+                    if (!string.IsNullOrWhiteSpace(userName))
+                        identity.AddClaim(new Claim("GitHubUser", userName));
+                }
+
+
             }
 
             await next(context);

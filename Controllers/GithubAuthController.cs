@@ -49,91 +49,72 @@ namespace ProjectManagement.App.Controllers
         {
             var clientId = _configuration["Github:ClientId"];
             var clientSecret = _configuration["Github:ClientSecret"];
-            GithubAuth result;
 
            
             var tokenResponse = await _githubService.ConnectGithub(clientId, clientSecret,code);
 
             // Simpan accessToken ke session/database atau tampilkan info user
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var check = await _authRepository.GetGithubCreds(userId);
-
-            //check apakah token masih valid
-
-            if(!check.Success)
-            {
-                result = await SaveGithubCredentials(tokenResponse, userId);
-            }
-            else
-            {
-                var isValid = await _githubService.IsGithubTokenValid(check.Data.AccessToken);
-
-                if (isValid) 
-                {
-                    result = check.Data;
-                }
-                else
-                {
-                    result = await SaveGithubCredentials(tokenResponse, userId);
-                }
-                
-
-                    
-            }
-
-
-            TempData["GitHubUser"] = result.GitHubId.ToString();
-            TempData["AccessToken"] = result.AccessToken;
+            TempData["GitHubUser"] = tokenResponse.UserInfo?.Login;
+            TempData["AccessToken"] = tokenResponse.AccessToken;
+            TempData["GithubId"] = tokenResponse.UserInfo?.Id.ToString();
 
 
             return RedirectToAction("GitHubConnected");
         }
 
-        private async Task<GithubAuth> SaveGithubCredentials(GithubTokenResponseDto tokenResponse, string userId)
-        {
-            var model = new CreateGithubAuthDto()
-            {
-                AccessToken = tokenResponse.AccessToken,
-                GitHubId = tokenResponse.UserInfo.Id,
-                GitHubUsername = tokenResponse.UserInfo.Login,
-                UserId = userId
-            };
+        //private async Task<GithubAuth> SaveGithubCredentials(GithubTokenResponseDto tokenResponse, string userId)
+        //{
+        //    var model = new CreateGithubAuthDto()
+        //    {
+        //        AccessToken = tokenResponse.AccessToken,
+        //        GitHubId = tokenResponse.UserInfo.Id,
+        //        GitHubUsername = tokenResponse.UserInfo.Login,
+        //        UserId = userId
+        //    };
 
-            var responseResult = await _authRepository.SaveGithubCredentials(model);
+        //    var responseResult = await _authRepository.SaveOrUpdateGithubCredentials(model);
 
-            var result = responseResult.Data;
-            return result;
-        }
+        //    var result = responseResult.Data;
+        //    return result;
+        //}
 
         [HttpGet("github/connected")]
         public async Task<IActionResult> GitHubConnected()
         {
             var githubUsername = TempData["GitHubUser"] as string;
             var accessToken = TempData["AccessToken"] as string;
+            var githubId = TempData["GithubId"] as string;
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if (!string.IsNullOrEmpty(accessToken) && !string.IsNullOrEmpty(githubUsername))
             {
+                // Simpan/Update DB
+                var repoResult = await _authRepository.SaveOrUpdateGithubCredentials(new CreateGithubAuthDto
+                {
+                    AccessToken = accessToken,
+                    GitHubId = Convert.ToInt64(githubId),
+                    GitHubUsername = githubUsername,
+                    UserId = userId
+                });
+
                 HttpContext.Session.SetString("GitHubToken", accessToken);
                 HttpContext.Session.SetString("GitHubUser", githubUsername);
+                HttpContext.Session.SetString("GithubConnected", "true");
 
                 var identity = User.Identity as ClaimsIdentity;
-
-                var old = identity.FindFirst("GithubConnected");
-
-                if (old != null)
-                    identity.RemoveClaim(old);
-
+            
                 identity.AddClaim(new Claim("GithubConnected", "true"));
-
+                identity.AddClaim(new Claim("GitHubToken", accessToken));
+                identity.AddClaim(new Claim("GitHubUser", githubUsername));
 
                 await HttpContext.SignInAsync(
                     IdentityConstants.ApplicationScheme, new ClaimsPrincipal(identity));
             }
 
             TempData["RepoNotification"] = "Connected to Github";
-
             return RedirectToAction("Index", "Home");
         }
 

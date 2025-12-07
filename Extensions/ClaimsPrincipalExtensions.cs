@@ -8,5 +8,15 @@ namespace ProjectManagement.App.Extensions
         {
             return user.HasClaim("GithubConnected", "true");
         }
+
+        public static string? GetGithubToken(this ClaimsPrincipal user)
+        {
+            return user.FindFirst("GitHubToken")?.Value;
+        }
+
+        public static string? GetGithubUsername(this ClaimsPrincipal user)
+        {
+            return user.FindFirst("GitHubUser")?.Value;
+        }
     }
 }

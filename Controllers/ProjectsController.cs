@@ -1,18 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Project;
+using ProjectManagement.App.DTO.Workspace;
+using ProjectManagement.App.Extensions;
+using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
+using ProjectManagement.App.Services.Interfaces;
 using ProjectManagement.App.ViewModel.Project;
+using ProjectManagement.App.ViewModel.Workspace;
 using System.Security.Claims;
 
 namespace ProjectManagement.App.Controllers
 {
     public class ProjectsController : Controller
     {
-        private readonly IProjectRepository _projectRepository;
+        private readonly IProjectRepository _projectRepository; 
+        private readonly IGithubService _githubService;
+        private readonly IGithubRepository _githubRepo;
 
-        public ProjectsController(IProjectRepository projectRepository)
+        public ProjectsController(IProjectRepository projectRepository, IGithubService githubService, IGithubRepository githubRepo)
         {
             _projectRepository = projectRepository;
+            _githubService = githubService;
+            _githubRepo = githubRepo;
         }
 
         public async Task<IActionResult> Page(int page = 1, int pageSize = 12)
@@ -100,9 +110,58 @@ namespace ProjectManagement.App.Controllers
 
             };
 
+            var checkConnectProject = await _projectRepository.CheckConnectedProject(project.Id);
 
+            //if(checkConnectProject.Success)
+            //{
+            //    await SynchronizeCommitAsync(checkConnectProject);
+            //}
 
             return View(data);
         }
+
+        //private async Task SynchronizeCommitAsync(ResponseResultDto<GitHubRepoDto> checkConnectProject)
+        //{
+        //    var repoData = checkConnectProject.Data;
+
+
+        //    if (!User.IsConnectedGithub())
+        //    {
+        //        var errMessage = "User github credential is expired or not found";
+
+        //        throw new Exception(errMessage);
+        //    }
+
+        //    var accesToken = User.;
+
+        //    var githubData = response.Data;
+
+        //    repoData.RepoOwner = githubData.GitHubUsername;
+
+        //    var commitResponse = await _githubService.GetCommitsAsync(repoData, accesToken);
+
+        //    if (commitResponse.Success)
+        //    {
+        //        var commitData = commitResponse.Data;
+
+        //        var existingShas = repoData.Commits.Select(c => c.Sha).ToHashSet();
+
+        //        var newCommits = commitData.Where(c => !existingShas.Contains(c.Sha)).ToList();
+
+        //        if (newCommits.Any())
+        //        {
+        //            var repoResponse = await _githubRepo.InsertGithubCommit(newCommits, repoData.RepoId);
+
+        //            if (repoResponse.Success)
+        //            {
+        //                TempData["RepoNotification"] = "Commits has been succesfully Synchronize";
+        //            }
+        //            else
+        //            {
+        //                TempData["RepoNotification"] = "Failed to synchronize commit data";
+        //            }
+        //        }
+        //    }
+        //}
     }
 }
