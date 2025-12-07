@@ -7,6 +7,10 @@
 }
 
 <style>
+    .tasks-list-container {
+        max-height: 400px;
+        overflow: auto;
+    }
     .details-header {
         display: flex;
         align-items: center;
@@ -309,46 +313,48 @@
             <ejs-button id="addTaskButton" content="Add Task" cssClass="e-primary" iconCss="e-icons e-plus" isPrimary="true" onclick="showCreateTaskDialog()"></ejs-button>
         </div>
 
-        @if(Model.Tasks.Any())
-        {
-            @foreach (var task in Model.Tasks)
+        <div class="tasks-list-container">
+            @if (Model.Tasks.Any())
             {
-                <div class="details-task-item"
-                hx-get
-                hx-action="Details"
-                hx-controller="Task"
-                hx-route-projectId="@Model.Id"
-                hx-route-taskId="@task.Id"
-                hx-route-isConnected="@Model.IsConnected"
-                hx-target="#main"
-                hx-swap="innerHTML"
-                
-                >
-                    <div class="details-task-title">@task.Title</div>
-                    <div class="details-task-desc">@task.Description</div>
-                    <div class="details-task-meta">
-                        <span><i class="fas fa-user"></i> @task.Assignee</span>
-                        <span><i class="fas fa-calendar-alt"></i> @task.DueDate.ToString("M/d/yyyy")</span>
-                    </div>
-                    <div class="details-task-badges">
-                        <span class="badge @(task.Priority == "Low" ? "badge-priority-low" : "badge-priority-high")">@task.Priority</span>
-                        <span class="badge @(task.Status == "ToDo" ? "badge-status-todo" : "badge-status-inprogress")">@task.Status</span>
-                    </div>
-                    @if (task.Commits > 0)
-                    {
-                        <div class="details-task-commits">
-                            <i class="fas fa-code-branch"></i> @task.Commits commits
+                @foreach (var task in Model.Tasks)
+                {
+                    <div class="details-task-item"
+                         hx-get
+                         hx-action="Details"
+                         hx-controller="Task"
+                         hx-route-projectId="@Model.Id"
+                         hx-route-taskId="@task.Id"
+                         hx-route-isConnected="@Model.IsConnected"
+                         hx-target="#main"
+                         hx-swap="innerHTML">
+                        <div class="details-task-title">@task.Title</div>
+                        <div class="details-task-desc">@task.Description</div>
+                        <div class="details-task-meta">
+                            <span><i class="fas fa-user"></i> @task.Assignee</span>
+                            <span><i class="fas fa-calendar-alt"></i> @task.DueDate.ToString("M/d/yyyy")</span>
                         </div>
-                    }
+                        <div class="details-task-badges">
+                            <span class="badge @(task.Priority == "Low" ? "badge-priority-low" : "badge-priority-high")">@task.Priority</span>
+                            <span class="badge @(task.Status == "ToDo" ? "badge-status-todo" : "badge-status-inprogress")">@task.Status</span>
+                        </div>
+                        @if (task.Commits > 0)
+                        {
+                            <div class="details-task-commits">
+                                <i class="fas fa-code-branch"></i> @task.Commits commits
+                            </div>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="no-tasks-message">
+                    No Tasks yet
                 </div>
             }
-        }
-        else
-        {
-            <div class="no-tasks-message">
-                No Tasks yet
-            </div>
-        }
+        </div>
+
+
         
     </div>
 </div>
