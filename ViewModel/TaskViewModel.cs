@@ -17,7 +17,7 @@ namespace ProjectManagement.App.ViewModel
         public int? Completion { get; set; } // percent
         public string? AssigneeName { get; set; }
         public string? AssigneeRole { get; set; }
-
+        public bool isRequestHtmx { get; set; }
         public List<GithubCommit> Commits { get; set; }
     }
 }

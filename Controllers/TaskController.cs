@@ -46,7 +46,8 @@ namespace ProjectManagement.App.Controllers
                 DueDate = taskItem.TargetDate,
                 TotalLinkedCommits = countCommit,
                 isConnectedRepo = isConnected,
-                Commits = taskItem.Commits.ToList()
+                Commits = taskItem.Commits.ToList(),
+                isRequestHtmx = Request.IsHtmx()
                 
             };
 
@@ -130,7 +131,8 @@ namespace ProjectManagement.App.Controllers
                         ProjectId = model.ProjectId,
                         TaskId = task.Id,
                         Description = task.Description,
-                        Status = task.Status.ToString()
+                        Status = task.Status.ToString(),
+                        isRequestHtmx = Request.IsHtmx()
                     };
                     return PartialView("_TaskDescPanel", updatedModel);
                 }
@@ -150,7 +152,8 @@ namespace ProjectManagement.App.Controllers
             {
                 TaskId = task.Id,
                 Description = task.Description,
-                Status = task.Status.ToString()
+                Status = task.Status.ToString(),
+                isRequestHtmx = Request.IsHtmx()
             };
             return PartialView("_TaskDescPanel", model);
         }

@@ -384,7 +384,7 @@
                         <span class="ontime">@((Model.DueDate - DateTime.Now).Days) days</span>
                     }
                 </div>
-                <div class="summary-actions">
+                <div class="summary-actions" id="statusTask">
                     @if(Model.Status != "Done")
                     {
                         <ejs-button id="btnMarkDone"
