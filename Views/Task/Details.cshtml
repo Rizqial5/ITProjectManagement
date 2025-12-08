@@ -290,17 +290,6 @@
             <div class="task-details-meta">
                 @Model.ProjectName
                 <span class="mx-1">·</span>
-                <span class="assignee-info">
-                    @if (!string.IsNullOrEmpty(Model.AssigneeName))
-                    {
-                        @Model.AssigneeName
-                    }
-                    else
-                    {
-                        <span style="color:#bdbdbd;">No assignee</span>
-                    }
-                </span>
-                <span class="mx-1">·</span>
                 <span style="color:#dc2626;">
                     <i class="fas fa-calendar-alt"></i>
                     Due @Model.DueDate.ToString("M/d/yyyy")
@@ -389,7 +378,14 @@
                     @await Html.PartialAsync("Component/_StatusMarkButton", Model)
                 </div>
             </div>
-            <!-- Assignee Card -->
+            <div class="card">
+                <div class="card-title">Quick Actions</div>
+                <ul class="quick-actions-list">
+                    <li>Update Due Date</li>
+                    <li>View Repository</li>
+                </ul>
+            </div>
+@*             <!-- Assignee Card -->
             <div class="card">
                 <div class="card-title">Assignee</div>
                 <div class="assignee-card">
@@ -408,16 +404,9 @@
                         }
                     </div>
                 </div>
-            </div>
-            <!-- Quick Actions Card -->
-            <div class="card">
-                <div class="card-title">Quick Actions</div>
-                <ul class="quick-actions-list">
-                    <li>Reassign Task</li>
-                    <li>Update Due Date</li>
-                    <li>View Repository</li>
-                </ul>
-            </div>
+            </div> *@
+           
+
         </div>
     </div>
 </div>

@@ -218,6 +218,7 @@ namespace ProjectManagement.App.Repository
         {
             return await _dbContext.Projects
                 .Include(i => i.Tasks)
+                    .ThenInclude(i => i.Commits)
                 .Include(i => i.GithubRepoConnecteds)
                 .FirstOrDefaultAsync(i => i.Id == id && i.ProjectOwnerUserId == userId);
         }

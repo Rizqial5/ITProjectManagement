@@ -7,6 +7,10 @@
 }
 
 <style>
+    .badge-overdue {
+        background: #fee2e2;
+        color: #dc2626;
+    }
     .tasks-list-container {
         max-height: 400px;
         overflow: auto;
@@ -154,7 +158,7 @@
     }
     .details-task-title {
         font-weight: 600;
-        font-size: 1.08rem;
+        font-size: 1.28rem;
         margin-bottom: 2px;
     }
     .details-task-desc {
@@ -318,6 +322,8 @@
             {
                 @foreach (var task in Model.Tasks)
                 {
+                    var isOverdue = task.DueDate < DateTime.Now && task.Status != "Done";
+
                     <div class="details-task-item"
                          hx-get
                          hx-action="Details"
@@ -327,16 +333,23 @@
                          hx-route-isConnected="@Model.IsConnected"
                          hx-target="#main"
                          hx-swap="innerHTML">
-                        <div class="details-task-title">@task.Title</div>
-                        <div class="details-task-desc">@task.Description</div>
-                        <div class="details-task-meta">
-                            <span><i class="fas fa-user"></i> @task.Assignee</span>
-                            <span><i class="fas fa-calendar-alt"></i> @task.DueDate.ToString("M/d/yyyy")</span>
-                        </div>
+                        <div class="details-task-title mb-1">@task.Title</div>
                         <div class="details-task-badges">
                             <span class="badge @(task.Priority == "Low" ? "badge-priority-low" : "badge-priority-high")">@task.Priority</span>
+                            @if (isOverdue)
+                            {
+                                <span class="badge badge-overdue ms-1">Overdue</span>
+                            }
+
+
                             <span class="badge @(task.Status == "ToDo" ? "badge-status-todo" : "badge-status-inprogress")">@task.Status</span>
+
+
                         </div>
+                        <div class="details-task-meta">
+                            <span><i class="fas fa-calendar-alt"></i> Due @task.DueDate.ToString("M/d/yyyy")</span>
+                        </div>
+
                         @if (task.Commits > 0)
                         {
                             <div class="details-task-commits">

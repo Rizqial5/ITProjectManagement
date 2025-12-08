@@ -34,8 +34,9 @@ namespace ProjectManagement.App.Controllers
             var totalRecords = allProject.Count();
 
             var data = allProject
-                .Skip((page-1) * pageSize)
+                .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+                .OrderByDescending(i=> i.CreatedAt)
                 .Select(ConvertToProjectViewModel);
 
             ViewBag.TotalRecords = totalRecords;
