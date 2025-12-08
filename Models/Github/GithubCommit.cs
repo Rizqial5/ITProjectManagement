@@ -24,5 +24,7 @@ namespace ProjectManagement.App.Models.Github
         public TaskItem Task { get; set; } = null!;
 
         public bool isAssignedTask => TaskId.HasValue;
+
+        public string? DisplaySHA => Sha.Substring(0,7);
     }
 }

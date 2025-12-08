@@ -14,7 +14,12 @@ namespace ProjectManagement.App.Models.Workspace
         public string Title { get; set; }
         public string Description { get; set; }
 
+        [Required]
         public Status Status { get; set; } = Status.ToDo;
+
+        [Required]
+        public DateTime TargetDate { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         // Foreign Key ke Project
         public int ProjectId { get; set; }

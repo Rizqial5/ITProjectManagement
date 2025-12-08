@@ -1,115 +1,387 @@
 ﻿@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.Extensions
 @using ProjectManagement.App.ViewModel.Home
 @using Syncfusion.EJ2.Grids
 @{
     ViewData["Title"] = "Home Page";
 
-   
+    int idProgress = 1;   
 
 }
 
-@model IEnumerable<ProjectViewModel>
+@model DashboardViewModel
 
 <style>
-.e-grid .e-rowcell.align-left {
-    text-align: left !important;
-}
+
+    .e-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        color: #222;
+    }
+
+    .create-project-dsb{
+        height: 40px;
+        border-radius: 10px;
+        font-size: 15px;
+    }
+
+    .connect-github-dsb {
+        height: 40px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 500;
+        background-color: #181717;
+        color: #ffffff;
+        border: none;
+    }
+
+    .connect-github-dsb:hover {
+        background-color: #24292e; /* Warna hitam GitHub yang sedikit lebih terang */
+        box-shadow: 0 2px 8px rgba(24, 23, 23, 0.4);
+            color: #ffffff;
+        cursor: pointer;
+    }
+
+    .connect-github-dsb:active {
+        background-color: #0d1117; /* Lebih gelap ketika ditekan */
+        box-shadow: none;
+            color: #ffffff;
+    }
+
+
+    .e-card.e-card-horizontal .e-card-stacked{
+        flex: 5;
+    }
+
+    .icon-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        color: white;
+    }
+
+    /* Tema Warna */
+    .card-projects {
+        background-color: #eaf2ff;
+    }
+
+    .card-recent-project {
+        background-color: #f9f9f9;
+    }
+
+    .card-activity-project {
+        padding: 10px;
+        box-shadow: 0 0px;
+        line-height: normal;
+        border-radius: 0px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        cursor: pointer; /* default untuk semua */
+    }
+
+    .card-activity-project:hover {
+        background-color: #e1dcdc;
+        cursor: pointer; /* telunjuk */
+        box-shadow: 0 0px;
+    }
+
+
+    .card-projects .icon-circle {
+        background-color: #3b82f6;
+    }
+
+    .card-tasks {
+        background-color: #fff4e6;
+    }
+
+    .card-tasks .icon-circle {
+        background-color: #f97316;
+    }
+
+    .card-team {
+        background-color: #e6fff4;
+    }
+
+    .card-team .icon-circle {
+        background-color: #10b981;
+    }
+
+    .card-overdue {
+        background-color: #ffe6e6;
+    }
+
+    .card-overdue .icon-circle {
+        background-color: #ef4444;
+    }
+
+    .recent-project-page {
+        border-radius: 12px; /* sudut rounded */
+        border-color: black;
+        padding: 20px; /* ruang dalam */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* efek bayangan kertas */
+    }
+
+    .activity-tab {
+        border-radius: 12px; /* sudut rounded */
+        border-color: black;
+        padding: 20px; /* ruang dalam */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* efek bayangan kertas */
+    }
+
+        /* Biar judul lebih menonjol */
+        .recent-project-page .recent-header-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    /* Badge lebih kontras di dark mode */
+    .recent-project-page .badge {
+        font-size: 0.75rem;
+        padding: 0.4em 0.6em;
+        border-radius: 8px;
+    }
+
+    .icon-container{
+        flex: 0 !important;
+        color: black;
+    }
+
+    .icon-list {
+        width: 29px;
+        height: 54px;
+        border-radius: 50%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        font-size: 17px;
+        color: black;
+    }
+
 </style>
 
 @Html.AntiForgeryToken()
 
-<div class="text-center mt-5">
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">Dashboard</h2>
+        <p>Hello</p>
+    </div>
 
-    @if (!string.IsNullOrWhiteSpace(ViewBag.Github as string))
-    {
-        <p>You are connected to github</p>
-    }
+    <div>
+        <ejs-button id="btnNewProject"
+                    cssClass="create-project-dsb"
+                    content="New Project"
+                    isPrimary="true"
+                    iconCss="e-icons e-plus" onclick="createProject()"></ejs-button>
 
-    @if (ViewBag.IsProjectEmpty)
-    {
-        <h1 class="display-4">Welcome</h1>
-        <div>
-            <p>Project is Empty</p>
-        </div>
+        @if(!User.IsConnectedGithub())
+        {
+            <ejs-button id="btnConnctGithub"
+                        cssClass="connect-github-dsb"
+                        content="Connect Github"
+            iconCss="fab fa-github" onclick="connectGithub()"></ejs-button>
+        }
+        else
+        {
+            <div>connected to github</div>
+        }
 
-        <ejs-button id="createButton" class="mt-3" isPrimary="true" content="Create a Project" onclick="createProject()"></ejs-button>
-    }
-    else if (!ViewBag.IsUserLogin)
-    {
-        <div>
-            <p>Not login yet</p>
-        </div>
-    }
-    else
-    {
-        <ejs-grid id="ExistingProjectGrid"
-                  dataSource="@Model"
-                  allowPaging="true"
-                  gridLines="Both"
-                  enableHover="true"
-                  allowTextWrap="true"
-                  allowSelection="true"
-                  actionBegin="actionBegin"
-                  actionComplete="actionComplete"
-                  toolbar="@(new List<string>(){"Delete","Edit","Update","Cancel"})"
-                  commandClick="onCommandClick"
-                  height="400">
-            <e-grid-editSettings allowDeleting="true" allowEditing="true" mode="Normal"></e-grid-editSettings>
-            <e-grid-selectionsettings persistSelection="true" type="Multiple" checkboxOnly="true"></e-grid-selectionsettings>
-            <e-grid-columns>
-                <e-grid-column type="checkbox" width="50"></e-grid-column>
-                <e-grid-column field="Id" isPrimaryKey="true" visible="false"></e-grid-column>
-                <e-grid-column field="Title"
-                               headerText="Project Name"
-                               width="200"
-                               textAlign="Left"
-                               customAttributes="@(new { @class = "align-left" })">
-                </e-grid-column>
+    </div>
 
-                <e-grid-column field="Description"
-                               headerText="Description"
-                               width="300"
-                               textAlign="Left"
-                               customAttributes="@(new { @class = "align-left" })">
-                </e-grid-column>
-
-                <e-grid-column headerText="Actions"
-                               width="120"
-                               textAlign="Center"
-                               commands="@(new List<object>
-                                          {
-                                            new { type = "None", buttonOption= new { content = "View", cssClass = "e-primary" }}
-                                          })">
-                </e-grid-column>
-            </e-grid-columns>
-        </ejs-grid>
-
-        <ejs-button id="createButton" class="mt-3" isPrimary="true" content="Create a Project" onclick="createProject()"></ejs-button>
-    }
-
-
-
-
-    <ejs-button id="authGithubButton" class="mt-3" isPrimary="true" content="Connect to Github" onclick="connectGithub()"></ejs-button>
-
-    <ejs-toast id="toast_default"></ejs-toast>
-
-    
 </div>
 
 
 
-<div id="dialogTarget" >
-    <ejs-dialog id="createProjectDialog" header="Create new Project"
-                width="500px" visible="false" showCloseIcon="true" isModal="true"
-                target="#dialogTarget">
-        <e-content-template>
-            <partial name="_CreateProjectDialog" model="new CreateProjectDto()"></partial>
-        </e-content-template>
-    </ejs-dialog>
+<div class="e-card-resize-container">
+    <div>
+        <div class="row card-layout">
+            <div class="col-md-3">
+                <div id="vertical_Sample">
+                    <!-- Horizontal Card Layout for Philips Trimmer Product -->
+                    <div tabindex="0" class="e-card e-card-horizontal card-projects">
+                        <div class='e-card-stacked'>
+                            <div class="e-card-header-title">Total Projects</div>
+                            <h3>@Model.TotalProjects</h3>
+                            <div class="e-card-sub-title"> 3 completed</div>
+                        </div>
+                        <div>
+                            <div class="icon-circle">
+                                <i class="fas fa-folder"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div id="vertical_Sample">
+                    <!-- Horizontal Card Layout for Philips Trimmer Product -->
+                    <div tabindex="0" class="e-card e-card-horizontal card-tasks">
+                        <div class='e-card-stacked'>
+                            <div class="e-card-header-title">Total Tasks</div>
+                            <h3>@Model.TotalTasks</h3>
+                            <div class="e-card-sub-title">@Model.TotalCompletedTasks completed</div>
+                        </div>
+                        <div>
+                            <div class="icon-circle">
+                                <i class="fas fa-check-square"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div id="vertical_Sample">
+                    <!-- Horizontal Card Layout for Philips Trimmer Product -->
+                    <div tabindex="0" class="e-card e-card-horizontal card-team">
+                        <div class='e-card-stacked'>
+                            <div class="e-card-header-title">Team Members</div>
+                            <h3>4</h3>
+                            <div class="e-card-sub-title">Active contributors</div>
+                        </div>
+                        <div>
+                            <div class="icon-circle">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div id="vertical_Sample">
+                    <!-- Horizontal Card Layout for Philips Trimmer Product -->
+                    <div tabindex="0" class="e-card e-card-horizontal card-overdue">
+                        <div class='e-card-stacked'>
+                            <div class="e-card-header-title">Overdue Tasks</div>
+                            <h3>6</h3>
+                            <div class="e-card-sub-title">Need attention</div>
+                        </div>
+                        <div>
+                            <div class="icon-circle">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-xs-12 col-md-12 col-lg-8 mb-4">
+        <div tabindex="0" class="recent-project-page" id="card_recent_projects">
+            <div class="recent-header mb-3">
+                <div class="e-card-header-caption d-flex justify-content-between">
+                    <div class="recent-header-title">Recent Projects</div>
+                    <a href="#" class="link-font">View All</a>
+                </div>
+            </div>
+            <div class="recent-content row card-layout">
+                @foreach (var item in Model.RecentProjects)
+                {
+                    
+                    var nameProgress = $"progress{idProgress}";
+                    
+                    <div tabindex="0" class="e-card e-card-horizontal card-recent-project">
+                        <div class='e-card-stacked'>
+                            <div class="e-card-header-title"><h6>@item.Title <status-badge status="@item.Status"></status-badge></h6></div>
+                            <small>
+                                <i class="fas fa-clock me-1"></i> Due 3/15/2024 •
+                                <i class="fas fa-users me-1"></i> 3 members •
+                                <i class="fab fa-github me-1"></i> Connected
+                            </small>
+                            <ejs-progressbar id=@nameProgress type="Linear" value="75"></ejs-progressbar>
+                        </div>
+                    </div>
+
+                    idProgress++;
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-12 col-lg-4">
+        <div tabindex="0" class="activity-tab mb-3" id="card_activity">
+            <div class="activity-header mb-3">
+                <div class="e-card-header-caption">
+                    <div class="activity-header"><h5>Recent Activity</h5></div>
+                </div>
+            </div>
+            <div class="activity-content row card-layout">
+
+                <div tabindex="0" class="e-card e-card-horizontal card-activity-project">
+                    <div class="icon-container">
+                        <div class="icon-list">
+                            <i class="fas fa-check-square"></i>
+                        </div>
+                    </div>
+                    <div class='e-card-stacked'>
+                        <div class="e-card-header-title"><h6>Implement product catalog</h6></div>
+                        <small>John Doe • In Progress</small>
+                        <small>7 commits</small>
+                    </div>
+                </div>
+
+                <div tabindex="0" class="e-card e-card-horizontal card-activity-project">
+                    <div class="icon-container">
+                        <div class="icon-list">
+                            <i class="fas fa-check-square"></i>
+                        </div>
+                    </div>
+                    <div class='e-card-stacked'>
+                        <div class="e-card-header-title"><h6>Implement product catalog</h6></div>
+                        <small>John Doe • In Progress</small>
+                        <small>7 commits</small>
+                    </div>
+                </div>
+
+                <div tabindex="0" class="e-card e-card-horizontal card-activity-project">
+                    <div class="icon-container">
+                        <div class="icon-list">
+                            <i class="fas fa-check-square"></i>
+                        </div>
+                    </div>
+                    <div class='e-card-stacked'>
+                        <div class="e-card-header-title"><h6>Implement product catalog</h6></div>
+                        <small>John Doe • In Progress</small>
+                        <small>7 commits</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+@* 
+        <div tabindex="0" class="e-card" id="card_quick_actions">
+            <div class="e-card-header">
+                <div class="e-card-header-caption">
+                    <div class="e-card-header-title">Quick Actions</div>
+                </div>
+            </div>
+            <div class="e-card-content">
+                <ejs-button content="Create New Task" iconCss="e-icons e-plus" cssClass="e-primary w-100 mb-2"></ejs-button>
+                <ejs-button content="Add Project" iconCss="e-icons e-plus" cssClass="w-100 mb-2"></ejs-button>
+                <ejs-button content="Invite Members" iconCss="e-icons e-people" cssClass="w-100"></ejs-button>
+            </div>
+        </div> *@
+    </div>
 </div>
 
 
+<ejs-dialog id="createProjectDialog" header="Create new Project"
+            width="500px" visible="false" showCloseIcon="true" isModal="true"
+            target="#dialogTarget">
+    <e-content-template>
+        <partial name="_CreateProjectDialog" model="new CreateProjectDto()"></partial>
+    </e-content-template>
+</ejs-dialog>
+
+
+<ejs-toast id="toast_default"></ejs-toast>
 
 
 
@@ -243,10 +515,9 @@
         window.location.href = '@Url.Action("Connect","GithubAuth")';
     }
 
-    function createProject() {
-        var dialog = document.getElementById("createProjectDialog").ej2_instances[0];
-        dialog.show();
-    }
+
+
+
 
 
     function onCommandClick(args) {
@@ -271,40 +542,6 @@
         });
     }
 
-    $('#createForm').on('submit', function (e) {
-        e.preventDefault();
-
-        var form = $(this);
-
-
-
-        var formData = form.serialize();
-
-
-
-        $.ajax({
-            type: 'POST',
-            url: form.attr('action'),
-            data: formData,
-            success: function (response, status, xhr) {
-                if (response.success == false) {
-                    // Gagal validasi, return PartialView ulang
-                    $("#createForm").validate().showErrors();
-
-
-                } else {
-                    // Sukses, tutup dialog & reload halaman
-                    ejs.notifications.ToastUtility.show('Your message has been sent successfully', 'Success', 20000);
-                    var dialog = $('#createProjectDialog')[0].ej2_instances[0];
-                    dialog.hide();
-                    location.reload();
-                }
-            },
-            error: function () {
-                alert("Terjadi kesalahan saat menyimpan.");
-            }
-        });
-    });
      
      
 

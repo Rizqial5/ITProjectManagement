@@ -1,172 +1,463 @@
-﻿@using ProjectManagement.App.ViewModel
-@using Syncfusion.EJ2.Navigations
-@model TaskViewModel;
+﻿@using Syncfusion.EJ2
+@using Syncfusion.EJ2.ProgressBar
+@using Syncfusion.EJ2.Buttons
+@using ProjectManagement.App.Extensions
+@model ProjectManagement.App.ViewModel.TaskViewModel
+
 @{
-    Layout = "_WorkspaceLayout";
-
-    var overviewContent = "#overview-section";
-    var commitContent = "#commit-section";
-}
-<style>
-
-
-    .container{
-        max-width: 100% !important;
-    }
-
-    .task-detail-page {
-        padding: 20px;
-    }
-
-    .task-header {
-        margin-bottom: 20px;
-    }
-
-    .card-header{
-        background-color: white !important;
-    }
-
-    .task-header h2 {
-        margin: 0;
-        font-size: 27px;
-    }
-
-    .section-page {
-        margin-top : 15px;
-    }
-
-    .badge {
-        --bs-badge-color: #000000;
-        font-size: 13px;
-        padding: 4px;
-    }
     
-    .card {
-        background-color: #fff;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    var isOverdue = Model.DueDate < DateTime.Now && Model.Status != "Done";
+    var completion = Model.Completion ?? 60; // percent
+    var priority = Model.Priority ?? "Low";
+}
+
+<style>
+    .no-repo-connected{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        min-height: 200px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #888;
+    }
+    .commit-container-card{
+        height : 475px;
+    }
+    .task-details-container {
+        /* min-height: 100vh; */
     }
 
+    .task-details-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 12px;
+    }
 
-    .comments-section ul {
+    .task-details-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0;
+    }
+
+    .task-details-meta {
+        color: #6b7280;
+        font-size: 1rem;
+        display: flex;
+        gap: 18px;
+        align-items: center;
+    }
+
+    .task-details-badges {
+        display: flex;
+        gap: 8px;
+        margin-left: 12px;
+    }
+
+    .badge-priority-low {
+        background: #e0f2fe;
+        color: #0284c7;
+    }
+
+    .badge-status-todo {
+        background: #e0e7ff;
+        color: #2563eb;
+    }
+
+    .badge-overdue {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .task-details-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 8px;
+    }
+
+    .task-details-main {
+        display: flex;
+        gap: 24px;
+        margin-top: 18px;
+        flex-wrap: wrap;
+    }
+
+    .task-details-left {
+        flex: 2;
+        min-width: 380px;
+    }
+
+    .task-details-right {
+        flex: 1;
+        min-width: 320px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        padding: 24px;
+        margin-bottom: 18px;
+    }
+
+    .card-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 16px;
+    }
+
+    .card-section {
+        margin-bottom: 12px;
+    }
+
+    .commit-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .commit-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        border-radius: 10px;
+        background: #f9fafb;
+        margin-bottom: 12px;
+        padding: 16px 12px;
+    }
+
+    .commit-sha {
+        background: #f3f4f6;
+        color: #374151;
+        font-size: 0.95rem;
+        border-radius: 6px;
+        padding: 2px 8px;
+        font-weight: 600;
+    }
+
+    .commit-message {
+        font-weight: 500;
+    }
+
+    .commit-meta {
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+
+    .commit-date {
+        margin-left: auto;
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+
+    .commit-link {
+        color: #2563eb;
+        margin-left: 8px;
+    }
+
+    .commit-sha-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 12px;
+        position: relative;
+    }
+
+    .commit-sha {
+        font-family: SFMono-Regular, Consolas, monospace;
+        color: #0969da;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .branch-line {
+        width: 2px;
+        background-color: #c5c5c5;
+        height: 24px;
+        margin-top: 2px;
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.98rem;
+        margin-bottom: 2px;
+    }
+
+    .summary-commits {
+        background: #e0e7ff;
+        color: #2563eb;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .summary-days {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+        .summary-days .overdue {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .summary-days .ontime {
+            color: #059669;
+            font-weight: 600;
+        }
+
+    .summary-actions {
+        margin-top: 16px;
+    }
+
+    .assignee-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .assignee-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2563eb;
+    }
+
+    .assignee-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .quick-actions-list {
         list-style: none;
         padding: 0;
+        margin: 0;
     }
 
-    .comments-section li {
-        border-bottom: 1px solid #eee;
-        padding: 8px 0;
+        .quick-actions-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+            color: #2563eb;
+            cursor: pointer;
+        }
+
+    .quick-actions-list li:last-child {
+        border-bottom: none;
+    }
+    @@media (max-width: 991.98px) {
+        .task-details-main
+
+    {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .task-details-right {
+        min-width: 0;
+    }
+
     }
 </style>
 
-<div class="mb-3">
-    <ejs-breadcrumb id="breadcrumb" separatorTemplate=">" cssClass="e-breadcrumb">
-        <e-breadcrumb-items>
-            <e-breadcrumb-item text="Projects" url="@Url.Action("Index", "Home")"></e-breadcrumb-item>
-            <e-breadcrumb-item text="@Model.ProjectName" url="@Url.Action("Index", "Workspace", new { ProjectID = Model.ProjectId, ProjectName = Model.ProjectName })"></e-breadcrumb-item>
-            <e-breadcrumb-item text="Task #@Model.TaskId" url="@Url.Action("Details", "Task", new { projectId = Model.ProjectId, taskId = Model.TaskId })"></e-breadcrumb-item>
-        </e-breadcrumb-items>
-    </ejs-breadcrumb>
-</div>
-
-
-<div class="task-detail-page">
+<div class="task-details-container">
     <!-- Header -->
-    <div class="mb-3 d-flex justify-content-between align-items-center">
+    <div class="task-details-header">
+        <a href="javascript:history.back()" class="btn btn-link p-0" style="font-size:1.5rem;"><i class="fas fa-arrow-left"></i></a>
         <div>
-            <h4 class="mb-0">Task #@Model.TaskId - @Model.Title</h4>
-            <small class="text-muted">Status: <span class="badge bg-info">@Model.Status</span></small>
-        </div>
-
-        @if(Model.Status != "Done")
-        {
-            <div>
-                <ejs-button id="setToDoneButton"
-                            cssClass="e-primary"
-                            content="Set to Done"
-                            iconCss="bi bi-check2-circle"
-                            onclick="setTaskToDone(@Model.TaskId)">
-                </ejs-button>
+            <div class="task-details-title">@Model.Title</div>
+            <div class="task-details-meta">
+                @Model.ProjectName
+                <span class="mx-1">·</span>
+                <span style="color:#dc2626;">
+                    <i class="fas fa-calendar-alt"></i>
+                    Due @Model.DueDate.ToString("M/d/yyyy")
+                    @if (isOverdue)
+                    {
+                        <span class="badge badge-overdue ms-1">Overdue</span>
+                    }
+                </span>
             </div>
-        }
+        </div>
+        <div class="task-details-actions">
+            <span class="badge badge-priority-low">@priority</span>
+            <span class="badge badge-status-todo">@Model.Status</span>
+        </div>
     </div>
-    <hr />
-    <!-- Body -->
-    <div class="task-body">
-        <ejs-tab id="taskTabs" cssClass="e-fill">
-            <e-tab-tabitems>
-                <!-- Overview -->
-                <e-tab-tabitem header=@(new() {Text = "Overview"}) content="@overviewContent"></e-tab-tabitem>
-                <e-tab-tabitem header=@(new() { Text = "Commit" }) content="@commitContent"></e-tab-tabitem>
-            </e-tab-tabitems>
-        </ejs-tab>
+
+    <div class="task-details-main">
+        <!-- Left Column -->
+        <div class="task-details-left">
+            <!-- Task Details Card -->
+            <partial name="_TaskDescPanel" model="Model" />
+
+            <div class="card commit-container-card">
+                @if (User.IsConnectedGithub() && Model.isConnectedRepo.Value)
+                {
+                    <!-- Linked Commits Card -->
+                
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="card-title">
+                                <i class="fab fa-git-alt me-1 text-danger"></i>
+                                Linked Commits (@Model.TotalLinkedCommits)
+                            </div>
+                                <ejs-button id="btnAddCommit"
+                                            cssClass="e-outline"
+                                            iconCss="e-icons e-plus"
+                                            hx-get="@Url.Action("ShowLinkCommit", "Task", new { projectId = Model.ProjectId, isConnected = Model.isConnectedRepo })"
+                                            hx-target="#commitGrid"
+                                            hx-trigger="click"
+                                            hx-swap="innerHTML">
+                                </ejs-button>
+                        
+                        </div>
+                        <div id="listCommit" style="max-height:92%; overflow:auto">
+  
+                                <partial name="_ListLinkedCommit" model="@Model.Commits"></partial>
+                        
+
+                        </div>
+
+                
+                }
+                else
+                {
+                    <div class="text-center no-repo-connected">No repo Connected</div>
+                }
+            </div>
+        </div>
+        <!-- Right Column -->
+        <div class="task-details-right">
+            <!-- Progress Summary Card -->
+            <div class="card">
+                <div class="card-title">Progress Summary</div>
+                <div class="progress-label">
+                    <span>Completion</span>
+                    <span style="color:#2563eb;">@completion%</span>
+                </div>
+                <ejs-progressbar id="progressbar" type="Linear" width="90%" value="@completion" height="8px" trackThickness="8" progressThickness="8"></ejs-progressbar>
+                <div style="color:#6b7280; font-size:0.95rem; margin-bottom:10px;">
+                    Based on linked commits and task status
+                </div>
+                <div class="summary-commits">
+                    <i class="fas fa-code-branch"></i> Commits <span>@Model.TotalLinkedCommits</span>
+                </div>
+                <div class="summary-days">
+                    <i class="fas fa-clock"></i> Days Left
+                    @if (isOverdue)
+                    {
+                        <span class="overdue">Overdue</span>
+                    }
+                    else
+                    {
+                        <span class="ontime">@((Model.DueDate - DateTime.Now).Days) days</span>
+                    }
+                </div>
+                <div class="summary-actions" id="statusTask">
+                    @await Html.PartialAsync("Component/_StatusMarkButton", Model)
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Quick Actions</div>
+                <ul class="quick-actions-list">
+                    <li>Update Due Date</li>
+                    <li>View Repository</li>
+                </ul>
+            </div>
+@*             <!-- Assignee Card -->
+            <div class="card">
+                <div class="card-title">Assignee</div>
+                <div class="assignee-card">
+                    <div class="assignee-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="assignee-info">
+                        @if (!string.IsNullOrEmpty(Model.AssigneeName))
+                        {
+                            <span>@Model.AssigneeName</span>
+                            <span style="color:#6b7280; font-size:0.95rem;">@Model.AssigneeRole</span>
+                        }
+                        else
+                        {
+                            <span style="color:#bdbdbd;">No assignee</span>
+                        }
+                    </div>
+                </div>
+            </div> *@
+           
+
+        </div>
     </div>
 </div>
 
-<div id="dialogCommit">
-    <ejs-dialog id="connectCommitDialog" header="Avaialable Commit"
-                width="80%" visible="false" showCloseIcon="true" isModal="true"
-                target="#dialogCommit">
-        <e-content-template>
-            <partial name="_LinkCommitDialog" model="Model"></partial>
-        </e-content-template>
-    </ejs-dialog>
-</div>
+<partial name="_LinkCommitDialog"></partial>
 
-
-
-<!-- Overview Section -->
-<div id="overview-section" class="section-page ms-2" style="display: none">
-    <partial name='_OverviewSection' model='Model' />
-</div>
-
-<!-- Commit Section -->
-<div id="commit-section" class="section-page ms-2" style="display: none">
-    <partial name='_CommitSection' model='Model' />
-</div>
-
+@Html.EJS().ScriptManager()
 
 <script>
-    function showCommitDialog(){
-        var dialog = document.getElementById("connectCommitDialog").ej2_instances[0];
-        dialog.show();
+
+    var btnCommit =  document.getElementById("btnAddCommit");
+
+    document.body.addEventListener("htmx:afterRequest", function (evt) {
+        if (evt.detail.requestConfig.elt.id === "btnMarkDone") {
+            location.reload();
+        }
+    });
+
+    if(btnCommit) 
+    {
+        btnCommit.addEventListener("htmx:afterOnLoad",  () => {
+
+            // Pastikan evt.detail dan evt.detail.target aman
+
+                openCommitDialog();
+
+        });
+
     }
 
-    function setTaskToDone(taskId){
 
-        var projectId = @Model.ProjectId
 
-        showConfirmationDialog(
-            "Mark as Done",
-            "Are you sure you want to set this task as done?",
-            function () {
-                // YES action
 
-                $.ajax({
-                    url: '@Url.Action("SetToDone", "Task")',
-                    type: "POST",
-                    data: {
-                        taskId: taskId,
-                        projectId: projectId
-                    },
-                    success: function (response) {
-                      
-                        location.reload();
-             
-                    },
-                    error: function (xhr, status, error) {
 
-                        console.error(error);
-                        location.reload();
-                    }
-                });
-                // TODO: panggil Ajax ke controller kalau perlu
+    function refreshLinkedCommit(repoId, taskId) {
+        $.ajax({
+        url: '@Url.Action("ShowLinkedCommit", "Task")',
+            type: "GET",
+            data: {
+            repoId: repoId,
+                taskId : taskId
             },
-            function () {
-                // NO action
-                console.log("User cancelled");
+            success: function (response) {
+
+                    $("#listCommit").html(response)
+            },
+            error: function (xhr, status, error) {
+
+                console.error(error);
+                ejs.notifications.ToastUtility.show("Error when linking commit", 'Error', 3000);
             }
-        );
+        });
     }
 </script>
-
-

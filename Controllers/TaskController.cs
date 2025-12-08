@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Htmx;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Enum;
+using ProjectManagement.App.Models.Workspace;
 using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
@@ -20,7 +23,7 @@ namespace ProjectManagement.App.Controllers
             _taskRepository = taskRepository;
         }
 
-        [HttpGet("/project/{projectId}/task/{taskId}_{isConnected}")]
+        [Route("task/{projectId:int}/{taskId:int}")]
         public async Task<IActionResult> Details(int projectId, int taskId, bool isConnected)
         {
             var taskItem = await _taskRepository.GetAsync(projectId, taskId);
@@ -40,12 +43,125 @@ namespace ProjectManagement.App.Controllers
                 ProjectId = taskItem.Project.Id,
                 Description = taskItem.Description,
                 Status = taskItem.Status.ToString(),
+                DueDate = taskItem.TargetDate,
                 TotalLinkedCommits = countCommit,
-                isConnectedRepo = isConnected
+                isConnectedRepo = isConnected,
+                Commits = taskItem.Commits.ToList(),
+                isRequestHtmx = Request.IsHtmx(),
+                LastUpdated = taskItem.UpdatedAt.ToString("dd-MMM-yyyy")
+                
                 
             };
 
+            if(Request.IsHtmx())
+            {
+                Response.Htmx(h =>
+                {
+                    h.PushUrl(Request.GetEncodedUrl());
+                });
+
+                return PartialView(taskModel);
+            }
+
             return View(taskModel);
+        }
+
+
+        [HttpGet]
+        public IActionResult ShowLinkCommit(int projectId, bool isConnected)
+        {
+      
+            var model = new TaskViewModel
+            {
+                ProjectId = projectId,
+                isConnectedRepo = isConnected
+            };
+
+
+            return PartialView("_LinkCommitGrid", model);
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ShowLinkedCommit(int repoId, int taskId)
+        {
+
+            var model = await _taskRepository.GetLinkedCommit(repoId, taskId);
+
+
+            return PartialView("_ListLinkedCommit", model);
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditTaskDetails(int projectId,int taskId)
+        {
+            var task = await _taskRepository.GetAsync(projectId,taskId); // Pastikan method ini ada di repository Anda
+            if (task == null) return NotFound();
+            var model = new EditTaskDescDto
+            {
+                ProjectId = projectId,
+                TaskId = task.Id,
+                Description = task.Description,
+                Status = task.Status.ToString(),
+                LastUpdated = task.UpdatedAt.ToString("dd-MMM-yyyy")
+            };
+            return PartialView("_EditTaskDescPanel", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateTaskDetails(EditTaskDescDto model)
+        {
+            if (ModelState.IsValid)
+            {
+
+                TaskItem updatedData = new()
+                {
+                    Id = model.TaskId,
+                    Description = model.Description,
+                    Status = Enum.Parse<Status>(model.Status.Trim()),
+
+                };
+
+                var success = await _taskRepository.UpdateAsync(model.ProjectId,updatedData);
+
+                if(success)
+                {
+                    var task = await _taskRepository.GetAsync(model.ProjectId, model.TaskId);
+
+                    var updatedModel = new TaskViewModel
+                    {
+                        ProjectId = model.ProjectId,
+                        TaskId = task.Id,
+                        Description = task.Description,
+                        Status = task.Status.ToString(),
+                        LastUpdated = task.UpdatedAt.ToString("dd-MMM-yyyy"),
+                        isRequestHtmx = Request.IsHtmx()
+                    };
+                    return PartialView("_TaskDescPanel", updatedModel);
+                }
+                // Reload panel
+
+            }
+
+            return PartialView("_EditTaskDescPanel", model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DetailsPanel(int projectId, int taskId)
+        {
+            var task = await _taskRepository.GetAsync(projectId,taskId);
+            if (task == null) return NotFound();
+            var model = new TaskViewModel
+            {
+                ProjectId = projectId,
+                TaskId = task.Id,
+                Description = task.Description,
+                Status = task.Status.ToString(),
+                LastUpdated = task.UpdatedAt.ToString("dd-MMM-yyyy"),
+                isRequestHtmx = Request.IsHtmx()
+            };
+            return PartialView("_TaskDescPanel", model);
         }
 
 
@@ -105,11 +221,13 @@ namespace ProjectManagement.App.Controllers
             {
                 var result = await _taskRepository.ConnectCommitToTaskAsync(repoId, commitId, taskId);
 
+                TempData["RepoNotification"] = "Commit has been sucessfully linked";
 
                 return Json(new { success = true });
             }
             catch(Exception ex)
             {
+                TempData["RepoNotificationFailed"] = "Error when linking commit";
                 return Json(new { success = false, message = ex.Message });
             }
 
@@ -144,6 +262,27 @@ namespace ProjectManagement.App.Controllers
                 return Json(new { success = false, message = ex.Message });
             }
 
+
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> AddTask(CreateTaskDto newTask, int projectId)
+        {
+            try
+            {
+                await _taskRepository.AddAsync(projectId, newTask);
+
+                TempData["RepoNotification"] = $"Task {newTask.Title} added succesfully";
+
+                return Json(new { success = true });
+            }
+            catch(Exception ex)
+            {
+                TempData["RepoNotificationFailed"] = ex.Message;
+
+                return Json(new { success = false });
+            }
 
         }
 

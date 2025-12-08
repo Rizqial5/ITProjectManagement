@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Github;
@@ -147,14 +148,14 @@ namespace ProjectManagement.App.Controllers
             });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddTask([FromBody] ExpandoObject value, int projectId)
-        {
-            var task = value.ToTaskItemFromPayload();
-            task.ProjectId = projectId;
-            await _taskRepository.AddAsync(projectId, task);
-            return Json(new {success= true});
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> AddTask([FromBody] ExpandoObject value, int projectId)
+        //{
+        //    var task = value.ToTaskItemFromPayload();
+        //    task.ProjectId = projectId;
+        //    await _taskRepository.AddAsync(projectId, task);
+        //    return Json(new {success= true});
+        //}
 
         [HttpPost]
         public async Task<IActionResult> UpdateTask([FromBody] TaskItem value, int projectId)
@@ -212,7 +213,17 @@ namespace ProjectManagement.App.Controllers
 
             var response = await _projectRepository.ConnectRepo(userId, projectId, insertRepo);
 
-            return Json(response);
+            if(response.Success)
+            {
+                TempData["RepoNotification"] = response.Message;
+            }
+            else
+            {
+                TempData["RepoNotificationFailed"] = response.Message;
+            }
+
+
+                return Json(response);
 
 
         }
@@ -220,17 +231,31 @@ namespace ProjectManagement.App.Controllers
         [HttpPost]
         public async Task<IActionResult> DisconnectRepo(int projectId)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            var response = await _projectRepository.DisconnectRepo(userId, projectId);
-
-            TempData["RepoNotification"] = "Project has successfully disconnected";
-
-            return Json(new
+            try
             {
-                Success = response.Success,
-                
-            });
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var response = await _projectRepository.DisconnectRepo(userId, projectId);
+
+                TempData["RepoNotification"] = "Project has successfully disconnected";
+
+                return Json(new
+                {
+                    Success = response.Success,
+
+                });
+            }
+            catch(Exception ex)
+            {
+                TempData["RepoNotificationFailed"] = "Error Disconnect Project " + ex.Message;
+
+                return Json(new
+                {
+                    Success = false,
+
+                });
+            }
+
         }
     }
 }

@@ -1,0 +1,177 @@
+﻿@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.Models.Enum
+@using ProjectManagement.App.ViewModel.Project
+@model IEnumerable<ProjectCardViewModel>
+@{
+    ViewData["Title"] = "Projects";
+    var statusList = Enum.GetNames<Status>().ToArray();
+    var sortList = new[] { "Name", "Date" };
+
+}
+
+
+
+
+<div class="project-header">
+    <div class="project-toolbar">
+        <div>
+            <h2 class="project-title">Projects</h2>
+            <p class="project-desc">Manage and track all your projects in one place</p>
+        </div>
+        <ejs-button id="btnNewProject" cssClass="e-primary" content="New Project" iconCss="e-icons e-plus" isPrimary="true" onclick="createProject()"></ejs-button>
+    </div>
+</div>
+
+<div class="project-searchbar">
+    <ejs-textbox id="searchInput" placeholder="Search projects..." floatLabelType="Never" width="260px"></ejs-textbox>
+    <ejs-dropdownlist id="statusFilter"
+                      placeholder="All Status"
+                      floatLabelType="Never"
+                      dataSource="statusList"
+                      allowFiltering="false"
+                      width="160px">
+    </ejs-dropdownlist>
+    <ejs-dropdownlist id="sortFilter"
+                      placeholder="Name"
+                      floatLabelType="Never"
+                      dataSource="sortList"
+                      allowFiltering="false"
+                      width="140px">
+    </ejs-dropdownlist>
+</div>
+
+
+<div class="project-cards-row" id="projectCardsRow">
+    @await Html.PartialAsync("_ProjectCardListPartial", Model)
+</div>
+
+<ejs-pager id="ProjectPager"
+           pageSize="@ViewBag.PageSize"
+           totalRecordsCount="@ViewBag.TotalRecords"
+           pageSizes="true"
+            class="mt-3">
+</ejs-pager>
+
+<partial name="_GithubDialog"></partial>
+<ejs-dialog id="createProjectDialog" header="Create new Project"
+            width="500px" visible="false" showCloseIcon="true" isModal="true"
+            target="#dialogTarget">
+    <e-content-template>
+        <partial name="_CreateProjectDialog" model="new CreateProjectDto()"></partial>
+    </e-content-template>
+</ejs-dialog>
+
+
+
+
+@section Scripts {
+    <ejs-scripts></ejs-scripts>
+
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", setPagerClick)
+
+        function setPagerClick() {
+
+            var pager = document.getElementById("ProjectPager").ej2_instances[0];
+            pager.click = onPagerClick;
+        }
+
+        function onPagerClick(args) {
+            $.ajax({
+                url: '@Url.Action("GetPagedProjects", "Projects")',
+                type: 'POST',
+                data: {
+                    currentPage: args.currentPage,
+                    pageSize: this.pageSize
+                },
+                success: function (result) {
+                    $("#projectCardsRow").html(result);
+                },
+                error: function () {
+                    console.error("Failed to load paged projects.");
+                }
+            });
+        }
+
+        // Real-time search & filter
+        function filterProjects() {
+            var search = $('#searchInput').val().toLowerCase();
+            var status = $('#statusFilter').val();
+            var sort = $('#sortFilter').val();
+            var $cards = $('#projectCardsRow .project-card');
+
+            $cards.each(function () {
+                var $card = $(this);
+                var title = $card.data('title').toLowerCase();
+                var cardStatus = $card.data('status');
+                var show = true;
+
+                if (search && !title.includes(search)) show = false;
+                if (status && status !== cardStatus) show = false;
+
+                $card.toggle(show);
+            });
+
+            // Optional: sort by name or date
+            if (sort === "Name") {
+                $cards.sort(function (a, b) {
+                    return $(a).data('title').localeCompare($(b).data('title'));
+                });
+            }
+            // Add sort by date if needed
+            $('#projectCardsRow').html($cards);
+        }
+
+        $('#searchInput').on('input', filterProjects);
+        $('#statusFilter').on('change', filterProjects);
+        $('#sortFilter').on('change', filterProjects);
+
+        function viewProjectDetails(url) {
+            // Implementasi navigasi ke detail project
+
+            window.location.href = url;
+        }
+
+        function connectProject(id) {
+            console.log("connecting... " + id )
+        }
+        
+
+        function disconnectRepo(id,repoId) {
+            showConfirmationDialog(
+                "Disconnect project",
+                "Are you sure you want to disconnect this project from github repo?",
+                function () {
+                    // YES action
+
+                    $.ajax({
+                        url: '@Url.Action("DisconnectRepo", "Workspace")',
+                        type: "POST",
+                        data: {
+                            projectId: id
+                        },
+                        success: function (response) {
+
+                            location.reload();
+
+                        },
+                        error: function (xhr, status, error) {
+
+                            console.error(error);
+                            location.reload();
+                        }
+                    });
+                    // TODO: panggil Ajax ke controller kalau perlu
+                },
+                function () {
+                    // NO action
+                    console.log("User cancelled");
+                }
+            );
+        }
+
+    </script>
+}
+

@@ -1,0 +1,99 @@
+﻿@using ProjectManagement.App.DTO.Project
+@model CreateProjectDto
+
+
+<form asp-action="CreateProject" id="createForm" asp-controller="Home" method="post">
+
+	<div class="mb-3">
+		<label asp-for="Title" class="form-label"></label>
+		<ejs-textbox ejs-for="Title" class="form-control" cssClass="e-error"></ejs-textbox>
+		@* <span asp-validation-for="Title"></span> *@
+	</div>
+
+	<div class="mb-3">
+		<label asp-for="Description" class="form-label"></label>
+        <ejs-textbox ejs-for="Description" class="form-control" ></ejs-textbox>
+		@* <span asp-validation-for="Description"></span> *@
+	</div>
+
+    <div class="mb-3">
+        <label asp-for="EndDate" class="form-label"></label>
+        <ejs-datepicker ejs-for="EndDate" class="form-control"></ejs-datepicker>
+        @* <span asp-validation-for="Description"></span> *@
+    </div>
+
+	<div class="text-end mb-3" >
+		<ejs-button id="submit"  isPrimary="true" content="Add Project"/>
+	</div>
+</form>
+
+<script>
+    function getRulesFromAnnotations(field) {
+        var input = document.querySelector('[name="' + field + '"]');
+        var rules = {};
+
+        if (!input) return rules;
+
+        // cek required
+        if (input.hasAttribute('data-val-required')) {
+            rules['required'] = true;
+        }
+
+        // cek min length
+        if (input.hasAttribute('data-val-length-min')) {
+            rules['minLength'] = parseInt(input.getAttribute('data-val-length-min'));
+        }
+
+        // cek max length
+        if (input.hasAttribute('data-val-length-max')) {
+            rules['maxLength'] = parseInt(input.getAttribute('data-val-length-max'));
+        }
+
+        return rules;
+    }
+
+    var options = {
+        rules: {
+            'Title': getRulesFromAnnotations('Title'),
+            'Description': getRulesFromAnnotations('Description')
+        },
+    };
+
+    $('#createForm').on('submit', function (e) {
+        e.preventDefault();
+
+        var form = $(this);
+
+
+
+        var formData = form.serialize();
+        var formObj = initFormValidation(this.id)
+
+        if (!formObj.validate()) {
+            e.preventDefault();
+            return false;
+        }
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: formData,
+            success: function (response, status, xhr) {
+                if (response.success == false) {
+                    location.reload()
+
+
+                } else {
+                    // Sukses, tutup dialog & reload halaman
+                    var dialog = $('#createProjectDialog')[0].ej2_instances[0];
+                    dialog.hide();
+                    location.reload();
+                }
+            },
+            error: function () {
+                alert("Terjadi kesalahan saat menyimpan.");
+            }
+        });
+    });
+</script>
+
+

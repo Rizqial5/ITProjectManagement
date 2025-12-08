@@ -1,38 +1,15 @@
 ﻿@using ProjectManagement.App.ViewModel
 @model TaskViewModel
 
-<div class="p-3">
-    <ejs-grid id="ExistingCommitGrid"
-              allowPaging="true"
-              allowSorting="true"
-              commandClick="onExistingCommandClick"
-              height="400">
-        <e-data-manager url='@Url.Action("GetAvailableCommit", "Task", new { projectId = Model.ProjectId, isConnected = Model.isConnectedRepo })'
-                        adaptor="UrlAdaptor"></e-data-manager>
-        <e-grid-columns>
-            <e-grid-column field="Id" headerText="ID" isPrimaryKey="true" visible="false"></e-grid-column>
-            <e-grid-column field="Sha" headerText="Sha" visible="false"></e-grid-column>
-            <e-grid-column field="Message" headerText="Message" width="200" textAlign="Left"></e-grid-column>
-            <e-grid-column field="AuthorName" headerText="Author Name" width="50" textAlign="Left"></e-grid-column>
-            <e-grid-column field="CommitDate"
-                           headerText="Commit Date"
-                           width="200"
-                           type="date"
-                           format="dd MMMM yyyy"
-                           textAlign="Left"></e-grid-column>
 
-            <e-grid-column headerText="Actions"
-                            width="120"
-                            textAlign="Center"
-                            commands="@(new List<object>
-                            {
-                                new { type = "None", buttonOption= new { content = "Link", cssClass = "e-primary" }}
-                            })">
-            </e-grid-column>
-
-        </e-grid-columns>
-    </ejs-grid>
-</div>
+<ejs-dialog id="commitDialog" header="Link Github Commits" 
+            width="75%" visible="false" showCloseIcon="true" isModal="true"
+            target="body" close="closeCommitDialog">
+    <e-content-template>
+        <div class="content-dialog" id="commitGrid">
+        </div>
+    </e-content-template>
+</ejs-dialog>
 
 <script>
     function onExistingCommandClick(args){
@@ -53,20 +30,37 @@
                     taskId : taskId
                 },
                 success: function (response) {
-                    if (response.success) {
+                    
 
-                         ejs.notifications.ToastUtility.show("Commit has been sucessfully linked", 'Success', 3000);
-                    } else {
-                        ejs.notifications.ToastUtility.show(response.Message, 'Error', 3000);
-                    }
+                    location.reload();
+
+                    
                 },
                 error: function (xhr, status, error) {
-
+                    location.reload();
                     console.error(error);
-                    ejs.notifications.ToastUtility.show("Error when linking commit", 'Error', 3000);
+
                 }
             });
 
         }
+    }
+
+    function openCommitDialog(){
+        var dialogObj = document.getElementById("commitDialog").ej2_instances[0];
+        
+        dialogObj.show();
+
+    }
+
+    
+
+    function closeCommitDialog(){
+        var commitDialog = document.getElementById("commitGrid")
+        var contentDialog = document.getElementById("commmitDialogContent");
+
+        commitDialog.removeChild(contentDialog);
+
+
     }
 </script>

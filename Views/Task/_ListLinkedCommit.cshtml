@@ -1,0 +1,23 @@
+﻿@using ProjectManagement.App.Models.Github
+@model IEnumerable<GithubCommit>
+
+<ul class="commit-list" id="commitList">
+    @foreach (var commit in Model)
+    {
+        <li class="commit-item">
+            <span class="commit-sha-wrapper">
+                <span class="commit-sha">
+                    <i class="fas fa-code-branch text-secondary"></i>
+                    @commit.DisplaySHA
+                </span>
+                <span class="branch-line"></span>
+            </span>
+            <div>
+                <div class="commit-message">@commit.Message</div>
+                <div class="commit-meta">by @commit.AuthorName</div>
+            </div>
+            <span class="commit-date">@commit.CommitDate.ToString("M/d/yyyy")</span>
+            <a href="#" class="commit-link" title="View Commit"><i class="fas fa-external-link-alt"></i></a>
+        </li>
+    }
+</ul>

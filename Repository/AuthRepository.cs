@@ -7,6 +7,7 @@ using ProjectManagement.App.DTO.Github;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Models.Github;
 using ProjectManagement.App.Repository.Interface;
+using ProjectManagement.App.Services.Interfaces;
 using ProjectManagement.App.ViewModel;
 
 namespace ProjectManagement.App.Repository
@@ -15,6 +16,7 @@ namespace ProjectManagement.App.Repository
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IGithubService _githubService;
         private readonly IDataProtector _protector;
 
         private readonly AppDbContext _dbContext;
@@ -22,14 +24,15 @@ namespace ProjectManagement.App.Repository
 
 
 
-        public AuthRepository(UserManager<ApplicationUser> userManager, 
+        public AuthRepository(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            AppDbContext dbContext, IDataProtectionProvider protector)
+            AppDbContext dbContext, IDataProtectionProvider protector, IGithubService githubService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _dbContext = dbContext;
             _protector = protector.CreateProtector("GithubTokenProtector");
+            _githubService = githubService;
         }
 
         public async Task<ResponseResultDto<GithubAuth>> GetGithubCreds(string userId)
@@ -99,49 +102,47 @@ namespace ProjectManagement.App.Repository
             return await _userManager.CreateAsync(user, model.Password);
         }
 
-        public async Task<ResponseResultDto<GithubAuth>> SaveGithubCredentials(CreateGithubAuthDto model)
+        public async Task<ResponseResultDto<GithubAuth>> SaveOrUpdateGithubCredentials(CreateGithubAuthDto model)
         {
 
             await using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
-                await DeleteGithubCreds(model);
-
-                var enryptedToken = _protector.Protect(model.AccessToken);
-
-                var userGihthub = new GithubAuth()
+                var existing = await _dbContext.GithubAuths.FirstOrDefaultAsync(i => i.UserId == model.UserId);
+                if (existing == null)
                 {
-                    GitHubId = model.GitHubId,
-                    AccessToken = enryptedToken,
-                    GitHubUsername = model.GitHubUsername,
-                    UserId = model.UserId,
-                    TokenType = model.TokenType
-                };
-
-            
-                await _dbContext.GithubAuths.AddAsync(userGihthub);
-
-                await _dbContext.SaveChangesAsync();
-
-                userGihthub.AccessToken = _protector.Unprotect(userGihthub.AccessToken);
-
-                await transaction.CommitAsync();
-
-                return new()
+                    // Simpan baru
+                    var entity = new GithubAuth
+                    {
+                        AccessToken = _protector.Protect(model.AccessToken),
+                        GitHubId = model.GitHubId,
+                        GitHubUsername = model.GitHubUsername,
+                        UserId = model.UserId
+                    };
+                    _dbContext.GithubAuths.Add(entity);
+                    await _dbContext.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return new() { Success = true, Data = entity };
+                }
+                else
                 {
-                    Success = true,
-                    Data = userGihthub,
-                };
+                    // Update jika token tidak valid
+                    var token = _protector.Unprotect(existing.AccessToken);
+                    var isValid = await _githubService.IsGithubTokenValid(token);
+                    if (!isValid)
+                    {
+                        existing.AccessToken = _protector.Protect(model.AccessToken);
+                        existing.GitHubUsername = model.GitHubUsername;
+                        await _dbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+                    }
+                    return new() { Success = true, Data = existing };
+                }
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-
-                return new()
-                {
-                    Success = false,
-                    Message = ex.Message,
-                };
+                return new() { Success = false, Message = ex.Message };
             }
 
 

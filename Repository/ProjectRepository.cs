@@ -28,6 +28,7 @@ namespace ProjectManagement.App.Repository
                 Name = project.Title,
                 Description = project.Description,
                 CreatedAt = DateTime.UtcNow,
+                EndDate = project.EndDate,
                 ProjectOwnerUserId = project.ProjectOwnerUserId
             };
 
@@ -77,7 +78,7 @@ namespace ProjectManagement.App.Repository
             try
             {
                 // first create repo data
-
+                // check if is on the connected
                 var newRepo = new GithubRepo
                 {
                     RepoId = githubRepoDto.RepoId,
@@ -85,20 +86,32 @@ namespace ProjectManagement.App.Repository
                     RepoUrl = githubRepoDto.Html_Url,
                 };
 
-                await _dbContext.GithubRepos.AddAsync(newRepo);
-                await _dbContext.SaveChangesAsync();
-
-                var newGithubConnected = new GithubRepoConnected
+                if (!_dbContext.GithubRepos.Any(i => i.RepoId == githubRepoDto.RepoId))
                 {
-                    ProjectId = projectId,
-                    RepoId = newRepo.RepoId,
-                    UserId = userId,
-                    Connected = true,
-                    ConnectedDate = DateTime.UtcNow,
-                    
-                };
+                    await _dbContext.GithubRepos.AddAsync(newRepo);
+                }
 
-                await _dbContext.GithubRepoConnecteds.AddAsync(newGithubConnected);
+                var existingConnected = await _dbContext.GithubRepoConnecteds.FirstOrDefaultAsync((i => i.RepoId == githubRepoDto.RepoId
+                && i.ProjectId == projectId));
+
+                if (existingConnected != null)
+                {
+                    existingConnected.Connected = true;
+                }
+                else
+                {
+                    var newGithubConnected = new GithubRepoConnected
+                    {
+                        ProjectId = projectId,
+                        RepoId = newRepo.RepoId,
+                        UserId = userId,
+                        Connected = true,
+                        ConnectedDate = DateTime.UtcNow,
+
+                    };
+
+                    await _dbContext.GithubRepoConnecteds.AddAsync(newGithubConnected);
+                }
 
                 await _dbContext.SaveChangesAsync();
 
@@ -190,14 +203,23 @@ namespace ProjectManagement.App.Repository
 
         public async Task<IEnumerable<Project>> GetAllAsync(string userId)
         {
-            return await _dbContext.Projects
+
+            var dataList = await _dbContext.Projects
+                .Include(i => i.Tasks)
+                .Include(i => i.GithubRepoConnecteds)
                 .Where(p => p.ProjectOwnerUserId == userId)
                 .ToListAsync();
+                
+
+            return dataList;
         }
 
         public async Task<Project?> GetAsync(int id, string userId)
         {
             return await _dbContext.Projects
+                .Include(i => i.Tasks)
+                    .ThenInclude(i => i.Commits)
+                .Include(i => i.GithubRepoConnecteds)
                 .FirstOrDefaultAsync(i => i.Id == id && i.ProjectOwnerUserId == userId);
         }
 

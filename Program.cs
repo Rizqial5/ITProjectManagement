@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Data;
+using ProjectManagement.App.Middleware;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
@@ -24,6 +25,7 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
     });
 
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
@@ -31,7 +33,11 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddMemoryCache();
+
 //Repositories
+builder.Services.AddSession();
+
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
@@ -39,6 +45,8 @@ builder.Services.AddScoped<IGithubRepository, GithubRepository>();
 
 //Services
 builder.Services.AddScoped<IGithubService, GithubService>();
+
+builder.Services.AddTransient<GithubTokenMiddleware>();
 
 
 builder.Services.AddHttpClient("Github", client =>
@@ -49,7 +57,6 @@ builder.Services.AddHttpClient("Github", client =>
 
 builder.Services.AddDataProtection();
 
-builder.Services.AddSession();
 
 
 if (Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), @"node_modules", @"@syncfusion")))
@@ -87,9 +94,11 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.UseSession();
+
+app.UseMiddleware<GithubTokenMiddleware>();
 
 app.MapStaticAssets();
 

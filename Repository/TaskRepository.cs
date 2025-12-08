@@ -3,6 +3,7 @@ using ProjectManagement.App.Data;
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Enum;
+using ProjectManagement.App.Models.Github;
 using ProjectManagement.App.Models.Workspace;
 using ProjectManagement.App.Repository.Interface;
 
@@ -26,14 +27,26 @@ namespace ProjectManagement.App.Repository
 
         public async Task<TaskItem?> GetAsync(int projectId, int taskId)
         {
-            return await _dbContext.TaskItems.Include(i=> i.Project)
+            return await _dbContext.TaskItems
+                .Include(i=> i.Project)
+                .Include(i=> i.Commits)
                 .FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == taskId);
         }
 
-        public async Task AddAsync(int projectId, TaskItem task)
+        public async Task AddAsync(int projectId, CreateTaskDto task)
         {
-            task.ProjectId = projectId;
-            await _dbContext.TaskItems.AddAsync(task);
+
+
+            TaskItem taskItem = new()
+            {
+                Title = task.Title,
+                Description = task.Description,
+                Status = task.Status,
+                TargetDate = task.TargetDate,
+                ProjectId = task.ProjectID,
+                UpdatedAt = DateTime.UtcNow
+            };
+            await _dbContext.TaskItems.AddAsync(taskItem);
             await _dbContext.SaveChangesAsync();
         }
 
@@ -43,9 +56,10 @@ namespace ProjectManagement.App.Repository
                 .FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == task.Id);
             if (existing == null) return false;
 
-            existing.Title = task.Title;
+            existing.Description = task.Description;
             existing.Status = task.Status;
-            existing.AssignedUserId = task.AssignedUserId;
+            existing.UpdatedAt = DateTime.UtcNow;
+            //existing.AssignedUserId = task.AssignedUserId;
             // Tambahkan property lain jika ada
 
             await _dbContext.SaveChangesAsync();
@@ -165,6 +179,13 @@ namespace ProjectManagement.App.Repository
                     Message = ex.Message
                 };
             }     
+        }
+
+        public async Task<IEnumerable<GithubCommit>> GetLinkedCommit(int repoId, int taskId)
+        {
+            var listCommit = await _dbContext.GithubCommits.Where(i=> i.RepoId == repoId && i.TaskId == taskId).ToListAsync();
+
+            return listCommit;
         }
     }
 }
