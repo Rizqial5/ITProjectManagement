@@ -322,7 +322,7 @@
             {
                 @foreach (var task in Model.Tasks)
                 {
-                    var isOverdue = task.DueDate < DateTime.Now && task.Status != "Done";
+
 
                     <div class="details-task-item"
                          hx-get
@@ -336,7 +336,7 @@
                         <div class="details-task-title mb-1">@task.Title</div>
                         <div class="details-task-badges">
                             <span class="badge @(task.Priority == "Low" ? "badge-priority-low" : "badge-priority-high")">@task.Priority</span>
-                            @if (isOverdue)
+                            @if (task.IsOverDue)
                             {
                                 <span class="badge badge-overdue ms-1">Overdue</span>
                             }
