@@ -5,10 +5,12 @@
 @model ProjectManagement.App.ViewModel.TaskViewModel
 
 @{
-    
-    var isOverdue = Model.DueDate < DateTime.Now && Model.Status != "Done";
+
+    var isOverdue = Model.DueDate > DateTime.Now && Model.Status != "Done";
     var completion = Model.Completion ?? 60; // percent
     var priority = Model.Priority ?? "Low";
+
+    var diffDate = DateTime.Now.Day - Model.DueDate.Day ;
 }
 
 <style>
@@ -371,7 +373,7 @@
                     }
                     else
                     {
-                        <span class="ontime">@((Model.DueDate - DateTime.Now).Days) days</span>
+                        <span class="ontime">@(diffDate) days</span>
                     }
                 </div>
                 <div class="summary-actions" id="statusTask">
