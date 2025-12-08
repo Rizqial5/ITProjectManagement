@@ -12,5 +12,6 @@ namespace ProjectManagement.App.DTO.Task
         public required string Status { get; set; }
 
         public string? Priority { get; set; }
+        public string? LastUpdated { get; set; }
     }
 }

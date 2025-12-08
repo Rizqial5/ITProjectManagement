@@ -47,7 +47,9 @@ namespace ProjectManagement.App.Controllers
                 TotalLinkedCommits = countCommit,
                 isConnectedRepo = isConnected,
                 Commits = taskItem.Commits.ToList(),
-                isRequestHtmx = Request.IsHtmx()
+                isRequestHtmx = Request.IsHtmx(),
+                LastUpdated = taskItem.UpdatedAt.ToString("dd-MMM-yyyy")
+                
                 
             };
 
@@ -101,7 +103,8 @@ namespace ProjectManagement.App.Controllers
                 ProjectId = projectId,
                 TaskId = task.Id,
                 Description = task.Description,
-                Status = task.Status.ToString()
+                Status = task.Status.ToString(),
+                LastUpdated = task.UpdatedAt.ToString("dd-MMM-yyyy")
             };
             return PartialView("_EditTaskDescPanel", model);
         }
@@ -132,6 +135,7 @@ namespace ProjectManagement.App.Controllers
                         TaskId = task.Id,
                         Description = task.Description,
                         Status = task.Status.ToString(),
+                        LastUpdated = task.UpdatedAt.ToString("dd-MMM-yyyy"),
                         isRequestHtmx = Request.IsHtmx()
                     };
                     return PartialView("_TaskDescPanel", updatedModel);
@@ -150,9 +154,11 @@ namespace ProjectManagement.App.Controllers
             if (task == null) return NotFound();
             var model = new TaskViewModel
             {
+                ProjectId = projectId,
                 TaskId = task.Id,
                 Description = task.Description,
                 Status = task.Status.ToString(),
+                LastUpdated = task.UpdatedAt.ToString("dd-MMM-yyyy"),
                 isRequestHtmx = Request.IsHtmx()
             };
             return PartialView("_TaskDescPanel", model);

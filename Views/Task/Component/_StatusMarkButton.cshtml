@@ -1,0 +1,18 @@
+﻿@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.Models.Enum
+@using ProjectManagement.App.ViewModel.Project
+@using Syncfusion.EJ2
+@model ProjectManagement.App.ViewModel.TaskViewModel
+
+@if (Model.Status != "Done")
+{
+    <button id="btnMarkDone"
+            class="e-btn e-success"
+            hx-post="@Url.Action("SetToDone", "Task")"
+            hx-vals='{"taskId": "@Model.TaskId", "projectId": "@Model.ProjectId"}'
+            hx-trigger="click"
+            hx-swap="none">
+        <i class="fas fa-check"></i> Mark as Done
+    </button>
+}
+

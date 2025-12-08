@@ -43,7 +43,8 @@ namespace ProjectManagement.App.Repository
                 Description = task.Description,
                 Status = task.Status,
                 TargetDate = task.TargetDate,
-                ProjectId = task.ProjectID
+                ProjectId = task.ProjectID,
+                UpdatedAt = DateTime.UtcNow
             };
             await _dbContext.TaskItems.AddAsync(taskItem);
             await _dbContext.SaveChangesAsync();
@@ -57,6 +58,7 @@ namespace ProjectManagement.App.Repository
 
             existing.Description = task.Description;
             existing.Status = task.Status;
+            existing.UpdatedAt = DateTime.UtcNow;
             //existing.AssignedUserId = task.AssignedUserId;
             // Tambahkan property lain jika ada
 

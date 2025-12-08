@@ -13,6 +13,7 @@ namespace ProjectManagement.App.ViewModel
         public int? TotalLinkedCommits { get; set; } = 0;
         public bool? isConnectedRepo { get; set; } = false;
         public DateTime DueDate { get; set; }
+        public string LastUpdated { get; set; }
         public string? Priority { get; set; }
         public int? Completion { get; set; } // percent
         public string? AssigneeName { get; set; }

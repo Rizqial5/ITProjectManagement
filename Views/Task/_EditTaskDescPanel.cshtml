@@ -37,6 +37,10 @@
                 <div><b>Priority</b></div>
                 <span class="badge badge-priority-low">@priority</span>
             </div>
+            <div class="card-section">
+                <div><b>Last Updated</b></div>
+                <div>@Model.LastUpdated</div>
+            </div>
         </div>
     </div>
     <input type="hidden" asp-for=TaskId value="@Model.TaskId" />
