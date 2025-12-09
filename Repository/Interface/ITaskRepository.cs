@@ -21,5 +21,6 @@ namespace ProjectManagement.App.Repository.Interface
         Task<int> GetTotalIntegratedCommit(int projectId, int taskId);
         Task<ResponseResultDto> ConnectCommitToTaskAsync(int repoId, int commitId, int taskId);
         Task<ResponseResultDto> SetTaskStatus(int projectId, int taskId, Status setStatus);
+        Task<bool> UpdateDateAsync(TaskItem updatedData);
     }
 }

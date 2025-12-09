@@ -60,3 +60,37 @@ function initFormValidation(formId) {
 }
 
 
+function showUpdateDateDialog() {
+    var dialog = document.getElementById("updateDateDialog").ej2_instances[0];
+
+    dialog.show();
+}
+
+function closeDateDialog() {
+    var dialog = document.getElementById("updateDateDialog")?.ej2_instances?.[0];
+    if (dialog) dialog.hide();
+    var container = document.getElementById("updateDialog");
+    if (container) container.innerHTML = "";
+}
+
+function handleUpdateDateResponse(evt) {
+    // Cek response, jika success, tutup dialog dan tampilkan toast
+    try {
+        var response = evt.detail.xhr.responseText;
+        var json = null;
+        try {
+            json = JSON.parse(response);
+        } catch { }
+
+        if (json && json.success === true && json.redirectUrl) {
+            closeDateDialog();
+            ejs.notifications.ToastUtility.show('Date updated successfully.', 'Success', 3000);
+            window.location.href = json.redirectUrl;
+        } else if (json && json.success === false && json.errorMessage) {
+            document.getElementById("updateDateError").innerText = json.errorMessage;
+        }
+        // Jika partial, biarkan partial tetap muncul
+    } catch (err) {
+        // fallback: do nothing
+    }
+}

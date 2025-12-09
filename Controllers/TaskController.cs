@@ -1,6 +1,7 @@
 ﻿using Htmx;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Enum;
 using ProjectManagement.App.Models.Workspace;
@@ -83,6 +84,23 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> ShowUpdateDialog(int projectId, int taskId)
+        {
+            var taskItem = await _taskRepository.GetAsync(projectId, taskId);
+            var model = new UpdateDateDto
+            {
+                ProjectId = projectId,
+                TaskId = taskId,
+                SetNewDate = taskItem.TargetDate,
+                ControllerName = "Task"
+            };
+
+
+            return PartialView("_UpdateDateDialog", model);
+
+        }
+
+        [HttpGet]
         public async Task<IActionResult> ShowLinkedCommit(int repoId, int taskId)
         {
 
@@ -139,6 +157,8 @@ namespace ProjectManagement.App.Controllers
                         isRequestHtmx = Request.IsHtmx()
                     };
                     return PartialView("_TaskDescPanel", updatedModel);
+
+                    
                 }
                 // Reload panel
 
@@ -146,6 +166,60 @@ namespace ProjectManagement.App.Controllers
 
             return PartialView("_EditTaskDescPanel", model);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateDate(UpdateDateDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                TaskItem updatedData = new()
+                {
+                    Id = model.TaskId,
+                    ProjectId = model.ProjectId,
+                    TargetDate = model.SetNewDate,
+                };
+
+                var success = await _taskRepository.UpdateDateAsync(updatedData);
+
+                if (success)
+                {
+                    if (Request.IsHtmx())
+                    {
+                        var redirectUrl = Url.Action("Details", new { projectId = model.ProjectId, taskId = model.TaskId, isConnected = true });
+                        return Json(new { success = true, redirectUrl });
+                    }
+                    return RedirectToAction("Details", new { projectId = model.ProjectId, taskId = model.TaskId, isConnected = true });
+                }
+                else
+                {
+                    // Update failed, return error for HTMX
+                    if (Request.IsHtmx())
+                    {
+                        return Json(new { success = false, errorMessage = "Failed to update the date. Please try again." });
+                    }
+                }
+            }
+            else
+            {
+                // Validation failed, return error for HTMX
+                if (Request.IsHtmx())
+                {
+                    // You can aggregate ModelState errors if needed
+                    var errorMsg = string.Join("; ", ModelState.Values
+                        .SelectMany(x => x.Errors)
+                        .Select(x => x.ErrorMessage));
+                    return Json(new { success = false, errorMessage = errorMsg });
+                }
+            }
+
+            // Fallback: return partial for non-HTMX or if you want to re-render the form
+            if (Request.IsHtmx())
+            {
+                return PartialView("_UpdateDateDialog", model);
+            }
+            return View(model);
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> DetailsPanel(int projectId, int taskId)

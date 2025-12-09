@@ -1,0 +1,49 @@
+﻿@using ProjectManagement.App.DTO
+@using Syncfusion.EJ2
+@model UpdateDateDto
+
+<ejs-dialog id="updateDateDialog" header="Update Target Date"
+            width="40%" visible="false" showCloseIcon="true" isModal="true"
+            target="body" close="closeDateDialog">
+    <e-content-template>
+        <form id="updateDateForm"
+        hx-post
+        hx-controller="@Model.ControllerName"
+        hx-action="UpdateDate"
+        hx-swap="none"
+        hx-on="htmx:afterOnLoad:handleUpdateDateResponse">
+            
+
+            @Html.HiddenFor(i => i.ProjectId)
+            @Html.HiddenFor(i => i.TaskId)
+
+
+            <div class="mb-3">
+                <label asp-for="SetNewDate" class="form-label"></label>
+                <ejs-datepicker ejs-for="SetNewDate" class="form-control" format="yyyy-MM-dd"></ejs-datepicker>
+                @* <span asp-validation-for="Description"></span> *@
+            </div>
+
+            <div class="text-end mb-3">
+                <ejs-button id="submit" isPrimary="true" content="Update Date" type="submit" />
+            </div>
+
+            <div id="updateDateError" class="text-danger"></div>
+        </form>
+    </e-content-template>
+</ejs-dialog>
+
+
+@Html.EJS().ScriptManager()
+
+<script>
+    document.addEventListener("htmx:afterOnLoad", function (evt) {
+        handleUpdateDateResponse(evt)
+        
+    });
+</script>
+
+
+
+
+

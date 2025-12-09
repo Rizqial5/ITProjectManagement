@@ -187,5 +187,28 @@ namespace ProjectManagement.App.Repository
 
             return listCommit;
         }
+
+        public async Task<bool> UpdateDateAsync(TaskItem updatedData)
+        {
+            try
+            {
+                var existing = await _dbContext.TaskItems
+                    .FirstOrDefaultAsync(t => t.ProjectId == updatedData.ProjectId && t.Id == updatedData.Id);
+
+                if (existing == null) return false;
+
+                existing.UpdatedAt = DateTime.UtcNow;
+                existing.TargetDate = updatedData.TargetDate;
+
+
+                await _dbContext.SaveChangesAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
+
+        }
     }
 }

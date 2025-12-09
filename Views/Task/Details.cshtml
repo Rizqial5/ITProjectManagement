@@ -6,7 +6,7 @@
 
 @{
 
-    var isOverdue = Model.DueDate > DateTime.Now && Model.Status != "Done";
+    var isOverdue = Model.DueDate < DateTime.Now && Model.Status != "Done";
     var completion = Model.Completion ?? 60; // percent
     var priority = Model.Priority ?? "Low";
 
@@ -383,43 +383,31 @@
             <div class="card">
                 <div class="card-title">Quick Actions</div>
                 <ul class="quick-actions-list">
-                    <li>Update Due Date</li>
+                    <li id="updateDateAction"
+                        hx-get
+                        hx-action="ShowUpdateDialog"
+                        hx-controller="Task"
+                        hx-route-projectId="@Model.ProjectId"
+                        hx-route-taskId="@Model.TaskId"
+                        hx-target="#updateDialog"
+                        hx-swap="innerHTML">Update Due Date</li>
                     <li>View Repository</li>
                 </ul>
             </div>
-@*             <!-- Assignee Card -->
-            <div class="card">
-                <div class="card-title">Assignee</div>
-                <div class="assignee-card">
-                    <div class="assignee-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="assignee-info">
-                        @if (!string.IsNullOrEmpty(Model.AssigneeName))
-                        {
-                            <span>@Model.AssigneeName</span>
-                            <span style="color:#6b7280; font-size:0.95rem;">@Model.AssigneeRole</span>
-                        }
-                        else
-                        {
-                            <span style="color:#bdbdbd;">No assignee</span>
-                        }
-                    </div>
-                </div>
-            </div> *@
-           
-
         </div>
     </div>
 </div>
 
 <partial name="_LinkCommitDialog"></partial>
 
+<div id="updateDialog"></div>
+
 @Html.EJS().ScriptManager()
 
-<script>
+<script type="text/javascript">
 
     var btnCommit =  document.getElementById("btnAddCommit");
+    var updateDateAction =  document.getElementById("updateDateAction");
 
     document.body.addEventListener("htmx:afterRequest", function (evt) {
         if (evt.detail.requestConfig.elt.id === "btnMarkDone") {
@@ -439,6 +427,16 @@
 
     }
 
+    if(updateDateAction)
+    {
+        updateDateAction.addEventListener("htmx:afterOnLoad",  () => {
+
+            // Pastikan evt.detail dan evt.detail.target aman
+
+                showUpdateDateDialog();
+
+        });
+    }
 
 
 

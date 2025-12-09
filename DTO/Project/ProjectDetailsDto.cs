@@ -53,6 +53,6 @@ namespace ProjectManagement.App.DTO.Project
 
         public int Commits { get; set; }
 
-        public bool IsOverDue => DateTime.UtcNow < DueDate && Status != "Done";
+        public bool IsOverDue => DateTime.UtcNow > DueDate && Status != "Done";
     }
 }
