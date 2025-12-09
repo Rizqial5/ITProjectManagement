@@ -107,7 +107,11 @@ namespace ProjectManagement.App.Controllers
                     Commits = i.Commits.Count(),
                     DueDate = i.TargetDate,
                     Status = i.Status.ToString()
-                }).OrderByDescending(i => i.DueDate).ToArray() : Array.Empty<ProjectTaskDto>()
+                })
+                .OrderBy(i => i.Status == "InProgress" ? 0 : i.Status == "ToDo" ? 1 : 2)
+                .ThenByDescending(i => i.DueDate)
+                    
+                .ToArray() : Array.Empty<ProjectTaskDto>()
 
             };
 

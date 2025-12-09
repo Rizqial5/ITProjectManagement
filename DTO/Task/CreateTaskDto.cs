@@ -17,6 +17,7 @@ namespace ProjectManagement.App.DTO.Task
 
         [Required]
         [Display(Name = "Target Date")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd}")]
         public DateTime TargetDate { get; set; } = DateTime.UtcNow;
 
         public string ProjectTitle { get; set; }
