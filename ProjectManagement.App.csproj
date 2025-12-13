@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>e1645bec-e628-4f05-93ad-d2d5dc9a7e47</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\js\syncfusion-htmx-integrator.js" />
+  </ItemGroup>
   
   <ItemGroup>
          <PackageReference Include="Htmx" Version="1.9.0" />

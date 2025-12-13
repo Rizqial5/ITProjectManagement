@@ -81,12 +81,11 @@
     </div>
 </div>
 
-@if(Model.isRequestHtmx)
+@if(Model.isRequestHtmx && !Model.InitPage)
 {
     <div class="summary-actions" id="statusTask" hx-swap-oob='true'>
         @await Html.PartialAsync("Component/_StatusMarkButton", Model)
     </div>
 }
-
 
 @Html.EJS().ScriptManager()

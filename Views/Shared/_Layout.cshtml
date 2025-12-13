@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/ProjectManagement.App.styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/ej2/material.css" />
+    <link rel="stylesheet" href="~/css/ej2/material.css" asp-append-version="true" />
+    <script src="https://cdn.syncfusion.com/ej2/31.2.12/dist/ej2.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -138,8 +139,9 @@
         <div class="main-wrapper">
             <div class="container-fluid custom-container">
                 <main role="main">
-                    <div id="main">
+                    <div id="main-content">
                         @RenderBody()
+                        
                     </div>
                 </main>
             </div>
@@ -153,9 +155,7 @@
         </div>
     </footer>
 
-
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <ejs-scripts></ejs-scripts>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/project.js" asp-append-version="true"></script>
     <script src="~/js/htmx.min.js"></script>
@@ -193,7 +193,9 @@
         document.getElementById('sidebarToggle').addEventListener('click', function () {
             sidebarObj.toggle();
         });
-
     </script>
+
+
+    <ejs-scripts></ejs-scripts>
 </body>
 </html>

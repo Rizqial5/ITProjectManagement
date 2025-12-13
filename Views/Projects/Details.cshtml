@@ -1,5 +1,6 @@
 ﻿@using ProjectManagement.App.DTO.Project
 @using ProjectManagement.App.DTO.Task
+@using Syncfusion.EJ2
 @model ProjectDetailsDto
 @{
     ViewData["Title"] = "Project Details";
@@ -222,15 +223,23 @@
 <partial name="_CreateTaskDialog" model="new CreateTaskDto() {ProjectTitle = Model.Title, ProjectID = Model.Id}"></partial>
 
 <div>
+    <div>
+        <ejs-breadcrumb id="br-details"  enableNavigation="true">
+            <e-breadcrumb-items>
+                <e-breadcrumb-item iconCss="e-icons e-home" url="@Url.Action("Index","Home")"></e-breadcrumb-item>
+                <e-breadcrumb-item text="Projects" url="@Url.Action("Page", "Projects")"></e-breadcrumb-item>
+                <e-breadcrumb-item text="@Model.Title" url="https://ej2.syncfusion.com/aspnetcore/Breadcrumb/DefaultFunctionalities"></e-breadcrumb-item>
+            </e-breadcrumb-items>
+        </ejs-breadcrumb>
+    </div>
     <div class="details-header">
-        <a href="javascript:history.back()" class="btn btn-link p-0" style="font-size:1.5rem;"><i class="fas fa-arrow-left"></i></a>
         <div>
             <div class="details-title">@Model.Title
                 <span class="details-status-badge">@Model.Status</span>
             </div>
             <div class="details-desc">@Model.Description</div>
         </div>
-        <div class="ms-auto d-flex align-items-center gap-2">
+        <div data-ej2 class="ms-auto d-flex align-items-center gap-2">
             @if (!Model.IsConnected)
             {
                 <ejs-button id="connectRepo" content="Connect Repository" cssClass="e-primary details-connect-btn" iconCss="fas fa-link" isPrimary="true"></ejs-button>
@@ -331,7 +340,7 @@
                          hx-route-projectId="@Model.Id"
                          hx-route-taskId="@task.Id"
                          hx-route-isConnected="@Model.IsConnected"
-                         hx-target="#main"
+                         hx-target="#main-content"
                          hx-swap="innerHTML">
                         <div class="details-task-title mb-1">@task.Title</div>
                         <div class="details-task-badges">
@@ -372,4 +381,4 @@
     </div>
 </div>
 
-<ejs-scripts></ejs-scripts>
+@Html.EJS().ScriptManager()

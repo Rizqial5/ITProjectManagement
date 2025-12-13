@@ -1,4 +1,5 @@
 ﻿@using Syncfusion.EJ2
+@using Syncfusion.EJ2.Navigations
 @using Syncfusion.EJ2.ProgressBar
 @using Syncfusion.EJ2.Buttons
 @using ProjectManagement.App.Extensions
@@ -11,8 +12,8 @@
     var priority = Model.Priority ?? "Low";
 
     var diffDate = DateTime.Now.Day - Model.DueDate.Day ;
-}
 
+    }
 <style>
     .no-repo-connected{
         display: flex;
@@ -283,10 +284,22 @@
     }
 </style>
 
+
+
+
 <div class="task-details-container">
+    <div >
+        <ejs-breadcrumb id="br-tasks"  enableNavigation="true"> 
+            <e-breadcrumb-items>
+                <e-breadcrumb-item iconCss="e-icons e-home" url="@Url.Action("Index", "Home")"></e-breadcrumb-item>
+                <e-breadcrumb-item text="Projects" url="@Url.Action("Page", "Projects")"></e-breadcrumb-item>
+                <e-breadcrumb-item text="@Model.ProjectName" url="@Model.ProjectUrl"></e-breadcrumb-item>
+                <e-breadcrumb-item text="@Model.Title" url="https://ej2.syncfusion.com/aspnetcore/Breadcrumb/DefaultFunctionalities"></e-breadcrumb-item>
+            </e-breadcrumb-items>
+        </ejs-breadcrumb>
+    </div>
     <!-- Header -->
     <div class="task-details-header">
-        <a href="javascript:history.back()" class="btn btn-link p-0" style="font-size:1.5rem;"><i class="fas fa-arrow-left"></i></a>
         <div>
             <div class="task-details-title">@Model.Title</div>
             <div class="task-details-meta">
@@ -402,9 +415,8 @@
 
 <div id="updateDialog"></div>
 
-@Html.EJS().ScriptManager()
 
-<script type="text/javascript">
+<script>
 
     var btnCommit =  document.getElementById("btnAddCommit");
     var updateDateAction =  document.getElementById("updateDateAction");
@@ -461,3 +473,4 @@
         });
     }
 </script>
+@Html.EJS().ScriptManager()

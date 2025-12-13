@@ -9,6 +9,7 @@ namespace ProjectManagement.App.ViewModel
         public string Status { get; set; }
         public string Description { get; set; }
         public string ProjectName { get; set; }
+        public string ProjectUrl { get; set; }
         public int ProjectId { get; set; }
         public int? TotalLinkedCommits { get; set; } = 0;
         public bool? isConnectedRepo { get; set; } = false;
@@ -19,6 +20,8 @@ namespace ProjectManagement.App.ViewModel
         public string? AssigneeName { get; set; }
         public string? AssigneeRole { get; set; }
         public bool isRequestHtmx { get; set; }
+
+        public bool InitPage { get; set; } = true;
         public List<GithubCommit> Commits { get; set; }
     }
 }

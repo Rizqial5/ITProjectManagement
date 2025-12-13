@@ -41,6 +41,7 @@ namespace ProjectManagement.App.Controllers
                 TaskId = taskItem.Id,
                 Title = taskItem.Title,
                 ProjectName = taskItem.Project.Name,
+                ProjectUrl = Url.Action("Details", "Projects", new { id = projectId }),
                 ProjectId = taskItem.Project.Id,
                 Description = taskItem.Description,
                 Status = taskItem.Status.ToString(),
@@ -50,8 +51,8 @@ namespace ProjectManagement.App.Controllers
                 Commits = taskItem.Commits.ToList(),
                 isRequestHtmx = Request.IsHtmx(),
                 LastUpdated = taskItem.UpdatedAt.ToString("dd-MMM-yyyy")
-                
-                
+
+
             };
 
             if(Request.IsHtmx())
@@ -154,7 +155,8 @@ namespace ProjectManagement.App.Controllers
                         Description = task.Description,
                         Status = task.Status.ToString(),
                         LastUpdated = task.UpdatedAt.ToString("dd-MMM-yyyy"),
-                        isRequestHtmx = Request.IsHtmx()
+                        isRequestHtmx = Request.IsHtmx(),
+                        InitPage = false
                     };
                     return PartialView("_TaskDescPanel", updatedModel);
 
@@ -233,7 +235,8 @@ namespace ProjectManagement.App.Controllers
                 Description = task.Description,
                 Status = task.Status.ToString(),
                 LastUpdated = task.UpdatedAt.ToString("dd-MMM-yyyy"),
-                isRequestHtmx = Request.IsHtmx()
+                isRequestHtmx = Request.IsHtmx(),
+                InitPage = false
             };
             return PartialView("_TaskDescPanel", model);
         }
