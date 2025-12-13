@@ -117,7 +117,7 @@ namespace ProjectManagement.App.Controllers
 
             var checkConnectProject = await _projectRepository.CheckConnectedProject(project.Id);
 
-            if (checkConnectProject.Success)
+            if (checkConnectProject.Success && User.IsConnectedGithub())
             {
                 await SynchronizeCommitAsync(checkConnectProject);
             }
