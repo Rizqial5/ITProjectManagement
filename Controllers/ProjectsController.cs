@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Htmx;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Project;
 using ProjectManagement.App.DTO.Workspace;
@@ -122,7 +124,18 @@ namespace ProjectManagement.App.Controllers
                 await SynchronizeCommitAsync(checkConnectProject);
             }
 
-            return View(data);
+
+            if (Request.IsHtmx())
+            {
+                Response.Htmx(h =>
+                {
+                    h.PushUrl(Request.GetEncodedUrl());
+                });
+
+                return PartialView(data);
+            }
+
+                return View(data);
         }
 
         private async Task SynchronizeCommitAsync(ResponseResultDto<GitHubRepoDto> checkConnectProject)

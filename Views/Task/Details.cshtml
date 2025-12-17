@@ -289,14 +289,54 @@
 
 <div class="task-details-container">
     <div >
-        <ejs-breadcrumb id="br-tasks"  enableNavigation="true"> 
-            <e-breadcrumb-items>
-                <e-breadcrumb-item iconCss="e-icons e-home" url="@Url.Action("Index", "Home")"></e-breadcrumb-item>
-                <e-breadcrumb-item text="Projects" url="@Url.Action("Page", "Projects")"></e-breadcrumb-item>
-                <e-breadcrumb-item text="@Model.ProjectName" url="@Model.ProjectUrl"></e-breadcrumb-item>
-                <e-breadcrumb-item text="@Model.Title" url="https://ej2.syncfusion.com/aspnetcore/Breadcrumb/DefaultFunctionalities"></e-breadcrumb-item>
-            </e-breadcrumb-items>
-        </ejs-breadcrumb>
+        <nav id="br-tasks"
+             class="e-breadcrumb e-control e-lib"
+             aria-label="Breadcrumb">
+
+            <ol class="e-breadcrumb-list">
+
+                <!-- Home -->
+                <li class="e-breadcrumb-item">
+                    <a class="e-breadcrumb-text"
+                       href="@Url.Action("Index", "Home")">
+                        <span class="e-icons e-home"></span>
+                    </a>
+                </li>
+
+                <li class=e-breadcrumb-item e-breadcrumb-separator e-level-1">/</li>
+
+                <!-- Projects -->
+                <li class="e-breadcrumb-item">
+                    <a class="e-breadcrumb-text"
+                       href="@Url.Action("Page", "Projects")">
+                        Projects
+                    </a>
+                </li>
+
+                <li class="e-breadcrumb-item e-breadcrumb-separator e-level-1">/</li>
+
+                <!-- Project Name (HTMX) -->
+                <li class="e-breadcrumb-item">
+                    <a href="javascript:void(0)"
+                       class="e-breadcrumb-text"
+                       hx-get="@Url.Action("Details", "Projects", new { id = Model.ProjectId })"
+                       hx-target="#main-content"
+                       hx-swap="innerHTML">
+                        @Model.ProjectName
+                    </a>
+                </li>
+
+                <li class="e-breadcrumb-item e-breadcrumb-separator e-level-1">/</li>
+
+                <!-- Current Page -->
+                <li class="e-breadcrumb-item e-breadcrumb-active" data-active-item>
+                    <span class="e-breadcrumb-text">
+                        @Model.Title
+                    </span>
+                </li>
+
+            </ol>
+        </nav>
     </div>
     <!-- Header -->
     <div class="task-details-header">
