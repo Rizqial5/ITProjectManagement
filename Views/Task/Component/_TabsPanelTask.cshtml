@@ -1,0 +1,62 @@
+﻿@using Syncfusion.EJ2
+@using Syncfusion.EJ2.Navigations
+@using Syncfusion.EJ2.ProgressBar
+@using Syncfusion.EJ2.Buttons
+@using ProjectManagement.App.Extensions
+@model ProjectManagement.App.ViewModel.TaskViewModel
+
+
+@{
+    var linkedCommit = new TabHeader { Text = "Commits" };
+    var notesTab = new TabHeader { Text = "Notes" };
+}
+
+<ejs-tab id="MainTab" created="Created" selecting="Selecting">
+    <e-tab-tabitems>
+        <e-tab-tabitem header="linkedCommit" content="<br/><div id='commitTab'></div>"></e-tab-tabitem>
+        <e-tab-tabitem header="notesTab" content="<br/><div id='notesTab'></div>"></e-tab-tabitem>
+    </e-tab-tabitems>
+</ejs-tab>
+
+<script>
+    function Created() {
+        var ajax = new ej.base.Ajax(
+            '@Html.Raw(
+                Url.Action("LoadCommitsTab", "Tabs",
+                new {
+                    projectId = Model.ProjectId,
+                    taskId = Model.TaskId,
+                    isConnected = Model.isConnectedRepo
+                })
+            )',
+            'GET',
+            true
+        );
+
+        ajax.send().then();
+         ajax.onSuccess = function (data) {
+            $("#commitTab").html(data);
+        }
+    }
+    function Selecting(e) {
+        if (e.selectingIndex != 0){
+            var ajax = new ej.base.Ajax(
+                '@Html.Raw(
+                    Url.Action("LoadNotesTab", "Tabs",
+                    new {
+                        projectId = Model.ProjectId,
+                        taskId = Model.TaskId
+                    })
+                )',
+                'GET',
+                true
+            );
+
+            ajax.send().then();
+            ajax.onSuccess = function (data) {
+                $("#notesTab").html(data);
+            }
+        }
+    }
+</script>
+

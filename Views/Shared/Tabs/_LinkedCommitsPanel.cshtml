@@ -1,0 +1,61 @@
+﻿@using Syncfusion.EJ2
+@using Syncfusion.EJ2.Navigations
+@using Syncfusion.EJ2.ProgressBar
+@using Syncfusion.EJ2.Buttons
+@using ProjectManagement.App.Extensions
+@model ProjectManagement.App.ViewModel.TaskViewModel
+
+
+@if (User.IsConnectedGithub() && Model.isConnectedRepo.Value)
+{
+    <!-- Linked Commits Card -->
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="card-title">
+            <i class="fab fa-git-alt me-1 text-danger"></i>
+            Linked Commits (@Model.TotalLinkedCommits)
+        </div>
+        <ejs-button id="btnAddCommit"
+                    cssClass="e-outline"
+                    iconCss="e-icons e-plus"
+                    hx-get="@Url.Action("ShowLinkCommit", "Task", new { projectId = Model.ProjectId, isConnected = Model.isConnectedRepo })"
+                    hx-target="#commitGrid"
+                    hx-trigger="click"
+                    hx-swap="innerHTML">
+        </ejs-button>
+
+    </div>
+    <div id="listCommit" style="max-height:92%; overflow:auto">
+
+        <ul class="commit-list" id="commitList">
+            @foreach (var commit in Model.Commits)
+            {
+                <li class="commit-item">
+                    <span class="commit-sha-wrapper">
+                        <span class="commit-sha">
+                            <i class="fas fa-code-branch text-secondary"></i>
+                            @commit.DisplaySHA
+                        </span>
+                        <span class="branch-line"></span>
+                    </span>
+                    <div>
+                        <div class="commit-message">@commit.Message</div>
+                        <div class="commit-meta">by @commit.AuthorName</div>
+                    </div>
+                    <span class="commit-date">@commit.CommitDate.ToString("M/d/yyyy")</span>
+                    <a href="#" class="commit-link" title="View Commit"><i class="fas fa-external-link-alt"></i></a>
+                </li>
+            }
+        </ul>
+
+
+    </div>
+
+
+}
+else
+{
+    <div class="text-center no-repo-connected">No repo Connected</div>
+}
+
+@Html.EJS().ScriptManager()

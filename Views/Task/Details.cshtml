@@ -15,6 +15,16 @@
 
     }
 <style>
+
+    .card-panel{
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        padding: 5px 24px 12px;
+        margin-bottom: 18px;
+    }
+
     .no-repo-connected{
         display: flex;
         justify-content: center;
@@ -367,39 +377,8 @@
             <!-- Task Details Card -->
             <partial name="_TaskDescPanel" model="Model" />
 
-            <div class="card commit-container-card">
-                @if (User.IsConnectedGithub() && Model.isConnectedRepo.Value)
-                {
-                    <!-- Linked Commits Card -->
-                
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="card-title">
-                                <i class="fab fa-git-alt me-1 text-danger"></i>
-                                Linked Commits (@Model.TotalLinkedCommits)
-                            </div>
-                                <ejs-button id="btnAddCommit"
-                                            cssClass="e-outline"
-                                            iconCss="e-icons e-plus"
-                                            hx-get="@Url.Action("ShowLinkCommit", "Task", new { projectId = Model.ProjectId, isConnected = Model.isConnectedRepo })"
-                                            hx-target="#commitGrid"
-                                            hx-trigger="click"
-                                            hx-swap="innerHTML">
-                                </ejs-button>
-                        
-                        </div>
-                        <div id="listCommit" style="max-height:92%; overflow:auto">
-  
-                                <partial name="_ListLinkedCommit" model="@Model.Commits"></partial>
-                        
-
-                        </div>
-
-                
-                }
-                else
-                {
-                    <div class="text-center no-repo-connected">No repo Connected</div>
-                }
+            <div class="card-panel commit-container-card">
+                <partial name="Component/_TabsPanelTask" model="Model"></partial>
             </div>
         </div>
         <!-- Right Column -->
