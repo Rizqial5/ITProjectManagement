@@ -58,4 +58,39 @@ else
     <div class="text-center no-repo-connected">No repo Connected</div>
 }
 
+
+<script>
+    var btnCommit =  document.getElementById("btnAddCommit");
+    var updateDateAction =  document.getElementById("updateDateAction");
+
+    document.body.addEventListener("htmx:afterRequest", function (evt) {
+        if (evt.detail.requestConfig.elt.id === "btnMarkDone") {
+            location.reload();
+        }
+    });
+
+    if(btnCommit)
+    {
+        btnCommit.addEventListener("htmx:afterOnLoad",  () => {
+
+            // Pastikan evt.detail dan evt.detail.target aman
+
+                openCommitDialog();
+
+        });
+
+    }
+
+    if(updateDateAction)
+    {
+        updateDateAction.addEventListener("htmx:afterOnLoad",  () => {
+
+            // Pastikan evt.detail dan evt.detail.target aman
+
+                showUpdateDateDialog();
+
+        });
+    }
+
+</script>
 @Html.EJS().ScriptManager()
