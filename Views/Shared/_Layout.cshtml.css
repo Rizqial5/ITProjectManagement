@@ -26,6 +26,7 @@ a {
 .border-top {
   border-top: 1px solid #e5e5e5;
 }
+
 .border-bottom {
   border-bottom: 1px solid #e5e5e5;
 }
@@ -40,9 +41,9 @@ button.accept-policy {
 }
 
 .footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+  position: relative;
+  padding: clamp(12px, 2vw, 20px);
+  text-align: center;
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  border-top: 1px solid #e5e5e5;
 }

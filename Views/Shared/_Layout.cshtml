@@ -12,74 +12,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="~/js/ej2/ej2.min.js"></script>
-    <!-- jQuery Validation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-
-    <!-- jQuery Unobtrusive Validation (ASP.NET Core) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 </head>
 <body>
-    <style>
-        .custom-container {
-            max-width: 1800px;
-            margin: 0 auto;
-            padding-left: 20px;
-            padding-right: 20px;
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: 2px;
-            right: -5px;
-            font-size: 0.7rem;
-            padding: 3px 6px;
-        }
-
-        /* wrapper global */
-        .app-wrapper {
-            display: flex;
-            flex-direction: row;
-            margin-top: 56px; /* tinggi navbar */
-            max-height: calc(100vh - 56px);
-            overflow: hidden;
-        }
-
-        /* sidebar syncfusion fix di layout */
-        .e-sidebar {
-            z-index: 1020;
-            height: 100%;
-        }
-
-        .sidebar-menu a {
-            display: block;
-            padding: 10px 15px;
-            text-decoration: none;
-            color: #333;
-        }
-
-            .sidebar-menu a:hover {
-                background: #f1f1f1;
-            }
-
-        /* konten shrink otomatis */
-        .main-wrapper {
-            flex: 1;
-            overflow-y: auto;
-            margin-top: 10px;
-            transition: all 0.3s ease;
-            height: fit-content;
-        }
-
-        .link-font {
-            text-decoration: auto;
-            color: #2a2cde;
-            font-weight: bold;
-        }
-
-    </style>
-
-
     <div id="dialogTarget"></div>
     <partial name="_ConfirmationDialog"></partial>
 
@@ -135,14 +71,11 @@
             </div>
         </div>
 
-        <!-- Konten utama -->
+        <!-- Main Content -->
         <div class="main-wrapper">
-            <div class="container-fluid custom-container">
-                <main role="main">
-                    <div id="main-content">
-                        @RenderBody()
-                        
-                    </div>
+            <div class="container-fluid custom-container mt-3">
+                <main role="main" id="main-content">
+                    @RenderBody()
                 </main>
             </div>
         </div>
@@ -162,7 +95,6 @@
     <script src="~/js/_hyperscript.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 
-    @* Notifikasi dari TempData *@
     @if (TempData["RepoNotification"] != null)
     {
         <script>
@@ -182,19 +114,43 @@
     }
 
     <script>
-        // Init Sidebar Syncfusion
-        var sidebarObj = new ej.navigations.Sidebar({
-            width: '250px',
-            type: 'Push',   // konten ikut terdorong
-            isOpen: true    // default terbuka
-        });
-        sidebarObj.appendTo('#sidebar');
+        let sidebarObj;
 
-        document.getElementById('sidebarToggle').addEventListener('click', function () {
-            sidebarObj.toggle();
+        function initSidebar() {
+            if (sidebarObj) {
+                sidebarObj.destroy();
+            }
+
+            sidebarObj = new ej.navigations.Sidebar({
+                width: '250px',
+                type: 'Over',
+                isOpen: false,
+                showBackdrop: true,
+                closeOnDocumentClick: false, // 🔥 IMPORTANT
+                position: 'Left'
+            });
+
+            sidebarObj.appendTo('#sidebar');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            initSidebar();
+
+            const toggleBtn = document.getElementById('sidebarToggle');
+
+            toggleBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                sidebarObj.isOpen
+                    ? sidebarObj.hide()
+                    : sidebarObj.show();
+            });
+
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => sidebarObj.hide());
+            });
         });
     </script>
-
 
     <ejs-scripts></ejs-scripts>
 </body>
