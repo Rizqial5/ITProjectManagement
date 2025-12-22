@@ -1,10 +1,216 @@
 ﻿@using Syncfusion.EJ2
-@using Syncfusion.EJ2.Navigations
-@using Syncfusion.EJ2.ProgressBar
+@using Syncfusion.EJ2.RichTextEditor
 @using Syncfusion.EJ2.Buttons
 @using ProjectManagement.App.Extensions
 
+@{
+    var items = new object[] {
+        "Bold", "Italic", "Underline", "StrikeThrough",
+        "FontName", "FontSize",
+        "Formats", "Alignments", "OrderedList", "UnorderedList",
+        "Outdent", "Indent", "CreateLink", "Image",
+        "SourceCode", "Undo", "Redo"
+    };
+}
 
-<div>
-	Coming Soon
+<div style="padding: 16px;">
+    <input type="hidden" id="notesHtmlValue" value="" />
+
+    <!-- Display Mode -->
+    <div id="notesDisplayMode" style="display: block;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h5 style="margin: 0;">Notes</h5>
+            <ejs-button id="btnEditNotes"
+                        content="Edit"
+                        cssClass="e-outline"
+                        iconCss="fas fa-pencil-alt"
+            onclick="initializeNotes()">
+            </ejs-button>
+        </div>
+
+        <div id="notesDisplayContent" class="notes-display-content">
+            <p style="color: #999; font-style: italic;">No notes yet. Click Edit to add notes.</p>
+        </div>
+    </div>
+
+    <div id="notesEditMode" style="display: none;">
+        <div class="notes-edit-header">
+            <h5>Edit Notes</h5>
+        </div>
+
+        <div class="notes-editor-wrapper">
+            <ejs-richtexteditor id="notesEditorDis"
+                                height="35vh"
+                                toolbarSettings="new Syncfusion.EJ2.RichTextEditor.RichTextEditorToolbarSettings
+                                {
+                                    Items = items
+                                }">
+            </ejs-richtexteditor>
+        </div>
+
+        <div class="notes-action-bar">
+            <ejs-button id="btnSaveNotes"
+                        content="Save"
+                        cssClass="e-success"
+                        iconCss="fas fa-save">
+            </ejs-button>
+            <ejs-button id="btnCancelNotes"
+                        content="Cancel"
+                        cssClass="e-outline"
+                        iconCss="fas fa-times">
+            </ejs-button>
+        </div>
+    </div>
+
 </div>
+
+<style>
+    .notes-display-content {
+        background: #f8f9fa;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
+        min-height: 35vh;
+        line-height: 1.6;
+        color: #333;
+        word-wrap: break-word;
+    }
+
+    .notes-display-content p {
+        margin-bottom: 0.5rem;
+    }
+
+    .notes-display-content ul,
+    .notes-display-content ol {
+        margin-left: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .notes-display-content li {
+        margin-bottom: 0.25rem;
+    }
+
+    .notes-display-content strong {
+        font-weight: 600;
+    }
+
+    .notes-display-content em {
+        font-style: italic;
+    }
+
+    .notes-display-content u {
+        text-decoration: underline;
+    }
+
+    .notes-display-content s {
+        text-decoration: line-through;
+    }
+
+    .notes-display-content a {
+        color: #2563eb;
+        text-decoration: none;
+    }
+
+    .notes-display-content a:hover {
+        text-decoration: underline;
+    }
+
+    .notes-display-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        margin: 8px 0;
+    }
+
+    /* Force RTE to participate in normal document flow */
+    .notes-editor-wrapper {
+        position: relative;
+        width: 100%;
+        margin-bottom: 16px;
+    }
+
+        /* Ensure EJ2 RTE takes full height */
+        .notes-editor-wrapper .e-richtexteditor {
+            display: block;
+            width: 100%;
+        }
+
+    /* Prevent overlapping with action buttons */
+    .notes-action-bar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 12px;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Extra safety for EJ2 internal container */
+    .e-richtexteditor .e-rte-container {
+        box-sizing: border-box;
+    }
+
+    .gap-2 {
+        gap: 8px;
+    }
+</style>
+
+<script>
+    let notesEditor;
+    let notesHtml = ''; // single source of truth
+
+    document.addEventListener('DOMContentLoaded', function () {
+        
+
+        // Initial render
+        renderDisplay();
+    });
+
+    function initializeNotes() {
+        // Set editor content
+
+        notesEditor = document.getElementById('notesEditorDis').ej2_instances[0];
+        notesEditor.value = notesHtml || '';
+
+        toggleMode(true);
+    }
+
+    function toggleMode(isEdit) {
+        document.getElementById('notesDisplayMode').style.display = isEdit ? 'none' : 'block';
+        document.getElementById('notesEditMode').style.display = isEdit ? 'block' : 'none';
+    }
+
+    function renderDisplay() {
+        const display = document.getElementById('notesDisplayContent');
+
+        if (!notesHtml || notesHtml.trim() === '') {
+            display.innerHTML = `<p style="color:#999;font-style:italic">
+                No notes yet. Click Edit to add notes.
+            </p>`;
+        } else {
+            display.innerHTML = notesHtml;
+        }
+    }
+
+    // SAVE
+    document.getElementById('btnSaveNotes').addEventListener('click', function () {
+        notesHtml = notesEditor.value;
+        document.getElementById('notesHtmlValue').value = notesHtml;
+
+        renderDisplay();
+        toggleMode(false);
+
+        // 🔥 optional: save to server
+        // saveNotesAjax(notesHtml);
+    });
+
+    // CANCEL
+    document.getElementById('btnCancelNotes').addEventListener('click', function () {
+        notesEditor.value = notesHtml; // restore
+        toggleMode(false);
+    });
+</script>
+
+
+
+@Html.EJS().ScriptManager()
