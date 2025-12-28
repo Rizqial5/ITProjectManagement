@@ -21,6 +21,8 @@ namespace ProjectManagement.App.Models.Workspace
         public DateTime TargetDate { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        public string? NotesHtml { get; set;}
+
         // Foreign Key ke Project
         public int ProjectId { get; set; }
 
