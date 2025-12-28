@@ -156,8 +156,7 @@
 </style>
 
 <script>
-    let notesEditor;
-    let notesHtml = ''; // single source of truth
+    var notesHtml = ''; // single source of truth
 
     document.addEventListener('DOMContentLoaded', function () {
         
@@ -169,7 +168,7 @@
     function initializeNotes() {
         // Set editor content
 
-        notesEditor = document.getElementById('notesEditorDis').ej2_instances[0];
+        var notesEditor = document.getElementById('notesEditorDis').ej2_instances[0];
         notesEditor.value = notesHtml || '';
 
         toggleMode(true);
@@ -194,6 +193,9 @@
 
     // SAVE
     document.getElementById('btnSaveNotes').addEventListener('click', function () {
+
+        var notesEditor = document.getElementById('notesEditorDis').ej2_instances[0];
+
         notesHtml = notesEditor.value;
         document.getElementById('notesHtmlValue').value = notesHtml;
 
@@ -206,6 +208,9 @@
 
     // CANCEL
     document.getElementById('btnCancelNotes').addEventListener('click', function () {
+
+        var notesEditor = document.getElementById('notesEditorDis').ej2_instances[0];
+
         notesEditor.value = notesHtml; // restore
         toggleMode(false);
     });
