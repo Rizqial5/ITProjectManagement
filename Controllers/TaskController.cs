@@ -363,5 +363,21 @@ namespace ProjectManagement.App.Controllers
 
         }
 
+        [HttpPost]
+        public async Task<IActionResult> AddNotes([FromBody] SaveNotesDto dataNote)
+        {
+            try
+            {
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                TempData["RepoNotificationFailed"] = ex.Message;
+
+                return Json(new { success = false });
+            }
+
+        }
+
     }
 }

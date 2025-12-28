@@ -1,7 +1,9 @@
-﻿@using Syncfusion.EJ2
+﻿@using ProjectManagement.App.DTO.Task
+@using Syncfusion.EJ2
 @using Syncfusion.EJ2.RichTextEditor
 @using Syncfusion.EJ2.Buttons
 @using ProjectManagement.App.Extensions
+@model SaveNotesDto;
 
 @{
     var items = new object[] {
@@ -15,6 +17,9 @@
 
 <div style="padding: 16px;">
     <input type="hidden" id="notesHtmlValue" value="" />
+    @Html.HiddenFor(model => model.TaskId)
+    @Html.HiddenFor(model => model.ProjectId)
+    @Html.HiddenFor(model => model.NotesHtml)
 
     <!-- Display Mode -->
     <div id="notesDisplayMode" style="display: block;">
@@ -169,7 +174,7 @@
         // Set editor content
 
         var notesEditor = document.getElementById('notesEditorDis').ej2_instances[0];
-        notesEditor.value = notesHtml || '';
+        notesEditor.value = notesHtml || $('#NotesHtml').val();;
 
         toggleMode(true);
     }
@@ -197,13 +202,14 @@
         var notesEditor = document.getElementById('notesEditorDis').ej2_instances[0];
 
         notesHtml = notesEditor.value;
-        document.getElementById('notesHtmlValue').value = notesHtml;
+
+        $('#NotesHtml').val(notesHtml);
 
         renderDisplay();
         toggleMode(false);
 
         // 🔥 optional: save to server
-        // saveNotesAjax(notesHtml);
+        saveNotesAjax(notesHtml);
     });
 
     // CANCEL
@@ -214,6 +220,29 @@
         notesEditor.value = notesHtml; // restore
         toggleMode(false);
     });
+
+    function saveNotesAjax(notes){
+        console.log(notes);
+
+
+        $.ajax({
+            url: '@Url.Action("AddNotes", "Task")',
+            type: 'POST',
+            contentType: 'application/json; charset=utf-8',
+            data: JSON.stringify({
+                NotesHtml: notes,
+                TaskId: $('#TaskId').val(),
+                ProjectId: $('#ProjectId').val()
+            }),
+            success: function () {
+               
+            },
+            error: function () {
+                console.error("Failed to load paged projects.");
+            }
+        });
+    }
+
 </script>
 
 

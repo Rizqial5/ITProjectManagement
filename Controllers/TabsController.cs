@@ -1,5 +1,6 @@
 ﻿using Htmx;
 using Microsoft.AspNetCore.Mvc;
+using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Workspace;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
@@ -44,7 +45,13 @@ namespace ProjectManagement.App.Controllers
         public IActionResult LoadNotesTab(int projectId, int taskId)
         {
 
-            return PartialView("~/Views/Shared/Tabs/_NotesTab.cshtml");
+            SaveNotesDto modelNotes = new()
+            {
+                TaskId = taskId,
+                ProjectId = projectId,
+            };
+
+            return PartialView("~/Views/Shared/Tabs/_NotesTab.cshtml", modelNotes);
         }
     }
 }
