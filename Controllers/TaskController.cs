@@ -9,9 +9,8 @@ using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
 using Syncfusion.EJ2.Base;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Ganss.Xss;
+
 
 namespace ProjectManagement.App.Controllers
 {
@@ -368,13 +367,15 @@ namespace ProjectManagement.App.Controllers
         {
             try
             {
-                return Json(new { success = true });
+                await _taskRepository.AddNoteAsync(dataNote);
+
+                return Json(new { success = true, message= "Notes sucessfully saved" });
             }
             catch (Exception ex)
             {
-                TempData["RepoNotificationFailed"] = ex.Message;
 
-                return Json(new { success = false });
+
+                return Json(new { success = false, message = ex.Message });
             }
 
         }

@@ -22,5 +22,6 @@ namespace ProjectManagement.App.Repository.Interface
         Task<ResponseResultDto> ConnectCommitToTaskAsync(int repoId, int commitId, int taskId);
         Task<ResponseResultDto> SetTaskStatus(int projectId, int taskId, Status setStatus);
         Task<bool> UpdateDateAsync(TaskItem updatedData);
+        Task AddNoteAsync(SaveNotesDto notesDto);
     }
 }

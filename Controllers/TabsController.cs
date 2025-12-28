@@ -44,6 +44,8 @@ namespace ProjectManagement.App.Controllers
 
         public IActionResult LoadNotesTab(int projectId, int taskId)
         {
+            // get notes
+
 
             SaveNotesDto modelNotes = new()
             {

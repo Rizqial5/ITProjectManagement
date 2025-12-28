@@ -210,5 +210,24 @@ namespace ProjectManagement.App.Repository
             }
 
         }
+
+        public async Task AddNoteAsync(SaveNotesDto notesDto)
+        {
+            try
+            {
+                var existing = await _dbContext.TaskItems
+                    .FirstOrDefaultAsync(t => t.ProjectId == notesDto.ProjectId && t.Id == notesDto.TaskId) ?? throw new Exception("Task is not exists in database");
+
+                existing.NotesHtml = notesDto.NotesHtml;
+
+
+                await _dbContext.SaveChangesAsync();
+                
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }

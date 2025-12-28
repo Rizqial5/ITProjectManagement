@@ -16,6 +16,7 @@
 }
 
 <div style="padding: 16px;">
+    @Html.AntiForgeryToken()
     <input type="hidden" id="notesHtmlValue" value="" />
     @Html.HiddenFor(model => model.TaskId)
     @Html.HiddenFor(model => model.ProjectId)
@@ -228,14 +229,25 @@
         $.ajax({
             url: '@Url.Action("AddNotes", "Task")',
             type: 'POST',
+            headers: {
+                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            },
             contentType: 'application/json; charset=utf-8',
             data: JSON.stringify({
                 NotesHtml: notes,
                 TaskId: $('#TaskId').val(),
                 ProjectId: $('#ProjectId').val()
             }),
-            success: function () {
-               
+            success: function (result) {
+
+                if(result.success)
+                {
+                    ejs.notifications.ToastUtility.show(result.message, 'Success', 3000);
+                }
+                else{
+                    ejs.notifications.ToastUtility.show(result.message, 'Error', 3000);
+                }
+
             },
             error: function () {
                 console.error("Failed to load paged projects.");
