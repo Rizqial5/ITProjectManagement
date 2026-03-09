@@ -27,6 +27,11 @@ namespace ProjectManagement.App.Repository
                 var listCommit = new List<GithubCommit>();
                 var taskRegex = new Regex(@"#(\d+)");
 
+                // Ambil semua keyword aktif dari DB
+                var activeKeywords = await _dbContext.StatusKeywords
+                    .Where(k => k.IsActive)
+                    .ToListAsync();
+
                 foreach (var item in newCommits)
                 {
                     var commit = new GithubCommit()
@@ -39,14 +44,25 @@ namespace ProjectManagement.App.Repository
                         RepoId = repoId,
                     };
 
-                    // Sederhana: Cari pola #123 di message
+                    // 1. Identifikasi Task ID (#angka)
                     var match = taskRegex.Match(item.Commit.Message);
                     if (match.Success && int.TryParse(match.Groups[1].Value, out int taskId))
                     {
-                        // Cek apakah Task ID benar-benar ada di DB agar tidak error Foreign Key
-                        if (await _dbContext.TaskItems.AnyAsync(t => t.Id == taskId))
+                        var task = await _dbContext.TaskItems.FirstOrDefaultAsync(t => t.Id == taskId);
+                        if (task != null)
                         {
                             commit.TaskId = taskId;
+
+                            // 2. Scan Status Keyword (Fase 4.2)
+                            foreach (var kw in activeKeywords)
+                            {
+                                if (item.Commit.Message.Contains(kw.Keyword, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    task.Status = kw.TargetStatus;
+                                    task.UpdatedAt = DateTime.UtcNow;
+                                    break; // Ambil keyword pertama yang cocok
+                                }
+                            }
                         }
                     }
 
@@ -54,34 +70,25 @@ namespace ProjectManagement.App.Repository
                 }
 
                 await _dbContext.GithubCommits.AddRangeAsync(listCommit);
-
                 await _dbContext.SaveChangesAsync();
 
                 var latesCommitDate = newCommits.Max(c => c.Commit.Author.Date);
-
                 var existingRepo = await _dbContext.GithubRepos.FirstOrDefaultAsync(r => r.RepoId == repoId);
-
                 existingRepo!.LastKnownCommitDate = latesCommitDate;
 
                 await _dbContext.SaveChangesAsync();
-
                 await transaction.CommitAsync();
 
                 return new()
                 {
                     Success = true,
-                    Message = "Commits is Synced and Linked to Tasks"
+                    Message = "Commits Synced and Task Statuses Updated via Keywords"
                 };
             }
             catch (Exception ex) 
             {
                 await transaction.RollbackAsync();
-
-                return new()
-                {
-                    Success = false,
-                    Message = ex.Message
-                };
+                return new() { Success = false, Message = ex.Message };
             }
         }
     }
