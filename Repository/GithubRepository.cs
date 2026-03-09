@@ -5,6 +5,7 @@ using ProjectManagement.App.DTO.Workspace;
 using ProjectManagement.App.Models.Github;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.Services.Response;
+using System.Text.RegularExpressions;
 
 namespace ProjectManagement.App.Repository
 {
@@ -24,6 +25,7 @@ namespace ProjectManagement.App.Repository
             try
             {
                 var listCommit = new List<GithubCommit>();
+                var taskRegex = new Regex(@"#(\d+)");
 
                 foreach (var item in newCommits)
                 {
@@ -36,6 +38,17 @@ namespace ProjectManagement.App.Repository
                         CommitDate = item.Commit.Author.Date,
                         RepoId = repoId,
                     };
+
+                    // Sederhana: Cari pola #123 di message
+                    var match = taskRegex.Match(item.Commit.Message);
+                    if (match.Success && int.TryParse(match.Groups[1].Value, out int taskId))
+                    {
+                        // Cek apakah Task ID benar-benar ada di DB agar tidak error Foreign Key
+                        if (await _dbContext.TaskItems.AnyAsync(t => t.Id == taskId))
+                        {
+                            commit.TaskId = taskId;
+                        }
+                    }
 
                     listCommit.Add(commit);
                 }
@@ -57,7 +70,7 @@ namespace ProjectManagement.App.Repository
                 return new()
                 {
                     Success = true,
-                    Message = "Commits is Synced"
+                    Message = "Commits is Synced and Linked to Tasks"
                 };
             }
             catch (Exception ex) 
