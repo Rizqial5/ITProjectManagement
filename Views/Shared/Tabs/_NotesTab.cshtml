@@ -35,7 +35,10 @@
         </div>
 
         <div id="notesDisplayContent" class="notes-display-content">
+
             <p style="color: #999; font-style: italic;">No notes yet. Click Edit to add notes.</p>
+
+            
         </div>
     </div>
 
@@ -50,7 +53,8 @@
                                 toolbarSettings="new Syncfusion.EJ2.RichTextEditor.RichTextEditorToolbarSettings
                                 {
                                     Items = items
-                                }">
+                                }"
+            >
             </ejs-richtexteditor>
         </div>
 
@@ -162,14 +166,10 @@
 </style>
 
 <script>
-    var notesHtml = ''; // single source of truth
+    var notesHtml = @Html.Raw(Json.Serialize(Model.NotesHtml)) || ''; // single source of truth
 
-    document.addEventListener('DOMContentLoaded', function () {
-        
-
-        // Initial render
-        renderDisplay();
-    });
+    // Jalankan langsung karena partial dimuat via AJAX
+    renderDisplay();
 
     function initializeNotes() {
         // Set editor content
@@ -186,6 +186,7 @@
     }
 
     function renderDisplay() {
+        debugger
         const display = document.getElementById('notesDisplayContent');
 
         if (!notesHtml || notesHtml.trim() === '') {

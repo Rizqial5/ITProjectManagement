@@ -42,15 +42,18 @@ namespace ProjectManagement.App.Controllers
             return PartialView("~/Views/Shared/Tabs/_LinkedCommitsPanel.cshtml", taskModel);
         }
 
-        public IActionResult LoadNotesTab(int projectId, int taskId)
+        public async Task<IActionResult> LoadNotesTab(int projectId, int taskId)
         {
             // get notes
+
+            var notes = await _taskRepository.GetNotesAsync(projectId, taskId);
 
 
             SaveNotesDto modelNotes = new()
             {
                 TaskId = taskId,
                 ProjectId = projectId,
+                NotesHtml = notes
             };
 
             return PartialView("~/Views/Shared/Tabs/_NotesTab.cshtml", modelNotes);

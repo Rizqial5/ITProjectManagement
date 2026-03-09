@@ -229,5 +229,15 @@ namespace ProjectManagement.App.Repository
                 throw;
             }
         }
+
+        public async Task<string?> GetNotesAsync(int projectId, int taskId)
+        {
+            var task = await _dbContext.TaskItems
+                .Where(t => t.ProjectId == projectId && t.Id == taskId)
+                .Select(t => t.NotesHtml)
+                .FirstOrDefaultAsync();
+
+            return task;
+        }
     }
 }

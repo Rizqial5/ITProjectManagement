@@ -23,5 +23,6 @@ namespace ProjectManagement.App.Repository.Interface
         Task<ResponseResultDto> SetTaskStatus(int projectId, int taskId, Status setStatus);
         Task<bool> UpdateDateAsync(TaskItem updatedData);
         Task AddNoteAsync(SaveNotesDto notesDto);
+        Task<string?> GetNotesAsync(int projectId, int taskId);
     }
 }
