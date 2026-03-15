@@ -30,7 +30,8 @@ namespace ProjectManagement.App.Models.Workspace
         [ForeignKey("AssignedUserId")]
         public ApplicationUser? ProjectOwner { get; set; }
 
-        public ICollection<GithubRepoConnected> GithubRepoConnecteds { get; set; }
+        public ICollection<ProjectMember> ProjectMembers { get; set; } = new List<ProjectMember>();
 
+        public ICollection<GithubRepoConnected> GithubRepoConnecteds { get; set; }
     }
 }

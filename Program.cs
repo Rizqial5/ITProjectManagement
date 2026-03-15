@@ -42,6 +42,7 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<IGithubRepository, GithubRepository>();
+builder.Services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
 
 //Services
 builder.Services.AddScoped<IGithubService, GithubService>();

@@ -20,10 +20,25 @@ namespace ProjectManagement.App.Data
         public DbSet<GithubRepoConnected> GithubRepoConnecteds { get; set; }
         public DbSet<GithubCommit> GithubCommits { get; set; }
         public DbSet<StatusKeyword> StatusKeywords { get; set; }
+        public DbSet<ProjectMember> ProjectMembers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            // ProjectMember relationship
+            builder.Entity<ProjectMember>()
+                .HasOne(pm => pm.Project)
+                .WithMany(p => p.ProjectMembers)
+                .HasForeignKey(pm => pm.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ProjectMember>()
+                .HasOne(pm => pm.User)
+                .WithMany()
+                .HasForeignKey(pm => pm.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             // Seed default keywords
             builder.Entity<StatusKeyword>().HasData(
