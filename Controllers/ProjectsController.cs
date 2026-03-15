@@ -87,6 +87,25 @@ namespace ProjectManagement.App.Controllers
                 .Select(r => new { value = (int)r, text = r.ToString() })
                 .ToList();
 
+            var checkConnectProject = await _projectRepository.CheckConnectedProject(project.Id);
+
+            if (checkConnectProject.Success && User.IsConnectedGithub())
+            {
+                await SynchronizeCommitAsync(checkConnectProject);
+            }
+
+
+            if (Request.IsHtmx())
+            {
+                Response.Htmx(h =>
+                {
+                    h.PushUrl(Request.GetEncodedUrl());
+                });
+
+                return PartialView(data);
+            }
+
+
             return View(data);
         }
 
