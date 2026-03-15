@@ -129,7 +129,30 @@
     }
     .details-team-list {
         min-height: 60px;
+        margin-top: 12px;
     }
+    .team-member-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f3f4f6;
+        align-items: center;
+    }
+    .team-member-grid:last-child { border-bottom: none; }
+    .team-member-name { font-weight: 500; font-size: 0.95rem; color: #374151; }
+    .team-member-role { 
+        font-size: 0.75rem; 
+        padding: 2px 8px; 
+        border-radius: 12px; 
+        background: #f3f4f6; 
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+    .role-owner { background: #fef3c7; color: #92400e; }
+    .role-admin { background: #d1fae5; color: #065f46; }
+    .role-developer { background: #e0e7ff; color: #3730a3; }
     .details-tasks-card {
         background: #fff;
         border: 1px solid #e5e7eb;
@@ -221,6 +244,7 @@
 
 
 <partial name="_CreateTaskDialog" model="new CreateTaskDto() {ProjectTitle = Model.Title, ProjectID = Model.Id}"></partial>
+<partial name="_AddMemberDialog" model="new AddProjectMemberDto() {ProjectId = Model.Id, ProjectTitle = Model.Title}"></partial>
 
 <div>
     <div>
@@ -301,7 +325,7 @@
         <div class="details-overview-card-right">
             <div>
                 <span class="details-team-title"><i class="fas fa-users"></i> Team Members</span>
-                <button class="btn btn-light btn-sm float-end" title="Invite Member"><i class="fas fa-user-plus"></i></button>
+                <button class="btn btn-light btn-sm float-end" title="Invite Member" onclick="showAddMemberDialog()"><i class="fas fa-user-plus"></i></button>
             </div>
             <div class="details-team-list">
                 @if (!Model.Members.Any())
@@ -312,7 +336,10 @@
                 {
                     foreach (var m in Model.Members)
                     {
-                        <div>@m</div>
+                        <div class="team-member-grid">
+                            <span class="team-member-name">@m.Name</span>
+                            <span class="team-member-role role-@m.Role.ToLower()">@m.Role</span>
+                        </div>
                     }
                 }
 

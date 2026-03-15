@@ -18,6 +18,8 @@ namespace ProjectManagement.App.ViewModel
         public string? Priority { get; set; }
         public int? Completion { get; set; } // percent
         public string? AssigneeName { get; set; }
+        public string? AssignedUserId { get; set; }
+        public List<ProjectManagement.App.DTO.DropdownItem> AvailableAssignees { get; set; } = new();
         public string? AssigneeRole { get; set; }
         public bool isRequestHtmx { get; set; }
 

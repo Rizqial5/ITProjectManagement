@@ -25,11 +25,17 @@
             </div>
             <div class="card-section mb-3">
                 <label asp-for="Status"><b>Status</b></label>
-                <select asp-for="Status" class="form-control" id="Status" name="Status">
-                    <option value="ToDo">To Do</option>
-                    <option value="InProgress">In Progress</option>
-                    <option value="Done">Done</option>
-                </select>
+                <ejs-dropdownlist id="Status" dataSource="@statusList" ejs-for="Status" popupHeight="200px"></ejs-dropdownlist>
+            </div>
+            <div class="card-section mb-3">
+                <label asp-for="AssignedUserId"><b>Assign To</b></label>
+                <ejs-dropdownlist id="AssignedUserId" 
+                                dataSource="@(ViewBag.AvailableAssignees)" 
+                                ejs-for="AssignedUserId" 
+                                placeholder="Select Assignee"
+                                popupHeight="200px">
+                    <e-dropdownlist-fields text="text" value="value"></e-dropdownlist-fields>
+                </ejs-dropdownlist>
             </div>
         </div>
         <div class="col-md-4">

@@ -5,9 +5,9 @@
 @{
     var dataDropDown = new List<DropdownItem>()
     {
-        new() {value = 0 , text = "To Do" },
-        new() {value = 1 , text = "Progress" },
-        new() {value = 2 , text = "Done" },
+        new() {value = 0.ToString() , text = "To Do" },
+        new() {value = 1.ToString() , text = "Progress" },
+        new() {value = 2.ToString() , text = "Done" },
     };
 
     var header = !string.IsNullOrWhiteSpace(Model.ProjectTitle) ? $"Add Task For {Model.ProjectTitle}" : "Add Task";

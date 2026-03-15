@@ -15,5 +15,6 @@ namespace ProjectManagement.App.Repository.Interface
 
         Task<ResponseResultDto<GithubAuth>> SaveOrUpdateGithubCredentials(CreateGithubAuthDto model);
         Task<ResponseResultDto<GithubAuth>> GetGithubCreds(string userId);
+        Task<List<ApplicationUser>> GetAllUsersAsync();
     }
 }

@@ -23,17 +23,23 @@ namespace ProjectManagement.App.DTO.Project
         public int TotalTasks { get; set; }
 
         public int CompletedTasks { get; set; }
+// Total commits in project
+public int TotalCommits { get; set; }
 
-        public int TotalCommits { get; set; }
+// Use array of objects to store Name and Role
+public ProjectMemberDto[] Members { get; set; } = Array.Empty<ProjectMemberDto>();
 
-        // Use array so existing Razor code that uses .Length and LINQ .Any() both work.
-        public string[] Members { get; set; } = Array.Empty<string>();
+// Task list for the Project Details view
+public ProjectTaskDto[] Tasks { get; set; } = Array.Empty<ProjectTaskDto>();
+}
 
-        // Task list for the Project Details view
-        public ProjectTaskDto[] Tasks { get; set; } = Array.Empty<ProjectTaskDto>();
-    }
+public class ProjectMemberDto
+{
+public string Name { get; set; } = string.Empty;
+public string Role { get; set; } = string.Empty;
+}
 
-    public class ProjectTaskDto
+public class ProjectTaskDto
     {
         public int Id { get; set; }
 

@@ -17,10 +17,12 @@ namespace ProjectManagement.App.Controllers
     public class TaskController : Controller
     {
         private readonly ITaskRepository _taskRepository;
+        private readonly IProjectMemberRepository _projectMemberRepository;
 
-        public TaskController(ITaskRepository taskRepository)
+        public TaskController(ITaskRepository taskRepository, IProjectMemberRepository projectMemberRepository)
         {
             _taskRepository = taskRepository;
+            _projectMemberRepository = projectMemberRepository;
         }
 
         [Route("task/{projectId:int}/{taskId:int}")]
@@ -34,6 +36,8 @@ namespace ProjectManagement.App.Controllers
                 TempData["RepoNotificationFailed"] = "Task is not exists";
                 return RedirectToAction("Index", "Workspace", new { ProjectID = projectId });
             }
+
+            var members = await _projectMemberRepository.GetProjectMembersAsync(projectId);
 
             var taskModel = new TaskViewModel()
             {
@@ -49,7 +53,14 @@ namespace ProjectManagement.App.Controllers
                 isConnectedRepo = isConnected,
                 Commits = taskItem.Commits.ToList(),
                 isRequestHtmx = Request.IsHtmx(),
-                LastUpdated = taskItem.UpdatedAt.ToString("dd-MMM-yyyy")
+                LastUpdated = taskItem.UpdatedAt.ToString("dd-MMM-yyyy"),
+                AssigneeName = taskItem.AssignedUser?.UserName,
+                AssignedUserId = taskItem.AssignedUserId,
+                AvailableAssignees = members.Select(m => new DropdownItem
+                {
+                    value = m.UserId,
+                    text = m.User.UserName ?? m.User.Email ?? "Unknown"
+                }).ToList()
 
 
             };
@@ -116,14 +127,25 @@ namespace ProjectManagement.App.Controllers
         {
             var task = await _taskRepository.GetAsync(projectId,taskId); // Pastikan method ini ada di repository Anda
             if (task == null) return NotFound();
+
+            var members = await _projectMemberRepository.GetProjectMembersAsync(projectId);
+
             var model = new EditTaskDescDto
             {
                 ProjectId = projectId,
                 TaskId = task.Id,
                 Description = task.Description,
                 Status = task.Status.ToString(),
+                AssignedUserId = task.AssignedUserId,
                 LastUpdated = task.UpdatedAt.ToString("dd-MMM-yyyy")
             };
+
+            ViewBag.AvailableAssignees = members.Select(m => new 
+            {
+                value = m.UserId,
+                text = m.User.UserName ?? m.User.Email ?? "Unknown"
+            }).ToList();
+
             return PartialView("_EditTaskDescPanel", model);
         }
 
@@ -138,7 +160,7 @@ namespace ProjectManagement.App.Controllers
                     Id = model.TaskId,
                     Description = model.Description,
                     Status = Enum.Parse<Status>(model.Status.Trim()),
-
+                    AssignedUserId = model.AssignedUserId
                 };
 
                 var success = await _taskRepository.UpdateAsync(model.ProjectId,updatedData);
@@ -153,6 +175,8 @@ namespace ProjectManagement.App.Controllers
                         TaskId = task.Id,
                         Description = task.Description,
                         Status = task.Status.ToString(),
+                        AssigneeName = task.AssignedUser?.UserName,
+                        AssignedUserId = task.AssignedUserId,
                         LastUpdated = task.UpdatedAt.ToString("dd-MMM-yyyy"),
                         isRequestHtmx = Request.IsHtmx(),
                         InitPage = false

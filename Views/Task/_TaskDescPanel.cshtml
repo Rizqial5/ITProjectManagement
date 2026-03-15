@@ -70,6 +70,13 @@
         </div>
         <div class="col-md-4">
             <div class="card-section">
+                <div><b>Assignee</b></div>
+                <div class="d-flex align-items-center">
+                    <div class="avatar-circle me-2">@(Model.AssigneeName?[0].ToString().ToUpper() ?? "?")</div>
+                    <span>@(Model.AssigneeName ?? "Unassigned")</span>
+                </div>
+            </div>
+            <div class="card-section">
                 <div><b>Priority</b></div>
                 <span class="badge badge-priority-low">@priority</span>
             </div>

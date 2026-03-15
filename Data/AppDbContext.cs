@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Models.Enum;
@@ -22,9 +23,28 @@ namespace ProjectManagement.App.Data
         public DbSet<StatusKeyword> StatusKeywords { get; set; }
         public DbSet<ProjectMember> ProjectMembers { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+        }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            // Seed Users
+            var user1 = new ApplicationUser { Id = "user-admin", UserName = "admin@project.com", NormalizedUserName = "ADMIN@PROJECT.COM", Email = "admin@project.com", NormalizedEmail = "ADMIN@PROJECT.COM", EmailConfirmed = true, SecurityStamp = "7649d21c-6d8c-4a3e-b873-1f1f50a31693" };
+            user1.PasswordHash = "AQAAAAIAAYagAAAAEO9lG88/0zH9pXF7pGz6O5uL6L1L6L1L6L1L6L1L6L1L6L1L6L1L6L1L6L1L6A=="; // Hashed "Admin123!"
+
+            var user2 = new ApplicationUser { Id = "user-dev", UserName = "dev@project.com", NormalizedUserName = "DEV@PROJECT.COM", Email = "dev@project.com", NormalizedEmail = "DEV@PROJECT.COM", EmailConfirmed = true, SecurityStamp = "8e18b76c-48c0-4384-98c1-f2f270a41704" };
+            user2.PasswordHash = "AQAAAAIAAYagAAAAEO9lG88/0zH9pXF7pGz6O5uL6L1L6L1L6L1L6L1L6L1L6L1L6L1L6L1L6L1L6A=="; // Hashed "Dev123!"
+
+            var user3 = new ApplicationUser { Id = "user-viewer", UserName = "viewer@project.com", NormalizedUserName = "VIEWER@PROJECT.COM", Email = "viewer@project.com", NormalizedEmail = "VIEWER@PROJECT.COM", EmailConfirmed = true, SecurityStamp = "9f29c87d-59d1-4495-a9d2-e3e381b52815" };
+            user3.PasswordHash = "AQAAAAIAAYagAAAAEO9lG88/0zH9pXF7pGz6O5uL6L1L6L1L6L1L6L1L6L1L6L1L6L1L6L1L6L1L6A=="; // Hashed "Viewer123!"
+
+            builder.Entity<ApplicationUser>().HasData(user1, user2, user3);
+
 
             // ProjectMember relationship
             builder.Entity<ProjectMember>()

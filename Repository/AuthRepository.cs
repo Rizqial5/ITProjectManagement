@@ -102,6 +102,11 @@ namespace ProjectManagement.App.Repository
             return await _userManager.CreateAsync(user, model.Password);
         }
 
+        public async Task<List<ApplicationUser>> GetAllUsersAsync()
+        {
+            return await _userManager.Users.ToListAsync();
+        }
+
         public async Task<ResponseResultDto<GithubAuth>> SaveOrUpdateGithubCredentials(CreateGithubAuthDto model)
         {
 

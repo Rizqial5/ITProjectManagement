@@ -28,8 +28,10 @@ namespace ProjectManagement.App.Repository
         public async Task<TaskItem?> GetAsync(int projectId, int taskId)
         {
             return await _dbContext.TaskItems
-                .Include(i=> i.Project)
-                .Include(i=> i.Commits)
+                .Include(i => i.Project)
+                .Include(i => i.Commits)
+                .Include(i => i.AssignedUser) // Wajib ditambahkan agar tidak null
+                .AsNoTracking() // Mengabaikan cache memori agar selalu ambil data terbaru dari DB
                 .FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == taskId);
         }
 
@@ -59,8 +61,7 @@ namespace ProjectManagement.App.Repository
             existing.Description = task.Description;
             existing.Status = task.Status;
             existing.UpdatedAt = DateTime.UtcNow;
-            //existing.AssignedUserId = task.AssignedUserId;
-            // Tambahkan property lain jika ada
+            existing.AssignedUserId = task.AssignedUserId;
 
             await _dbContext.SaveChangesAsync();
             return true;

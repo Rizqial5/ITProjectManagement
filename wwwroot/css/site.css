@@ -322,6 +322,20 @@ main {
     flex-shrink: 0;
 }
 
+.avatar-circle {
+    background: var(--color-primary);
+    color: #fff;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
 /* Button Styles */
 .btn {
     padding: clamp(6px, 1.5vw, 10px) clamp(12px, 2vw, 16px);

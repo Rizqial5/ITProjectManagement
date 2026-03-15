@@ -1,0 +1,70 @@
+@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.Models.Enum
+@model AddProjectMemberDto
+
+<ejs-dialog id="addMemberDialog" header="Add Team Member"
+            width="400px" visible="false" showCloseIcon="true" isModal="true"
+            target="body">
+    <e-content-template>
+        <form asp-action="AddMember" id="addMemberForm" asp-controller="Projects" method="post">
+            <input type="hidden" asp-for="ProjectId" />
+            
+            <div class="mb-3">
+                <label class="form-label">Select User</label>
+                <ejs-dropdownlist id="userDropdown" dataSource="@ViewBag.AllUsers" ejs-for="UserId" 
+                                 placeholder="Search User..." allowFiltering="true"
+                                 popupHeight="250px">
+                    <e-dropdownlist-fields text="text" value="value"></e-dropdownlist-fields>
+                </ejs-dropdownlist>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Role</label>
+                <ejs-dropdownlist id="roleDropdown" dataSource="@ViewBag.Roles" ejs-for="Role"
+                                 placeholder="Select Role" popupHeight="200px">
+                    <e-dropdownlist-fields text="text" value="value"></e-dropdownlist-fields>
+                </ejs-dropdownlist>
+            </div>
+
+            <div class="text-end mt-4">
+                <ejs-button id="btnCancelAddMember" type="button" content="Cancel" cssClass="e-flat" onclick="hideAddMemberDialog()"></ejs-button>
+                <ejs-button id="btnSubmitAddMember" isPrimary="true" content="Add Member" type="submit"></ejs-button>
+            </div>
+        </form>
+    </e-content-template>
+</ejs-dialog>
+
+<script>
+    function showAddMemberDialog() {
+        var dialog = document.getElementById("addMemberDialog").ej2_instances[0];
+        dialog.show();
+    }
+
+    function hideAddMemberDialog() {
+        var dialog = document.getElementById("addMemberDialog").ej2_instances[0];
+        dialog.hide();
+    }
+
+    $('#addMemberForm').on('submit', function (e) {
+        e.preventDefault();
+        var form = $(this);
+
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: form.serialize(),
+            success: function (response) {
+                if (response.success) {
+                    hideAddMemberDialog();
+                    // Gunakan ejs.notifications jika ada, atau sekadar reload
+                    location.reload();
+                } else {
+                      ejs.notifications.ToastUtility.show(response.message || "Failed to add member.", 'Error', 3000);
+                }
+            },
+            error: function () {
+                ejs.notifications.ToastUtility.show("An error occurred while adding the member.", 'Error', 3000)
+            }
+        });
+    });
+</script>
