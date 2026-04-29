@@ -1,4 +1,4 @@
-﻿@using Syncfusion.EJ2
+@using Syncfusion.EJ2
 @using Syncfusion.EJ2.Navigations
 @using Syncfusion.EJ2.ProgressBar
 @using Syncfusion.EJ2.Buttons
@@ -6,454 +6,122 @@
 @model ProjectManagement.App.ViewModel.TaskViewModel
 
 @{
-
     var isOverdue = Model.DueDate < DateTime.Now && Model.Status != "Done";
-    var completion = Model.Completion ?? 60; // percent
+    var completion = Model.Completion ?? 0; 
     var priority = Model.Priority ?? "Low";
-
-    var diffDate = DateTime.Now.Day - Model.DueDate.Day ;
-
-    }
-<style>
-
-    .card-panel{
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-        padding: 5px 24px 12px;
-        margin-bottom: 18px;
-    }
-
-    .no-repo-connected{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        min-height: 200px;
-        font-size: 1.1rem;
-        font-weight: 500;
-        color: #888;
-    }
-    .commit-container-card{
-        min-height :50vh;
-    }
-    .task-details-container {
-        /* min-height: 100vh; */
-    }
-
-    .task-details-header {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 12px;
-    }
-
-    .task-details-title {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0;
-    }
-
-    .task-details-meta {
-        color: #6b7280;
-        font-size: 1rem;
-        display: flex;
-        gap: 18px;
-        align-items: center;
-    }
-
-    .task-details-badges {
-        display: flex;
-        gap: 8px;
-        margin-left: 12px;
-    }
-
-    .badge-priority-low {
-        background: #e0f2fe;
-        color: #0284c7;
-    }
-
-    .badge-status-todo {
-        background: #e0e7ff;
-        color: #2563eb;
-    }
-
-    .badge-overdue {
-        background: #fee2e2;
-        color: #dc2626;
-    }
-
-    .task-details-actions {
-        margin-left: auto;
-        display: flex;
-        gap: 8px;
-    }
-
-    .task-details-main {
-        display: flex;
-        gap: 24px;
-        margin-top: 18px;
-        flex-wrap: wrap;
-    }
-
-    .task-details-left {
-        flex: 2;
-        min-width: 380px;
-    }
-
-    .task-details-right {
-        flex: 1;
-        min-width: 320px;
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-    }
-
-    .card {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-        padding: 24px;
-        margin-bottom: 18px;
-    }
-
-    .card-title {
-        font-weight: 600;
-        font-size: 1.1rem;
-        margin-bottom: 16px;
-    }
-
-    .card-section {
-        margin-bottom: 12px;
-    }
-
-    .commit-list {
-        margin: 0;
-        padding: 0;
-        list-style: none;
-    }
-
-    .commit-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        border-radius: 10px;
-        background: #f9fafb;
-        margin-bottom: 12px;
-        padding: 16px 12px;
-    }
-
-    .commit-sha {
-        background: #f3f4f6;
-        color: #374151;
-        font-size: 0.95rem;
-        border-radius: 6px;
-        padding: 2px 8px;
-        font-weight: 600;
-    }
-
-    .commit-message {
-        font-weight: 500;
-    }
-
-    .commit-meta {
-        color: #6b7280;
-        font-size: 0.95rem;
-    }
-
-    .commit-date {
-        margin-left: auto;
-        color: #6b7280;
-        font-size: 0.95rem;
-    }
-
-    .commit-link {
-        color: #2563eb;
-        margin-left: 8px;
-    }
-
-    .commit-sha-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-right: 12px;
-        position: relative;
-    }
-
-    .commit-sha {
-        font-family: SFMono-Regular, Consolas, monospace;
-        color: #0969da;
-        font-size: 13px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .branch-line {
-        width: 2px;
-        background-color: #c5c5c5;
-        height: 24px;
-        margin-top: 2px;
-    }
-
-    .progress-label {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.98rem;
-        margin-bottom: 2px;
-    }
-
-    .summary-commits {
-        background: #e0e7ff;
-        color: #2563eb;
-        border-radius: 8px;
-        padding: 8px 16px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-    }
-
-    .summary-days {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 1rem;
-        margin-bottom: 10px;
-    }
-
-        .summary-days .overdue {
-            color: #dc2626;
-            font-weight: 600;
-        }
-
-        .summary-days .ontime {
-            color: #059669;
-            font-weight: 600;
-        }
-
-    .summary-actions {
-        margin-top: 16px;
-    }
-
-    .assignee-card {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .assignee-avatar {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        background: #e5e7eb;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: #2563eb;
-    }
-
-    .assignee-info {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .quick-actions-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-        .quick-actions-list li {
-            padding: 10px 0;
-            border-bottom: 1px solid #f3f4f6;
-            color: #2563eb;
-            cursor: pointer;
-        }
-
-    .quick-actions-list li:last-child {
-        border-bottom: none;
-    }
-    @@media (max-width: 991.98px) {
-        .task-details-main
-
-    {
-        flex-direction: column;
-        gap: 0;
-    }
-
-    .task-details-right {
-        min-width: 0;
-    }
-
-    }
-</style>
-
-
-
+    var diffDate = (Model.DueDate - DateTime.Now).Days;
+}
 
 <div class="task-details-container">
-    <div >
-        <nav id="br-tasks"
-             class="e-breadcrumb e-control e-lib"
-             aria-label="Breadcrumb">
-
-            <ol class="e-breadcrumb-list">
-
-                <!-- Home -->
-                <li class="e-breadcrumb-item">
-                    <a class="e-breadcrumb-text"
-                       href="@Url.Action("Index", "Home")">
-                        <span class="e-icons e-home"></span>
-                    </a>
-                </li>
-
-                <li class=e-breadcrumb-item e-breadcrumb-separator e-level-1">/</li>
-
-                <!-- Projects -->
-                <li class="e-breadcrumb-item">
-                    <a class="e-breadcrumb-text"
-                       href="@Url.Action("Page", "Projects")">
-                        Projects
-                    </a>
-                </li>
-
-                <li class="e-breadcrumb-item e-breadcrumb-separator e-level-1">/</li>
-
-                <!-- Project Name (HTMX) -->
-                <li class="e-breadcrumb-item">
-                    <a href="javascript:void(0)"
-                       class="e-breadcrumb-text"
-                       hx-get="@Url.Action("Details", "Projects", new { id = Model.ProjectId })"
-                       hx-target="#main-content"
-                       hx-swap="innerHTML">
-                        @Model.ProjectName
-                    </a>
-                </li>
-
-                <li class="e-breadcrumb-item e-breadcrumb-separator e-level-1">/</li>
-
-                <!-- Current Page -->
-                <li class="e-breadcrumb-item e-breadcrumb-active" data-active-item>
-                    <span class="e-breadcrumb-text">
-                        @Model.Title
-                    </span>
-                </li>
-
-            </ol>
-        </nav>
+    <div class="mb-4">
+        <ejs-breadcrumb id="br-tasks" enableNavigation="true">
+            <e-breadcrumb-items>
+                <e-breadcrumb-item iconCss="e-icons e-home" url="@Url.Action("Index", "Home")"></e-breadcrumb-item>
+                <e-breadcrumb-item text="Projects" url="@Url.Action("Page", "Projects")"></e-breadcrumb-item>
+                <e-breadcrumb-item text="@Model.ProjectName" hx-get="@Url.Action("Details", "Projects", new { id = Model.ProjectId })" hx-target="#main-content"></e-breadcrumb-item>
+                <e-breadcrumb-item text="@Model.Title"></e-breadcrumb-item>
+            </e-breadcrumb-items>
+        </ejs-breadcrumb>
     </div>
+
     <!-- Header -->
-    <div class="task-details-header">
+    <div class="task-details-header d-flex justify-content-between align-items-start flex-wrap gap-3">
         <div>
-            <div class="task-details-title">@Model.Title</div>
+            <h1 class="task-details-title">@Model.Title</h1>
             <div class="task-details-meta">
-                @Model.ProjectName
-                <span class="mx-1">·</span>
-                <span style="color:#dc2626;">
-                    <i class="fas fa-calendar-alt"></i>
-                    Due @Model.DueDate.ToString("M/d/yyyy")
-                    @if (isOverdue)
-                    {
-                        <span class="badge badge-overdue ms-1">Overdue</span>
-                    }
+                <span class="text-primary fw-bold">@Model.ProjectName</span>
+                <span>•</span>
+                <span class="@(isOverdue ? "text-danger fw-bold" : "")">
+                    <i class="fas fa-calendar-alt me-1"></i> Due @Model.DueDate.ToString("MMM dd, yyyy")
                 </span>
+                @if (isOverdue)
+                {
+                    <span class="badge status-overdue ms-1">Overdue</span>
+                }
             </div>
         </div>
-        <div class="task-details-actions">
-            <span class="badge badge-priority-low">@priority</span>
-            <span class="badge badge-status-todo">@Model.Status</span>
+        <div class="d-flex gap-2">
+            <span class="badge @(priority == "High" ? "priority-high" : "priority-low")">@priority Priority</span>
+            <span class="badge @(Model.Status == "ToDo" ? "status-todo" : "status-inprogress")">@Model.Status</span>
         </div>
     </div>
 
-    <div class="task-details-main">
+    <div class="row g-4">
         <!-- Left Column -->
-        <div class="task-details-left">
-            <!-- Task Details Card -->
-            <partial name="_TaskDescPanel" model="Model" />
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <partial name="_TaskDescPanel" model="Model" />
+            </div>
 
-            <div class="card-panel commit-container-card">
+            <div class="card-custom">
+                <h5 class="fw-bold mb-4">Activity & Commits</h5>
                 <partial name="Component/_TabsPanelTask" model="Model"></partial>
             </div>
         </div>
+
         <!-- Right Column -->
-        <div class="task-details-right">
+        <div class="col-lg-4">
             <!-- Progress Summary Card -->
-            <div class="card">
-                <div class="card-title">Progress Summary</div>
-                <div class="progress-label">
-                    <span>Completion</span>
-                    <span style="color:#2563eb;">@completion%</span>
+            <div class="card-custom mb-4 shadow-sm">
+                <h5 class="fw-bold mb-3">Progress Summary</h5>
+                <div class="project-card-progress-label mb-2">
+                    <span class="small fw-bold">Completion Rate</span>
+                    <span class="text-primary small fw-bold">@completion%</span>
                 </div>
-                <ejs-progressbar id="progressbar" type="Linear" width="90%" value="@completion" height="8px" trackThickness="8" progressThickness="8"></ejs-progressbar>
-                <div style="color:#6b7280; font-size:0.95rem; margin-bottom:10px;">
-                    Based on linked commits and task status
+                <div class="mb-4">
+                    <ejs-progressbar id="task_progressbar" 
+                                     type="Linear" 
+                                     value="@completion" 
+                                     height="12px" 
+                                     trackThickness="12" 
+                                     progressThickness="12"
+                                     cornerRadius="Round"
+                                     progressColor="var(--primary-color)">
+                    </ejs-progressbar>
                 </div>
-                <div class="summary-commits">
-                    <i class="fas fa-code-branch"></i> Commits <span>@Model.TotalLinkedCommits</span>
+                
+                <div class="mt-4 pt-3 border-top">
+                    <div class="summary-stat-row">
+                        <span class="summary-label">Linked Commits</span>
+                        <span class="summary-value text-primary"><i class="fas fa-code-branch me-1"></i> @Model.TotalLinkedCommits</span>
+                    </div>
+                    <div class="summary-stat-row">
+                        <span class="summary-label">Time Status</span>
+                        <span class="summary-value @(isOverdue ? "text-danger" : "text-success")">
+                            <i class="fas fa-clock me-1"></i> 
+                            @(isOverdue ? "Overdue" : (diffDate < 0 ? "Due Today" : diffDate + " days left"))
+                        </span>
+                    </div>
                 </div>
-                <div class="summary-days">
-                    <i class="fas fa-clock"></i> Days Left
-                    @if (isOverdue)
-                    {
-                        <span class="overdue">Overdue</span>
-                    }
-                    else
-                    {
-                        <span class="ontime">@(diffDate) days</span>
-                    }
-                </div>
-                <div class="summary-actions" id="statusTask">
+
+                <div class="mt-4" id="statusTask">
                     @await Html.PartialAsync("Component/_StatusMarkButton", Model)
                 </div>
             </div>
-            <div class="card">
-                <div class="card-title">Quick Actions</div>
-                <ul class="quick-actions-list">
-                    <li id="updateDateAction"
-                        hx-get
-                        hx-action="ShowUpdateDialog"
-                        hx-controller="Task"
-                        hx-route-projectId="@Model.ProjectId"
-                        hx-route-taskId="@Model.TaskId"
-                        hx-target="#updateDialog"
-                        hx-swap="innerHTML">Update Due Date</li>
-                    <li>View Repository</li>
-                </ul>
+
+            <!-- Quick Actions -->
+            <div class="card-custom shadow-sm">
+                <h5 class="fw-bold mb-3">Quick Actions</h5>
+                <div class="d-flex flex-column gap-2">
+                    <button class="quick-action-btn"
+                            hx-get
+                            hx-action="ShowUpdateDialog"
+                            hx-controller="Task"
+                            hx-route-projectId="@Model.ProjectId"
+                            hx-route-taskId="@Model.TaskId"
+                            hx-target="#updateDialog">
+                        <i class="fas fa-edit"></i> Update Due Date
+                    </button>
+                    <button class="quick-action-btn">
+                        <i class="fas fa-external-link-alt"></i> View Repository
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <partial name="_LinkCommitDialog"></partial>
-
 <div id="updateDialog"></div>
 
-
-<script>
-    function refreshLinkedCommit(repoId, taskId) {
-        $.ajax({
-        url: '@Url.Action("ShowLinkedCommit", "Task")',
-            type: "GET",
-            data: {
-            repoId: repoId,
-                taskId : taskId
-            },
-            success: function (response) {
-
-                    $("#listCommit").html(response)
-            },
-            error: function (xhr, status, error) {
-
-                console.error(error);
-                ejs.notifications.ToastUtility.show("Error when linking commit", 'Error', 3000);
-            }
-        });
-    }
-</script>
 @Html.EJS().ScriptManager()

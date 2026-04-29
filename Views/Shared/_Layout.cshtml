@@ -16,77 +16,87 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 </head>
 <body>
-    <div id="dialogTarget"></div>
-    <partial name="_ConfirmationDialog"></partial>
+    <div id="app-root">
+        <div id="dialogTarget"></div>
+        <partial name="_ConfirmationDialog"></partial>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow fixed-top">
-        <div class="container-fluid">
-            <button id="sidebarToggle" class="btn btn-outline-primary btn-sm me-2">
-                <i class="fas fa-bars"></i>
-            </button>
-            <a class="navbar-brand" href="@Url.Action("Index", "Home")">ProjectManagement</a>
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid p-0">
+                <div class="d-flex align-items-center">
+                    <button id="sidebarToggle" class="btn me-3">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <a class="navbar-brand" href="@Url.Action("Index", "Home")">ProjectManagement</a>
+                </div>
 
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav">
-                    @if (User.Identity != null && User.Identity.IsAuthenticated)
-                    {
-                        <li class="nav-item position-relative">
-                            <a class="nav-link text-dark" href="#">
-                                <i class="fas fa-bell"></i>
-                                <span class="badge bg-danger rounded-pill notification-badge">3</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <span class="nav-link text-dark">Hey, @User.Identity.Name!</span>
-                        </li>
-                        <li class="nav-item">
-                            <form asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
-                                <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
-                            </form>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
-                        </li>
-                    }
-                </ul>
+                <div class="collapse navbar-collapse justify-content-end">
+                    <ul class="navbar-nav align-items-center">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item position-relative me-3">
+                                <a class="nav-link text-dark p-0" href="#">
+                                    <i class="fas fa-bell fs-5"></i>
+                                    <span class="badge bg-danger rounded-pill notification-badge">3</span>
+                                </a>
+                            </li>
+                            <li class="nav-item me-3">
+                                <span class="fw-bold text-secondary">@User.Identity.Name</span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm px-3">Logout</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <!-- Wrapper (sidebar + content) -->
-    <div class="app-wrapper">
-        <!-- Sidebar -->
-        <div id="sidebar" class="e-sidebar">
-            <div class="sidebar-menu">
-                <a href="@Url.Action("Index", "Home")"><i class="fas fa-home me-2"></i> Home</a>
-                <a href="#"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
-                <a href="@Url.Action("Page", "Projects")"><i class="fas fa-columns me-2"></i> Projects</a>
+        <!-- Wrapper (sidebar + content) -->
+        <div class="app-wrapper">
+            <!-- Sidebar -->
+            <div id="sidebar" class="e-sidebar">
+                <div class="sidebar-menu">
+                    <a href="@Url.Action("Index", "Home")" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                    <a href="#">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </a>
+                    <a href="@Url.Action("Page", "Projects")" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Projects" ? "active" : "")">
+                        <i class="fas fa-columns"></i> Projects
+                    </a>
+                </div>
             </div>
-        </div>
 
-        <!-- Main Content -->
-        <div class="main-wrapper">
-            <div class="container-fluid custom-container mt-3">
-                <main role="main" id="main-content">
-                    @RenderBody()
-                </main>
+            <!-- Main Content -->
+            <div class="main-wrapper">
+                <div class="custom-container">
+                    <main role="main" id="main-content">
+                        @RenderBody()
+                    </main>
+                </div>
+                
+                <footer class="mt-auto">
+                    <div>
+                        &copy; 2024 - ProjectManagement.App -
+                        <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none">Privacy</a>
+                    </div>
+                </footer>
             </div>
         </div>
     </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - ProjectManagement.App -
-            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -94,24 +104,6 @@
     <script src="~/js/htmx.min.js"></script>
     <script src="~/js/_hyperscript.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
-
-    @if (TempData["RepoNotification"] != null)
-    {
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                ejs.notifications.ToastUtility.show('@TempData["RepoNotification"]', 'Success', 3000);
-            });
-        </script>
-    }
-
-    @if (TempData["RepoNotificationFailed"] != null)
-    {
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                ejs.notifications.ToastUtility.show('@TempData["RepoNotificationFailed"]', 'Error', 3000);
-            });
-        </script>
-    }
 
     <script>
         let sidebarObj;
@@ -121,12 +113,14 @@
                 sidebarObj.destroy();
             }
 
+            const isMobile = window.innerWidth <= 768;
+
             sidebarObj = new ej.navigations.Sidebar({
-                width: '250px',
-                type: 'Over',
-                isOpen: false,
-                showBackdrop: true,
-                closeOnDocumentClick: false, // 🔥 IMPORTANT
+                width: '260px',
+                type: isMobile ? 'Over' : 'Push',
+                isOpen: !isMobile,
+                showBackdrop: isMobile,
+                closeOnDocumentClick: isMobile,
                 position: 'Left'
             });
 
@@ -136,19 +130,22 @@
         document.addEventListener('DOMContentLoaded', function () {
             initSidebar();
 
-            const toggleBtn = document.getElementById('sidebarToggle');
+            window.addEventListener('resize', function() {
+                const isMobile = window.innerWidth <= 768;
+                if (sidebarObj) {
+                    sidebarObj.type = isMobile ? 'Over' : 'Push';
+                    sidebarObj.showBackdrop = isMobile;
+                    sidebarObj.closeOnDocumentClick = isMobile;
+                }
+            });
 
+            const toggleBtn = document.getElementById('sidebarToggle');
             toggleBtn.addEventListener('click', function (e) {
                 e.preventDefault();
-
-                sidebarObj.isOpen
-                    ? sidebarObj.hide()
-                    : sidebarObj.show();
+                sidebarObj.toggle();
             });
 
-            document.querySelectorAll('.sidebar-menu a').forEach(link => {
-                link.addEventListener('click', () => sidebarObj.hide());
-            });
+            // Handle active links or other sidebar interactions
         });
     </script>
 

@@ -1,37 +1,99 @@
-﻿@using ProjectManagement.App.ViewModel
-
+@using ProjectManagement.App.ViewModel
 @model LoginViewModel
 @{
     ViewData["Title"] = "Login";
+    Layout = null; // Menghapus penggunaan _Layout.cshtml
 }
 
-<h2>Login</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ProjectManagement</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- CSS Libs -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
-@using (Html.BeginForm("Login", "Account", FormMethod.Post))
-{
-    @Html.AntiForgeryToken()
+    <style>
+        body {
+            background-color: var(--main-bg);
+            overflow: auto !important; /* Allow scroll if needed on small screens */
+            height: auto;
+            min-height: 100vh;
+        }
+        .auth-container {
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container d-flex align-items-center justify-content-center">
+        <div class="auth-card">
+            <div class="auth-header">
+                <a href="/" class="auth-logo">ProjectManagement</a>
+                <p class="auth-subtitle">Welcome back! Please login to your account.</p>
+            </div>
 
-    <div>
-        @Html.LabelFor(m => m.Email)
-        @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
-        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+            @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "auth-form" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-group mb-3">
+                    @Html.LabelFor(m => m.Email, new { @class = "form-label fw-600" })
+                    <div class="auth-input-group">
+                        <i class="fas fa-envelope"></i>
+                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Enter your email" })
+                    </div>
+                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small mt-1" })
+                </div>
+
+                <div class="form-group mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        @Html.LabelFor(m => m.Password, new { @class = "form-label fw-600 mb-0" })
+                        <a href="#" class="small text-decoration-none">Forgot password?</a>
+                    </div>
+                    <div class="auth-input-group">
+                        <i class="fas fa-lock"></i>
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Enter your password" })
+                    </div>
+                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small mt-1" })
+                </div>
+
+                <div class="form-group form-check mb-4">
+                    @Html.CheckBoxFor(m => m.RememberMe, new { @class = "form-check-input", id = "RememberMe" })
+                    <label class="form-check-label small text-secondary" for="RememberMe">
+                        Keep me logged in
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-auth-submit">
+                    Log In
+                </button>
+                
+                <div class="auth-divider">OR</div>
+                
+                <button type="button" class="btn w-100 border rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 mb-3 bg-white shadow-sm" style="height: 48px; font-weight: 600;">
+                    <i class="fab fa-github fs-5"></i>
+                    Continue with GitHub
+                </button>
+            }
+
+            <div class="auth-footer">
+                Don't have an account? @Html.ActionLink("Register now", "Register")
+            </div>
+        </div>
     </div>
 
-    <div>
-        @Html.LabelFor(m => m.Password)
-        @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
-        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
-    </div>
-
-    <div>
-        <label>
-            @Html.CheckBoxFor(m => m.RememberMe)
-            Remember Me
-        </label>
-    </div>
-
-    <button type="submit">Login</button>
-}
-
-<p>Belum punya akun? @Html.ActionLink("Daftar di sini", "Register")</p>
-
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

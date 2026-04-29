@@ -15,29 +15,35 @@
 <div class="project-header">
     <div class="project-toolbar">
         <div>
-            <h2 class="project-title">Projects</h2>
-            <p class="project-desc">Manage and track all your projects in one place</p>
+            <h1 class="project-title">Projects</h1>
+            <p class="project-desc">Manage and track your team projects and GitHub integrations.</p>
         </div>
         <ejs-button id="btnNewProject" cssClass="e-primary" content="New Project" iconCss="e-icons e-plus" isPrimary="true" onclick="createProject()"></ejs-button>
     </div>
 </div>
 
-<div class="project-searchbar">
-    <ejs-textbox id="searchInput" placeholder="Search projects..." floatLabelType="Never" width="260px"></ejs-textbox>
-    <ejs-dropdownlist id="statusFilter"
-                      placeholder="All Status"
-                      floatLabelType="Never"
-                      dataSource="statusList"
-                      allowFiltering="false"
-                      width="160px">
-    </ejs-dropdownlist>
-    <ejs-dropdownlist id="sortFilter"
-                      placeholder="Name"
-                      floatLabelType="Never"
-                      dataSource="sortList"
-                      allowFiltering="false"
-                      width="140px">
-    </ejs-dropdownlist>
+<div class="project-searchbar card-custom p-3 mb-4">
+    <div class="d-flex gap-3 align-items-center w-100 flex-wrap">
+        <div style="flex: 1; min-width: 250px;">
+            <ejs-textbox id="searchInput" placeholder="Search projects by name..." floatLabelType="Never" width="100%"></ejs-textbox>
+        </div>
+        <div style="width: 180px;">
+            <ejs-dropdownlist id="statusFilter"
+                              placeholder="Filter by Status"
+                              floatLabelType="Never"
+                              dataSource="statusList"
+                              width="100%">
+            </ejs-dropdownlist>
+        </div>
+        <div style="width: 150px;">
+            <ejs-dropdownlist id="sortFilter"
+                              placeholder="Sort By"
+                              floatLabelType="Never"
+                              dataSource="sortList"
+                              width="100%">
+            </ejs-dropdownlist>
+        </div>
+    </div>
 </div>
 
 
