@@ -106,7 +106,7 @@ namespace ProjectManagement.App.Controllers
 
                 var identity = User.Identity as ClaimsIdentity;
             
-                identity.AddClaim(new Claim("GithubConnected", "true"));
+                identity.AddClaim(new Claim("GitHubConnected", "true"));
                 identity.AddClaim(new Claim("GitHubToken", accessToken));
                 identity.AddClaim(new Claim("GitHubUser", githubUsername));
 

@@ -1,8 +1,8 @@
 @using ProjectManagement.App.ViewModel
 @model LoginViewModel
 @{
-    ViewData["Title"] = "Login";
-    Layout = null; // Menghapus penggunaan _Layout.cshtml
+    ViewData["Title"] = "Log In";
+    Layout = null;
 }
 
 <!DOCTYPE html>
@@ -12,12 +12,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ProjectManagement</title>
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- CSS Libs -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -25,53 +23,56 @@
     <style>
         body {
             background-color: var(--main-bg);
-            overflow: auto !important; /* Allow scroll if needed on small screens */
-            height: auto;
-            min-height: 100vh;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .auth-container {
-            min-height: 100vh;
-            padding: 2rem 1rem;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 1.5rem;
         }
     </style>
 </head>
 <body>
-    <div class="auth-container d-flex align-items-center justify-content-center">
+    <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
                 <a href="/" class="auth-logo">ProjectManagement</a>
-                <p class="auth-subtitle">Welcome back! Please login to your account.</p>
+                <p class="auth-subtitle text-secondary">Welcome back! Please enter your details.</p>
             </div>
 
             @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "auth-form" }))
             {
                 @Html.AntiForgeryToken()
 
-                <div class="form-group mb-3">
-                    @Html.LabelFor(m => m.Email, new { @class = "form-label fw-600" })
+                <div class="mb-4">
+                    <label asp-for="Email" class="form-label">Email Address</label>
                     <div class="auth-input-group">
                         <i class="fas fa-envelope"></i>
-                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = "Enter your email" })
+                        <input asp-for="Email" class="form-control" placeholder="name@company.com" />
                     </div>
-                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small mt-1" })
+                    <span asp-validation-for="Email" class="text-danger smaller fw-bold mt-1 d-block"></span>
                 </div>
 
-                <div class="form-group mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        @Html.LabelFor(m => m.Password, new { @class = "form-label fw-600 mb-0" })
-                        <a href="#" class="small text-decoration-none">Forgot password?</a>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label asp-for="Password" class="form-label mb-0">Password</label>
+                        <a href="#" class="smaller fw-bold text-decoration-none" style="color: var(--primary-color);">Forgot password?</a>
                     </div>
                     <div class="auth-input-group">
                         <i class="fas fa-lock"></i>
-                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Enter your password" })
+                        <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" />
                     </div>
-                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small mt-1" })
+                    <span asp-validation-for="Password" class="text-danger smaller fw-bold mt-1 d-block"></span>
                 </div>
 
-                <div class="form-group form-check mb-4">
-                    @Html.CheckBoxFor(m => m.RememberMe, new { @class = "form-check-input", id = "RememberMe" })
-                    <label class="form-check-label small text-secondary" for="RememberMe">
-                        Keep me logged in
+                <div class="form-check mb-4">
+                    <input asp-for="RememberMe" class="form-check-input" id="RememberMe">
+                    <label class="form-check-label smaller text-secondary fw-500" for="RememberMe">
+                        Keep me logged in for 30 days
                     </label>
                 </div>
 
@@ -81,19 +82,21 @@
                 
                 <div class="auth-divider">OR</div>
                 
-                <button type="button" class="btn w-100 border rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 mb-3 bg-white shadow-sm" style="height: 48px; font-weight: 600;">
+                <a href="@Url.Action("Connect", "GithubAuth")" class="btn w-100 border-0 rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 mb-2 bg-dark text-white shadow-sm" style="height: 48px; font-weight: 700; font-size: 0.95rem; transition: var(--transition);">
                     <i class="fab fa-github fs-5"></i>
-                    Continue with GitHub
-                </button>
+                    Sign in with GitHub
+                </a>
             }
 
             <div class="auth-footer">
-                Don't have an account? @Html.ActionLink("Register now", "Register")
+                Don't have an account? @Html.ActionLink("Create account", "Register")
             </div>
         </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 </body>
 </html>

@@ -647,6 +647,199 @@ footer {
     font-weight: 600;
 }
 
+/* Auth Pages Styling */
+.auth-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem;
+    background: radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(79, 70, 229, 0.05) 0px, transparent 50%);
+}
+
+.auth-card {
+    background: #ffffff;
+    padding: 3rem;
+    border-radius: 32px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: var(--shadow-elegant);
+    border: 1px solid rgba(241, 245, 249, 0.8);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.auth-logo {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    text-decoration: none;
+    letter-spacing: -1px;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.auth-form .form-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.auth-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.auth-input-group i {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    z-index: 10;
+    opacity: 0.7;
+}
+
+.auth-input-group .form-control {
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color);
+    background-color: #fcfdfe;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.auth-input-group .form-control:focus {
+    border-color: var(--primary-color);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.btn-auth-submit {
+    width: 100%;
+    padding: 0.85rem;
+    border-radius: 12px;
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: var(--transition);
+    margin-top: 1rem;
+}
+
+.btn-auth-submit:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.auth-divider::before, .auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.auth-divider:not(:empty)::before { margin-right: .75rem; }
+.auth-divider:not(:empty)::after { margin-left: .75rem; }
+
+.auth-footer {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.auth-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Syncfusion Custom Polishing */
+.e-grid {
+    border: none !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+}
+
+.e-grid .e-headercell {
+    background-color: #fcfdfe !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+.e-grid .e-headertext {
+    font-size: 0.7rem !important;
+    font-weight: 800 !important;
+    color: var(--text-secondary) !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+}
+
+.e-grid .e-rowcell {
+    font-size: 0.95rem !important;
+    color: var(--text-main) !important;
+    padding: 1rem 1.25rem !important;
+}
+
+.e-grid .e-row:hover .e-rowcell {
+    background-color: #f8fafc !important;
+}
+
+.e-kanban {
+    background: transparent !important;
+    border: none !important;
+}
+
+.e-kanban .e-kanban-header {
+    background: transparent !important;
+}
+
+.e-kanban .e-header-text {
+    font-weight: 800 !important;
+    color: var(--text-main) !important;
+    letter-spacing: -0.5px !important;
+}
+
+.e-kanban .e-kanban-content .e-content-row .e-content-cells .e-card-container .e-card {
+    border-radius: 12px !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow-sm) !important;
+    margin-bottom: 1rem !important;
+    transition: var(--transition) !important;
+}
+
+.e-kanban .e-kanban-content .e-content-row .e-content-cells .e-card-container .e-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-md) !important;
+    border-color: var(--primary-color) !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .main-wrapper {

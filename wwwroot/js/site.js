@@ -73,6 +73,22 @@ function closeDateDialog() {
     if (container) container.innerHTML = "";
 }
 
+// Handle manual redirects from JSON responses
+document.body.addEventListener("htmx:afterRequest", function (evt) {
+    try {
+        var xhr = evt.detail.xhr;
+        // Only parse if it's a JSON response
+        if (xhr && xhr.getResponseHeader("Content-Type") && xhr.getResponseHeader("Content-Type").includes("application/json")) {
+            var json = JSON.parse(xhr.responseText);
+            if (json && json.success === true && json.redirectUrl) {
+                window.location.href = json.redirectUrl;
+            }
+        }
+    } catch (err) {
+        // Silently fail if not JSON or no redirectUrl
+    }
+});
+
 function handleUpdateDateResponse(evt) {
     if (evt.detail.target.id !== "updateDateForm") return;
 

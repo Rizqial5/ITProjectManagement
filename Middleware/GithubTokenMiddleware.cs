@@ -41,23 +41,27 @@ namespace ProjectManagement.App.Middleware
 
                 if (context.User.Identity is ClaimsIdentity identity)
                 {
-                    var cekOld = identity.FindFirst("GitHubConnected") ?? identity.FindFirst("GithubConnected");
+                    // Ensure the claim exists or update it
+                    var cekOld = identity.FindFirst("GitHubConnected");
 
                     if (cekOld is not null)
                     {
                         identity.RemoveClaim(cekOld);
-                        identity.AddClaim(new Claim("GitHubConnected", isValid ? "true" : "false"));
-
-                        identity.RemoveClaim(identity.FindFirst("GitHubToken"));
-                        if (!string.IsNullOrWhiteSpace(token))
-                            identity.AddClaim(new Claim("GitHubToken", token));
-
-                        identity.RemoveClaim(identity.FindFirst("GitHubUser"));
-                        if (!string.IsNullOrWhiteSpace(userName))
-                            identity.AddClaim(new Claim("GitHubUser", userName));
                     }
+                    identity.AddClaim(new Claim("GitHubConnected", isValid ? "true" : "false"));
 
+                    // Update token and user claims if available
+                    var tokenClaim = identity.FindFirst("GitHubToken");
+                    if (tokenClaim is not null) identity.RemoveClaim(tokenClaim);
 
+                    if (!string.IsNullOrWhiteSpace(token))
+                        identity.AddClaim(new Claim("GitHubToken", token));
+
+                    var userClaim = identity.FindFirst("GitHubUser");
+                    if (userClaim is not null) identity.RemoveClaim(userClaim);
+
+                    if (!string.IsNullOrWhiteSpace(userName))
+                        identity.AddClaim(new Claim("GitHubUser", userName));
                 }
             
             // Update claim

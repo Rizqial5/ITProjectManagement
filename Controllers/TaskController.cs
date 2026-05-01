@@ -357,25 +357,28 @@ namespace ProjectManagement.App.Controllers
 
                 var result = await _taskRepository.SetTaskStatus(projectId, taskId, status);
 
-                if(result.Success)
+                if (result.Success)
                 {
                     TempData["RepoNotification"] = result.Message;
+                    if (Request.IsHtmx())
+                    {
+                        // Tell HTMX to redirect/refresh the page
+                        Response.Htmx(h => h.Redirect(Url.Action("Details", new { projectId, taskId, isConnected = true })));
+                        return Ok();
+                    }
                 }
                 else
                 {
                     TempData["RepoNotificationFailed"] = result.Message;
                 }
 
-                    return Json(new { success = result.Success, message = result.Message });
+                return Json(new { success = result.Success, message = result.Message });
             }
             catch (Exception ex)
             {
-
                 TempData["RepoNotificationFailed"] = ex.Message;
                 return Json(new { success = false, message = ex.Message });
             }
-
-
         }
 
 

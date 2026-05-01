@@ -6,7 +6,7 @@ namespace ProjectManagement.App.Extensions
     {
         public static bool IsConnectedGithub(this ClaimsPrincipal user)
         {
-            return user.HasClaim("GithubConnected", "true");
+            return user.HasClaim("GitHubConnected", "true");
         }
 
         public static string? GetGithubToken(this ClaimsPrincipal user)

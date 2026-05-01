@@ -15,13 +15,17 @@
 
 @Html.AntiForgeryToken()
 
-<div class="d-flex" style="gap: 24px">
-    <div style="flex: 1;">
+<div class="card-custom">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold m-0 text-main">Kanban Board</h5>
+    </div>
+
+    <div class="kanban-wrapper">
         <ejs-kanban id="KanbanBoard"
                     keyField="Status"
                     actionBegin="onKanbanActionBegin"
                     cardSettings="@(new Syncfusion.EJ2.Kanban.KanbanCardSettings { ContentField = "Description", HeaderField = "Title" })"
-                    >
+                    cssClass="e-custom-kanban">
             <e-kanban-columns>
                 <e-kanban-column headerText="To Do" keyField="ToDo"></e-kanban-column>
                 <e-kanban-column headerText="In Progress" keyField="InProgress"></e-kanban-column>
@@ -30,16 +34,6 @@
             <e-kanban-dialogsettings fields="ViewBag.dialog"></e-kanban-dialogsettings>
         </ejs-kanban>
     </div>
-@*     <div style="width: 320px;">
-        <div class="card shadow-sm" style="height: 600px; overflow-y: auto;">
-            <div class="card-header bg-primary text-white">
-                <strong>Unassigned Tasks</strong>
-            </div>
-            <ul class="list-group list-group-flush" id="unassignedTasksList">
-                <li class="list-group-item text-muted">Loading...</li>
-            </ul>
-        </div>
-    </div> *@
 </div>
 
 

@@ -13,52 +13,64 @@
     string repoName = ViewBag.RepoName;
 }
 
-<div>
-    <h1>Workspace @Model.ProjectName Board</h1>
-    <hr />
+<div class="mb-4">
+    <h1 class="project-title">Workspace: @Model.ProjectName</h1>
+    <p class="text-secondary">Manage tasks and GitHub synchronization for this project.</p>
+</div>
 
-    <div class="board-content">
-        <div id="workspaceContent">
-
-            <div class="mb-3">
-                @if (Model.IsConnectedToGithubRepo)
-                {
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-weight: 500; font-size: 1rem; color: #333;">
-                            Connected to <strong>Github Repo</strong>:
-                            <a href="@ViewBag.RepoUrl"
-                               target="_blank"
-                               style="color: #007acc; text-decoration: none;">
-                                @ViewBag.RepoName
+<div class="board-content">
+    <div id="workspaceContent">
+        <!-- GitHub Connection Card -->
+        <div class="card-custom mb-4" style="border-left: 4px solid var(--primary-color);">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon bg-soft-indigo" style="width: 42px; height: 42px; font-size: 1.25rem;">
+                        <i class="fab fa-github"></i>
+                    </div>
+                    <div>
+                        @if (Model.IsConnectedToGithubRepo)
+                        {
+                            <div class="text-secondary smaller fw-bold text-uppercase" style="letter-spacing: 0.5px;">Connected Repository</div>
+                            <a href="@ViewBag.RepoUrl" target="_blank" class="fw-800 text-main text-decoration-none fs-5" style="font-weight: 800;">
+                                @ViewBag.RepoName <i class="fas fa-external-link-alt ms-1 smaller opacity-50" style="font-size: 0.8rem;"></i>
                             </a>
-                        </span>
+                        }
+                        else
+                        {
+                            <div class="text-secondary smaller fw-bold text-uppercase" style="letter-spacing: 0.5px;">GitHub Integration</div>
+                            <div class="text-secondary fw-bold">Not connected to any GitHub repository</div>
+                        }
+                    </div>
+                </div>
 
+                <div>
+                    @if (Model.IsConnectedToGithubRepo)
+                    {
                         <ejs-button id="disconnectRepoButton"
-                                    class="mt-3"
-                                    isPrimary="true"
+                                    cssClass="e-warning px-4 py-2"
                                     content="Disconnect Repo"
+                                    iconCss="fas fa-unlink"
                                     onclick="disconnectRepo()">
                         </ejs-button>
-                    </div>
-                }
-                else
-                {
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-weight: 500; font-size: 1rem; color: #999;">
-                            Not connected to any <strong>Github Repo</strong>
-                        </span>
-
+                    }
+                    else
+                    {
                         <ejs-button id="connectRepoButton"
-                                    class="mt-3"
-                                    isPrimary="true"
-                                    content="Connect to Repo"
+                                    cssClass="e-primary px-4 py-2"
+                                    content="Connect Repository"
+                                    iconCss="fas fa-link"
                                     onclick="showGithubDialog()">
                         </ejs-button>
-                    </div>
-                }
-
+                    }
+                </div>
             </div>
+        </div>
 
+        <!-- Task Grid Card -->
+        <div class="card-custom">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold m-0 text-main">Task Management</h5>
+            </div>
 
             <ejs-grid id="TaskGrid"
                       allowPaging="true"
@@ -66,7 +78,9 @@
                       commandClick="onCommandClick"
                       toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Update", "Cancel" })"
                       editSettings="@(new Syncfusion.EJ2.Grids.GridEditSettings { AllowAdding = true, AllowEditing = true, AllowDeleting = true, Mode = Syncfusion.EJ2.Grids.EditMode.Normal })"
-                      height="400">
+                      height="450"
+                      gridLines="None"
+                      cssClass="e-custom-grid">
                 <e-data-manager url='@Url.Action("GetTasks", "Workspace", new { projectId = Model.ProjectID })'
                                 insertUrl='@Url.Action("AddTask", "Workspace")?projectId=@Model.ProjectID'
                                 updateUrl='@Url.Action("UpdateTask", "Workspace")?projectId=@Model.ProjectID'
@@ -74,35 +88,30 @@
                                 adaptor="UrlAdaptor"></e-data-manager>
                 <e-grid-columns>
                     <e-grid-column field="Id" headerText="ID" isPrimaryKey="true" visible="false"></e-grid-column>
-                    <e-grid-column field="Title" headerText="Title" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
-                    <e-grid-column field="Description" headerText="Description" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
+                    <e-grid-column field="Title" headerText="TASK TITLE" width="200" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
+                    <e-grid-column field="Description" headerText="DESCRIPTION" width="250" textAlign="Left" validationRules="@(new { required = true })"></e-grid-column>
                     <e-grid-column field="Status"
-                                   headerText="Status"
+                                   headerText="STATUS"
                                    width="150"
                                    edit="@(new { create = "StatusCreate", read = "StatusRead", write = "StatusWrite", destroy = "StatusDestroy" })"
                                    editType="dropdownedit">
                     </e-grid-column>
 
-                    <e-grid-column headerText="Actions"
+                    <e-grid-column headerText="ACTIONS"
                                    width="120"
                                    textAlign="Center"
                                    commands="@(new List<object>
                                     {
-                                        new { type = "None", buttonOption= new { content = "Details", cssClass = "e-primary" }}
+                                        new { type = "None", buttonOption= new { content = "Details", cssClass = "e-primary e-outline" }}
                                     })">
                     </e-grid-column>
                 </e-grid-columns>
             </ejs-grid>
-
-
         </div>
+    </div>
 
-
-        <div id="kanbanView" style="display:none;">
-            <partial name="_KanbanView" model="@Model"></partial>
-        </div>
-
-
+    <div id="kanbanView" style="display:none;">
+        <partial name="_KanbanView" model="@Model"></partial>
     </div>
 </div>
 
