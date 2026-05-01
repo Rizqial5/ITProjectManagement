@@ -17,6 +17,7 @@ var syncLicense = builder.Configuration["SyncfusionLicense"];
 
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncLicense);
 
+
 // Add services to the container.
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
