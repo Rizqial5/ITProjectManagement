@@ -27,7 +27,7 @@ namespace ProjectManagement.App.Models.Workspace
         public virtual ApplicationUser User { get; set; } = null!;
 
         [Required]
-        public ProjectRole Role { get; set; } = ProjectRole.Developer;
+        public ProjectRole Role { get; set; } = ProjectRole.Member;
 
         public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
 

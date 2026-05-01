@@ -13,7 +13,7 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 //Register Syncfusion license https://help.syncfusion.com/common/essential-studio/licensing/how-to-generate
-var syncLicense = builder.Configuration["SyncfusionLicense"];
+var syncLicense = builder.Configuration["GitHub:SyncfusionLicense"];
 
 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(syncLicense);
 

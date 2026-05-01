@@ -1,10 +1,11 @@
-﻿using Htmx;
+using Htmx;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO.Task;
 using ProjectManagement.App.Models.Workspace;
 using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace ProjectManagement.App.Controllers
 {
@@ -19,14 +20,12 @@ namespace ProjectManagement.App.Controllers
 
         public async Task<IActionResult> LoadCommitsTab(int projectId, int taskId, bool isConnected)
         {
-            var taskItem = await _taskRepository.GetAsync(projectId, taskId);
-            var countCommit = isConnected ? await _taskRepository.GetTotalIntegratedCommit(projectId, taskId) : 0;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var taskItem = await _taskRepository.GetAsync(projectId, taskId, userId);
 
-            //if (taskItem == null)
-            //{
-            //    TempData["RepoNotificationFailed"] = "Task is not exists";
-            //    return RedirectToAction("Index", "Workspace", new { ProjectID = projectId });
-            //}
+            if (taskItem == null) return NotFound();
+
+            var countCommit = isConnected ? await _taskRepository.GetTotalIntegratedCommit(projectId, taskId, userId) : 0;
 
             var taskModel = new TaskViewModel()
             {
@@ -35,8 +34,6 @@ namespace ProjectManagement.App.Controllers
                 TotalLinkedCommits = countCommit,
                 Commits = taskItem.Commits.ToList(),
                 isConnectedRepo = isConnected,
-
-
             };
 
             return PartialView("~/Views/Shared/Tabs/_LinkedCommitsPanel.cshtml", taskModel);
@@ -44,10 +41,8 @@ namespace ProjectManagement.App.Controllers
 
         public async Task<IActionResult> LoadNotesTab(int projectId, int taskId)
         {
-            // get notes
-
-            var notes = await _taskRepository.GetNotesAsync(projectId, taskId);
-
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var notes = await _taskRepository.GetNotesAsync(projectId, taskId, userId);
 
             SaveNotesDto modelNotes = new()
             {

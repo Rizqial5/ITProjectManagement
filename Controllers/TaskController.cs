@@ -10,6 +10,8 @@ using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
 using Syncfusion.EJ2.Base;
 using Ganss.Xss;
+using ProjectManagement.App.Filters;
+using System.Security.Claims;
 
 
 namespace ProjectManagement.App.Controllers
@@ -28,14 +30,16 @@ namespace ProjectManagement.App.Controllers
         }
 
         [Route("task/{projectId:int}/{taskId:int}")]
+        [ProjectAuthorize]
         public async Task<IActionResult> Details(int projectId, int taskId, bool isConnected)
         {
-            var taskItem = await _taskRepository.GetAsync(projectId, taskId);
-            var countCommit = isConnected ? await _taskRepository.GetTotalIntegratedCommit(projectId, taskId) : 0;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var taskItem = await _taskRepository.GetAsync(projectId, taskId, userId);
+            var countCommit = isConnected ? await _taskRepository.GetTotalIntegratedCommit(projectId, taskId, userId) : 0;
 
             if(taskItem == null)
             {
-                TempData["RepoNotificationFailed"] = "Task is not exists";
+                TempData["RepoNotificationFailed"] = "Task is not exists or access denied";
                 return RedirectToAction("Index", "Workspace", new { ProjectID = projectId });
             }
 
@@ -44,7 +48,7 @@ namespace ProjectManagement.App.Controllers
             string? repoUrl = null;
             if (isConnected)
             {
-                var checkRepo = await _projectRepository.CheckConnectedProject(projectId);
+                var checkRepo = await _projectRepository.CheckConnectedProject(projectId, userId);
                 if (checkRepo.Success && checkRepo.Data != null)
                 {
                     repoUrl = checkRepo.Data.Html_Url;
@@ -93,6 +97,7 @@ namespace ProjectManagement.App.Controllers
 
 
         [HttpGet]
+        [ProjectAuthorize]
         public IActionResult ShowLinkCommit(int projectId, bool isConnected)
         {
       
@@ -108,9 +113,13 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpGet]
+        [ProjectAuthorize(ProjectRole.Owner, ProjectRole.Manager)]
         public async Task<IActionResult> ShowUpdateDialog(int projectId, int taskId)
         {
-            var taskItem = await _taskRepository.GetAsync(projectId, taskId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var taskItem = await _taskRepository.GetAsync(projectId, taskId, userId);
+            if (taskItem == null) return NotFound();
+
             var model = new UpdateDateDto
             {
                 ProjectId = projectId,
@@ -125,10 +134,11 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ShowLinkedCommit(int repoId, int taskId)
+        [ProjectAuthorize]
+        public async Task<IActionResult> ShowLinkedCommit(int projectId, int repoId, int taskId)
         {
-
-            var model = await _taskRepository.GetLinkedCommit(repoId, taskId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var model = await _taskRepository.GetLinkedCommit(repoId, taskId, userId);
 
 
             return PartialView("_ListLinkedCommit", model);
@@ -136,9 +146,11 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpGet]
+        [ProjectAuthorize]
         public async Task<IActionResult> EditTaskDetails(int projectId,int taskId)
         {
-            var task = await _taskRepository.GetAsync(projectId,taskId); // Pastikan method ini ada di repository Anda
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var task = await _taskRepository.GetAsync(projectId, taskId, userId); 
             if (task == null) return NotFound();
 
             var members = await _projectMemberRepository.GetProjectMembersAsync(projectId);
@@ -163,8 +175,10 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpPost]
+        [ProjectAuthorize]
         public async Task<IActionResult> UpdateTaskDetails(EditTaskDescDto model)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (ModelState.IsValid)
             {
 
@@ -176,11 +190,11 @@ namespace ProjectManagement.App.Controllers
                     AssignedUserId = model.AssignedUserId
                 };
 
-                var success = await _taskRepository.UpdateAsync(model.ProjectId,updatedData);
+                var success = await _taskRepository.UpdateAsync(model.ProjectId, updatedData, userId);
 
                 if(success)
                 {
-                    var task = await _taskRepository.GetAsync(model.ProjectId, model.TaskId);
+                    var task = await _taskRepository.GetAsync(model.ProjectId, model.TaskId, userId);
 
                     var updatedModel = new TaskViewModel
                     {
@@ -198,7 +212,10 @@ namespace ProjectManagement.App.Controllers
 
                     
                 }
-                // Reload panel
+                else
+                {
+                    return Json(new { success = false, message = "Update failed or unauthorized." });
+                }
 
             }
 
@@ -206,8 +223,10 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpPost]
+        [ProjectAuthorize(ProjectRole.Owner, ProjectRole.Manager)]
         public async Task<IActionResult> UpdateDate(UpdateDateDto model)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (ModelState.IsValid)
             {
                 TaskItem updatedData = new()
@@ -217,7 +236,7 @@ namespace ProjectManagement.App.Controllers
                     TargetDate = model.SetNewDate,
                 };
 
-                var success = await _taskRepository.UpdateDateAsync(updatedData);
+                var success = await _taskRepository.UpdateDateAsync(updatedData, userId);
 
                 if (success)
                 {
@@ -260,9 +279,11 @@ namespace ProjectManagement.App.Controllers
 
 
         [HttpGet]
+        [ProjectAuthorize]
         public async Task<IActionResult> DetailsPanel(int projectId, int taskId)
         {
-            var task = await _taskRepository.GetAsync(projectId,taskId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var task = await _taskRepository.GetAsync(projectId, taskId, userId);
             if (task == null) return NotFound();
             var model = new TaskViewModel
             {
@@ -279,14 +300,16 @@ namespace ProjectManagement.App.Controllers
 
 
         [HttpPost]
+        [ProjectAuthorize]
         public async Task<IActionResult> GetCommitRepo([FromBody] DataManagerRequest DataManagerRequest, int projectId, int taskId, bool isConnected)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             IEnumerable<CommitDto> commitData;
 
 
             if (isConnected)
             {
-                commitData = await _taskRepository.GetAllIntegratedCommitAsync(projectId, taskId);
+                commitData = await _taskRepository.GetAllIntegratedCommitAsync(projectId, taskId, userId);
 
                 
             }
@@ -304,14 +327,16 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpPost]
+        [ProjectAuthorize]
         public async Task<IActionResult> GetAvailableCommit([FromBody] DataManagerRequest DataManagerRequest, int projectId, bool isConnected)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             IEnumerable<CommitDto> commitData;
 
 
             if (isConnected)
             {
-                commitData = await _taskRepository.GetAllCommitAsync(projectId);
+                commitData = await _taskRepository.GetAllCommitAsync(projectId, userId);
 
 
             }
@@ -328,15 +353,24 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> LinkCommit(int commitId, int repoId, int taskId)
+        [ProjectAuthorize]
+        public async Task<IActionResult> LinkCommit(int projectId, int commitId, int repoId, int taskId)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             try
             {
-                var result = await _taskRepository.ConnectCommitToTaskAsync(repoId, commitId, taskId);
+                var result = await _taskRepository.ConnectCommitToTaskAsync(repoId, commitId, taskId, userId);
 
-                TempData["RepoNotification"] = "Commit has been sucessfully linked";
+                if (result.Success)
+                {
+                    TempData["RepoNotification"] = "Commit has been sucessfully linked";
+                }
+                else
+                {
+                    TempData["RepoNotificationFailed"] = result.Message;
+                }
 
-                return Json(new { success = true });
+                return Json(new { success = result.Success });
             }
             catch(Exception ex)
             {
@@ -349,13 +383,15 @@ namespace ProjectManagement.App.Controllers
 
 
         [HttpPost]
+        [ProjectAuthorize]
         public async Task<IActionResult> SetToDone(int taskId, int projectId)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             try
             {
                 var status = Status.Done;
 
-                var result = await _taskRepository.SetTaskStatus(projectId, taskId, status);
+                var result = await _taskRepository.SetTaskStatus(projectId, taskId, status, userId);
 
                 if (result.Success)
                 {
@@ -383,11 +419,13 @@ namespace ProjectManagement.App.Controllers
 
 
         [HttpPost]
+        [ProjectAuthorize(ProjectRole.Owner, ProjectRole.Manager)]
         public async Task<IActionResult> AddTask(CreateTaskDto newTask, int projectId)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             try
             {
-                await _taskRepository.AddAsync(projectId, newTask);
+                await _taskRepository.AddAsync(projectId, newTask, userId);
 
                 TempData["RepoNotification"] = $"Task {newTask.Title} added succesfully";
 
@@ -403,11 +441,13 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpPost]
+        [ProjectAuthorize]
         public async Task<IActionResult> AddNotes([FromBody] SaveNotesDto dataNote)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             try
             {
-                await _taskRepository.AddNoteAsync(dataNote);
+                await _taskRepository.AddNoteAsync(dataNote, userId);
 
                 return Json(new { success = true, message= "Notes sucessfully saved" });
             }

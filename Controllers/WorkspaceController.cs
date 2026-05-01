@@ -16,6 +16,7 @@ using Syncfusion.EJ2.Base;
 using System;
 using System.Dynamic;
 using System.Security.Claims;
+using ProjectManagement.App.Filters;
 
 namespace ProjectManagement.App.Controllers
 {
@@ -37,10 +38,12 @@ namespace ProjectManagement.App.Controllers
         }
 
 
+        [ProjectAuthorize]
         public async Task<IActionResult> Index(WorkspaceViewModel workspaceViewModel)
         {
             try
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 ViewBag.ProjectID = workspaceViewModel.ProjectID;
                 ViewBag.ProjectName = workspaceViewModel.ProjectName;
 
@@ -53,7 +56,7 @@ namespace ProjectManagement.App.Controllers
 
 
                 // Check if Project has Connected with repo
-                var checkConnectProject = await _projectRepository.CheckConnectedProject(workspaceViewModel.ProjectID);
+                var checkConnectProject = await _projectRepository.CheckConnectedProject(workspaceViewModel.ProjectID, userId);
 
 
                 if (checkConnectProject.Success)
@@ -62,7 +65,7 @@ namespace ProjectManagement.App.Controllers
                     ViewBag.RepoUrl = checkConnectProject.Data.Html_Url;
 
                     //Check and sync latest commit
-                    await SynchronizeCommitAsync(checkConnectProject);
+                    await SynchronizeCommitAsync(checkConnectProject, userId);
 
                 }
 
@@ -80,11 +83,10 @@ namespace ProjectManagement.App.Controllers
            
         }
 
-        private async Task SynchronizeCommitAsync(ResponseResultDto<GitHubRepoDto> checkConnectProject)
+        private async Task SynchronizeCommitAsync(ResponseResultDto<GitHubRepoDto> checkConnectProject, string userId)
         {
             var repoData = checkConnectProject.Data;
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var response = await _authRepository.GetGithubCreds(userId!);
 
             if(!response.Success)
@@ -132,9 +134,11 @@ namespace ProjectManagement.App.Controllers
 
 
         [HttpPost]
+        [ProjectAuthorize]
         public async Task<IActionResult> GetTasks([FromBody] DataManagerRequest DataManagerRequest, int projectId)
         {
-            var data = await _taskRepository.GetAllAsync(projectId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var data = await _taskRepository.GetAllAsync(projectId, userId);
 
             
 
@@ -158,16 +162,20 @@ namespace ProjectManagement.App.Controllers
         //}
 
         [HttpPost]
+        [ProjectAuthorize]
         public async Task<IActionResult> UpdateTask([FromBody] TaskItem value, int projectId)
         {
-            var result = await _taskRepository.UpdateAsync(projectId, value);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _taskRepository.UpdateAsync(projectId, value, userId);
             return Json(new { success = result });
         }
 
         [HttpPost]
+        [ProjectAuthorize(ProjectRole.Owner, ProjectRole.Manager)]
         public async Task<IActionResult> DeleteTask([FromBody] TaskItem value, int projectId)
         {
-            var result = await _taskRepository.DeleteAsync(projectId, value.Id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _taskRepository.DeleteAsync(projectId, value.Id, userId);
             return Json(new { success = result });
         }
 
@@ -179,6 +187,7 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpPost]
+        [ProjectAuthorize(ProjectRole.Owner, ProjectRole.Manager)]
         public async Task<IActionResult> ConnectToRepo(int projectId, ConnectGithubDto repo)
         {
             repo.Description = repo.Description ?? string.Empty;
@@ -192,7 +201,7 @@ namespace ProjectManagement.App.Controllers
                 });
             }
 
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             if(string.IsNullOrWhiteSpace(userId))
             {
@@ -229,11 +238,12 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpPost]
+        [ProjectAuthorize(ProjectRole.Owner, ProjectRole.Manager)]
         public async Task<IActionResult> DisconnectRepo(int projectId)
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
                 var response = await _projectRepository.DisconnectRepo(userId, projectId);
 

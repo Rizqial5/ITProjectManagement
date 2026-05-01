@@ -151,7 +151,7 @@ namespace ProjectManagement.App.Controllers
                 ProjectOwnerUserId = userId,
             };
 
-            var result = await _projectRepository.UpdateAsync(updatedProject);
+            var result = await _projectRepository.UpdateAsync(updatedProject, userId!);
 
             if (!result)
             {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.Services;
 using ProjectManagement.App.Services.Interfaces;
 using System.Security.Claims;
@@ -10,18 +11,52 @@ namespace ProjectManagement.App.Middleware
         
         private readonly IGithubService _authService;
         private readonly IMemoryCache _cache;
+        private readonly IAuthRepository _authRepository;
 
-        public GithubTokenMiddleware(IGithubService authService, IMemoryCache cache)
+        public GithubTokenMiddleware(IGithubService authService, IMemoryCache cache, IAuthRepository authRepository)
         {
          
             _authService = authService;
             _cache = cache;
+            _authRepository = authRepository;
         }
 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             var token = context.Session.GetString("GitHubToken");
             var userName = context.Session.GetString("GitHubUser");
+
+            // If session is empty but user is authenticated, try to restore from claims or DB
+            if (string.IsNullOrEmpty(token) && context.User.Identity?.IsAuthenticated == true)
+            {
+                token = context.User.FindFirst("GitHubToken")?.Value;
+                userName = context.User.FindFirst("GitHubUser")?.Value;
+
+                if (string.IsNullOrEmpty(token))
+                {
+                    var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    if (!string.IsNullOrEmpty(userId))
+                    {
+                        var creds = await _authRepository.GetGithubCreds(userId);
+                        if (creds.Success && creds.Data != null)
+                        {
+                            token = creds.Data.AccessToken;
+                            userName = creds.Data.GitHubUsername;
+                        }
+                    }
+                }
+
+                // Restore to session if found
+                if (!string.IsNullOrEmpty(token))
+                {
+                    context.Session.SetString("GitHubToken", token);
+                    if (!string.IsNullOrEmpty(userName))
+                    {
+                        context.Session.SetString("GitHubUser", userName);
+                    }
+                }
+            }
+
             bool isValid = false;
 
             if (!string.IsNullOrWhiteSpace(token)) 

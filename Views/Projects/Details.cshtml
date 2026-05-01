@@ -176,3 +176,36 @@
 </div>
 
 @Html.EJS().ScriptManager()
+
+<partial name="_GithubDialog"></partial>
+
+<script>
+    function disconnectRepo(projectId) {
+        showConfirmationDialog(
+            "Disconnect GitHub",
+            "Are you sure you want to disconnect the GitHub repository from this project?",
+            function () {
+                $.ajax({
+                    url: '@Url.Action("DisconnectRepo", "Workspace")',
+                    type: "POST",
+                    data: {
+                        projectId: projectId,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.Success) {
+                            location.reload();
+                        } else {
+                            ejs.notifications.ToastUtility.show(response.Message || "Failed to disconnect repo.", 'Error', 3000);
+                        }
+                    },
+                    error: function () {
+                        ejs.notifications.ToastUtility.show("An error occurred while disconnecting the repository.", 'Error', 3000);
+                    }
+                });
+            }
+        );
+    }
+
+    // showGithubDialog is defined in the partial, but we might need to override/ensure it's available
+</script>

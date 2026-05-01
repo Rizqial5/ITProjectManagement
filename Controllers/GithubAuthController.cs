@@ -106,12 +106,15 @@ namespace ProjectManagement.App.Controllers
 
                 var identity = User.Identity as ClaimsIdentity;
             
-                identity.AddClaim(new Claim("GitHubConnected", "true"));
-                identity.AddClaim(new Claim("GitHubToken", accessToken));
-                identity.AddClaim(new Claim("GitHubUser", githubUsername));
+                if (identity != null)
+                {
+                    identity.AddClaim(new Claim("GitHubConnected", "true"));
+                    identity.AddClaim(new Claim("GitHubToken", accessToken));
+                    identity.AddClaim(new Claim("GitHubUser", githubUsername));
 
-                await HttpContext.SignInAsync(
-                    IdentityConstants.ApplicationScheme, new ClaimsPrincipal(identity));
+                    await HttpContext.SignInAsync(
+                        IdentityConstants.ApplicationScheme, new ClaimsPrincipal(identity));
+                }
             }
 
             TempData["RepoNotification"] = "Connected to Github";
@@ -121,6 +124,11 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> ShowGithubRepo([FromBody] DataManagerRequest DataManagerRequest)
         {
             var token = HttpContext.Session.GetString("GitHubToken");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                token = User.FindFirst("GitHubToken")?.Value;
+            }
 
             if (string.IsNullOrEmpty(token))
             {

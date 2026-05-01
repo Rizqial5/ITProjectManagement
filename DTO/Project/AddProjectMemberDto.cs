@@ -12,7 +12,7 @@ namespace ProjectManagement.App.DTO.Project
         public string UserId { get; set; } = string.Empty;
 
         [Required]
-        public ProjectRole Role { get; set; } = ProjectRole.Developer;
+        public ProjectRole Role { get; set; } = ProjectRole.Member;
 
         public string? ProjectTitle { get; set; }
     }

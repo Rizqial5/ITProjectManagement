@@ -5,6 +5,7 @@ using ProjectManagement.App.DTO;
 using ProjectManagement.App.DTO.Project;
 using ProjectManagement.App.DTO.Workspace;
 using ProjectManagement.App.Extensions;
+using ProjectManagement.App.Filters;
 using ProjectManagement.App.Models.Enum;
 using ProjectManagement.App.Repository;
 using ProjectManagement.App.Repository.Interface;
@@ -36,6 +37,7 @@ namespace ProjectManagement.App.Controllers
             _authRepository = authRepository;
         }
 
+        [ProjectAuthorize]
         public async Task<IActionResult> Details(int id)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -87,7 +89,7 @@ namespace ProjectManagement.App.Controllers
                 .Select(r => new { value = (int)r, text = r.ToString() })
                 .ToList();
 
-            var checkConnectProject = await _projectRepository.CheckConnectedProject(project.Id);
+            var checkConnectProject = await _projectRepository.CheckConnectedProject(project.Id, userId);
 
             if (checkConnectProject.Success && User.IsConnectedGithub())
             {
@@ -110,6 +112,7 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpPost]
+        [ProjectAuthorize(ProjectRole.Owner)]
         public async Task<IActionResult> AddMember(AddProjectMemberDto model)
         {
             if (!ModelState.IsValid)
@@ -142,7 +145,7 @@ namespace ProjectManagement.App.Controllers
             {
                 foreach (var p in dataList.Where(p => p.GithubRepoConnecteds.Any(c => c.Connected)))
                 {
-                    var checkConnectProject = await _projectRepository.CheckConnectedProject(p.Id);
+                    var checkConnectProject = await _projectRepository.CheckConnectedProject(p.Id, userId);
                     if (checkConnectProject.Success)
                     {
                         await SynchronizeCommitAsync(checkConnectProject);
