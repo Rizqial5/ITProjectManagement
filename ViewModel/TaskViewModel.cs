@@ -21,6 +21,7 @@ namespace ProjectManagement.App.ViewModel
         public string? AssignedUserId { get; set; }
         public List<ProjectManagement.App.DTO.DropdownItem> AvailableAssignees { get; set; } = new();
         public string? AssigneeRole { get; set; }
+        public string? GithubRepoUrl { get; set; }
         public bool isRequestHtmx { get; set; }
 
         public bool InitPage { get; set; } = true;

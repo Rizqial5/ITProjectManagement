@@ -14,14 +14,14 @@
 
 <div class="task-details-container">
     <div class="mb-4">
-        <ejs-breadcrumb id="br-tasks" enableNavigation="true">
-            <e-breadcrumb-items>
-                <e-breadcrumb-item iconCss="e-icons e-home" url="@Url.Action("Index", "Home")"></e-breadcrumb-item>
-                <e-breadcrumb-item text="Projects" url="@Url.Action("Page", "Projects")"></e-breadcrumb-item>
-                <e-breadcrumb-item text="@Model.ProjectName" hx-get="@Url.Action("Details", "Projects", new { id = Model.ProjectId })" hx-target="#main-content"></e-breadcrumb-item>
-                <e-breadcrumb-item text="@Model.Title"></e-breadcrumb-item>
-            </e-breadcrumb-items>
-        </ejs-breadcrumb>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb" style="background: transparent; padding: 0; margin: 0; font-size: 0.9rem; font-weight: 500;">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")" class="text-secondary text-decoration-none"><i class="fas fa-home me-1"></i> Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="@Url.Action("Page", "Projects")" class="text-secondary text-decoration-none">Projects</a></li>
+                <li class="breadcrumb-item"><a href="@Model.ProjectUrl" class="text-secondary text-decoration-none">@Model.ProjectName</a></li>
+                <li class="breadcrumb-item active text-main fw-bold" aria-current="page">@Model.Title</li>
+            </ol>
+        </nav>
     </div>
 
     <!-- Header -->
@@ -29,7 +29,7 @@
         <div>
             <h1 class="task-details-title">@Model.Title</h1>
             <div class="task-details-meta">
-                <span class="text-primary fw-bold">@Model.ProjectName</span>
+                <a href="@Model.ProjectUrl" class="text-primary fw-bold text-decoration-none">@Model.ProjectName</a>
                 <span class="text-light">|</span>
                 <span class="@(isOverdue ? "text-danger fw-bold" : "text-secondary")">
                     <i class="fas fa-calendar-alt me-1"></i> Due @Model.DueDate.ToString("MMM dd, yyyy")
@@ -112,9 +112,19 @@
                             hx-target="#updateDialog">
                         <i class="fas fa-edit text-primary"></i> Update Due Date
                     </button>
-                    <button class="quick-action-btn">
-                        <i class="fas fa-external-link-alt text-secondary"></i> View Repository
-                    </button>
+                    
+                    @if (!string.IsNullOrEmpty(Model.GithubRepoUrl))
+                    {
+                        <a href="@Model.GithubRepoUrl" target="_blank" class="quick-action-btn text-decoration-none">
+                            <i class="fas fa-external-link-alt text-secondary"></i> View Repository
+                        </a>
+                    }
+                    else
+                    {
+                        <button class="quick-action-btn opacity-50" disabled>
+                            <i class="fas fa-external-link-alt text-secondary"></i> No Repo Linked
+                        </button>
+                    }
                 </div>
             </div>
         </div>

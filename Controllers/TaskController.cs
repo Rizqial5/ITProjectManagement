@@ -18,11 +18,13 @@ namespace ProjectManagement.App.Controllers
     {
         private readonly ITaskRepository _taskRepository;
         private readonly IProjectMemberRepository _projectMemberRepository;
+        private readonly IProjectRepository _projectRepository;
 
-        public TaskController(ITaskRepository taskRepository, IProjectMemberRepository projectMemberRepository)
+        public TaskController(ITaskRepository taskRepository, IProjectMemberRepository projectMemberRepository, IProjectRepository projectRepository)
         {
             _taskRepository = taskRepository;
             _projectMemberRepository = projectMemberRepository;
+            _projectRepository = projectRepository;
         }
 
         [Route("task/{projectId:int}/{taskId:int}")]
@@ -38,6 +40,16 @@ namespace ProjectManagement.App.Controllers
             }
 
             var members = await _projectMemberRepository.GetProjectMembersAsync(projectId);
+
+            string? repoUrl = null;
+            if (isConnected)
+            {
+                var checkRepo = await _projectRepository.CheckConnectedProject(projectId);
+                if (checkRepo.Success && checkRepo.Data != null)
+                {
+                    repoUrl = checkRepo.Data.Html_Url;
+                }
+            }
 
             var taskModel = new TaskViewModel()
             {
@@ -56,6 +68,7 @@ namespace ProjectManagement.App.Controllers
                 LastUpdated = taskItem.UpdatedAt.ToString("dd-MMM-yyyy"),
                 AssigneeName = taskItem.AssignedUser?.UserName,
                 AssignedUserId = taskItem.AssignedUserId,
+                GithubRepoUrl = repoUrl,
                 AvailableAssignees = members.Select(m => new DropdownItem
                 {
                     value = m.UserId,
