@@ -6,7 +6,7 @@ on:
       - main
   workflow_dispatch:
 
-variables:
+env:
   AZURE_WEBAPP_NAME: 'nama-app-azure-anda' # Ganti dengan nama App Service Anda di Azure
 
 jobs:
