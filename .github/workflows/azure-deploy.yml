@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: 'nama-app-azure-anda' # Ganti dengan nama App Service Anda di Azure
+  AZURE_WEBAPP_NAME: 'CommitLink' # Ganti dengan nama App Service Anda di Azure
 
 jobs:
   build:
