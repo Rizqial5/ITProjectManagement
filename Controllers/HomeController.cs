@@ -14,67 +14,70 @@ namespace ProjectManagement.App.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IProjectRepository _projectRepository;
+        private readonly IGithubRepository _githubRepository;
 
-        public HomeController(ILogger<HomeController> logger, IProjectRepository projectRepository)
+        public HomeController(ILogger<HomeController> logger, IProjectRepository projectRepository, IGithubRepository githubRepository)
         {
             _logger = logger;
             _projectRepository = projectRepository;
+            _githubRepository = githubRepository;
         }
 
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            //Check if there is project 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            var accessToken = HttpContext.Session.GetString("GitHubToken");
-            var githubUsername = HttpContext.Session.GetString("GitHubUser");
-
-            ViewBag.IsProjectEmpty = false;
-            ViewBag.IsUserLogin = User.Identity?.IsAuthenticated;
-            ViewBag.UserId = userId;
-            ViewBag.Github = githubUsername ?? string.Empty;
-
-
 
             if (string.IsNullOrWhiteSpace(userId))
             {
-                return View(new List<ProjectViewModel>());
+                return View(new DashboardViewModel());
             }
 
+            var githubUsername = HttpContext.Session.GetString("GitHubUser");
+            ViewBag.Github = githubUsername ?? string.Empty;
 
-            var existingProjects =  await _projectRepository.GetAllAsync(userId);
+            // Get dashboard stats through repository
+            var stats = await _projectRepository.GetDashboardStatsAsync(userId);
 
+            // Get Active Projects through repository
+            var activeProjectsData = await _projectRepository.GetActiveProjectsAsync(userId, 4);
 
+            var recentProjects = activeProjectsData
+                .Select(p => new ProjectViewModel
+                {
+                    Id = p.Id,
+                    Title = p.Name,
+                    Description = p.Description ?? string.Empty,
+                    Status = p.Tasks.Any(t => t.Status == Models.Enum.Status.InProgress) ? Models.Enum.Status.InProgress : Models.Enum.Status.ToDo,
+                    TaskTotal = p.Tasks.Count,
+                    TaskComplete = p.Tasks.Count(t => t.Status == Models.Enum.Status.Done)
+                }).ToList();
 
-
-
-
-
-
-            var showData = existingProjects.Select(i => new ProjectViewModel
-            {
-                Id = i.Id,
-                Title = i.Name,
-                Description = i.Description ?? string.Empty,
-                Status = i.Tasks.Count != 0 ? i.Tasks.FirstOrDefault().Status : Models.Enum.Status.ToDo,
-                TaskTotal = i.Tasks.Count,
-                TaskComplete = i.Tasks.Count != 0 ? i.Tasks.Where(i => i.Status == Models.Enum.Status.Done).Count() : 0
-            }).Take(3);
+            // Get Recent Activity through repository
+            var recentCommits = await _githubRepository.GetRecentCommitsAsync(userId, 4);
+            
+            var recentActivities = recentCommits
+                .Select(c => new RecentActivityViewModel
+                {
+                    Title = c.Message ?? "New commit",
+                    Author = c.AuthorName,
+                    ProjectName = c.Task.Project.Name,
+                    Date = c.CommitDate,
+                    ActivityType = "Commit",
+                    Status = c.Task.Status
+                })
+                .ToList();
 
             DashboardViewModel dashboardData = new()
             {
-                TotalProjects = showData.Count(),
-                RecentProjects = showData,
-                TotalTasks = showData.Sum(i=> i.TaskTotal),
-                TotalCompletedTasks = showData.Sum(i=> i.TaskComplete)
-            }; 
+                TotalProjects = stats.TotalProjects,
+                TotalTasks = stats.TotalTasks,
+                TotalCompletedTasks = stats.TotalCompletedTasks,
+                RecentProjects = recentProjects,
+                RecentActivities = recentActivities
+            };
 
-
-            if (!showData.Any())
-            {
-                ViewBag.IsProjectEmpty = true;
-            }
+            ViewBag.IsProjectEmpty = stats.TotalProjects == 0;
 
             return View(dashboardData);
         }

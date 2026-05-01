@@ -3,77 +3,75 @@
 @using ProjectManagement.App.ViewModel.Project
 @model IEnumerable<ProjectCardViewModel>
 
-@foreach (var project in Model)
+@if (!Model.Any())
 {
-    var statusClass = project.Status == Status.Done ? "status-completed" : "status-inprogress";
-    var statusText = project.Status == Status.Done ? "Completed" : "In Progress";
-
-    <div class="project-card" data-title="@project.Title" data-status="@project.Status">
-        <div class="flex-grow-1">
-            <div class="project-card-title d-flex justify-content-between align-items-start">
-                <span>@project.Title</span>
-                <span class="project-card-status @statusClass">@statusText</span>
-            </div>
-            
-            <div class="project-card-desc mt-2">@project.Description</div>
-            
-            <div class="project-card-progress-section mt-3">
-                <div class="project-card-progress-label">
-                    <span>Progress</span>
-                    <span>@project.Progress%</span>
+    <div class="col-12 w-100">
+        <div class="card-custom text-center py-5 border-dashed w-100" style="grid-column: 1 / -1;">
+            <i class="fas fa-folder-open fa-3x text-light mb-3"></i>
+            <p class="text-secondary fw-bold">No projects found. Start by creating one.</p>
+            <ejs-button cssClass="e-primary mt-2" content="Create Project" onclick="createProject()"></ejs-button>
+        </div>
+    </div>
+}
+else
+{
+    @foreach (var project in Model)
+    {
+        var statusClass = project.Status == Status.Done ? "bg-soft-success" : "bg-soft-indigo";
+        var statusText = project.Status == Status.InProgress ? "In Progress" : project.Status.ToString();
+        var progress = Math.Round(project.Progress);
+        
+        <div class="project-card" data-title="@project.Title" data-status="@project.Status" style="cursor: pointer;" onclick="viewProjectDetails('@Url.Action("Details", "Projects", new { id = project.Id })')">
+            <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="project-card-title m-0 text-truncate" style="max-width: 75%;">@project.Title</h5>
+                    <span class="soft-badge @statusClass">@statusText</span>
                 </div>
-                <ejs-progressbar id="progress_@project.Id" 
-                                 type="Linear" 
-                                 value="@project.Progress" 
-                                 height="8px" 
-                                 trackThickness="8" 
-                                 progressThickness="8"
-                                 cornerRadius="Round"
-                                 progressColor="var(--primary-color)">
-                </ejs-progressbar>
+                
+                <p class="project-card-desc">@project.Description</p>
+                
+                <div class="project-progress-area mb-3 mt-4">
+                    <div class="d-flex justify-content-between smaller fw-bold mb-2">
+                        <span class="text-secondary text-uppercase" style="letter-spacing: 0.5px;">Progress</span>
+                        <span class="text-main">@progress%</span>
+                    </div>
+                    <ejs-progressbar id="progress_@project.Id" 
+                                     type="Linear" 
+                                     value="@progress" 
+                                     height="8px" 
+                                     trackThickness="8" 
+                                     progressThickness="8"
+                                     cornerRadius="Round"
+                                     progressColor="var(--primary-color)">
+                    </ejs-progressbar>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-secondary smaller fw-bold">
+                        <i class="fas fa-tasks me-1 text-primary opacity-75"></i> @project.CompletedTasks/@project.TotalTasks Tasks
+                    </div>
+                    <div class="text-secondary smaller fw-bold">
+                        <i class="fas fa-calendar-alt me-1 text-primary opacity-75"></i> Due @project.DueDate.ToString("MMM dd, yyyy")
+                    </div>
+                </div>
             </div>
-            
-            <div class="project-card-info mt-3">
-                <span><i class="fas fa-tasks"></i> @project.CompletedTasks/@project.TotalTasks tasks</span>
-                <span><i class="fas fa-calendar-alt"></i> @project.DueDate.ToString("MMM dd, yyyy")</span>
-            </div>
-            
-            <div class="project-card-info">
+
+            <div class="pt-3 mt-4 border-top d-flex justify-content-between align-items-center" onclick="event.stopPropagation();">
                 @if (project.IsConnected)
                 {
-                    <span class="text-success"><i class="fab fa-github"></i> Connected</span>
+                    <div class="text-success smaller fw-bold d-flex align-items-center">
+                        <i class="fab fa-github me-1 fs-6"></i> Connected
+                    </div>
+                    <button class="btn btn-link text-danger p-0 smaller fw-bold text-decoration-none" onclick="disconnectRepo('@project.Id')">Disconnect</button>
                 }
                 else
                 {
-                    <span class="text-secondary"><i class="fab fa-github"></i> Not Connected</span>
+                    <div class="text-secondary smaller fw-bold d-flex align-items-center">
+                        <i class="fab fa-github me-1 fs-6 opacity-50"></i> Not Connected
+                    </div>
+                    <button class="btn btn-link text-primary p-0 smaller fw-bold text-decoration-none" onclick="showGithubDialog('@project.Id')">Connect</button>
                 }
             </div>
         </div>
-
-        <div class="project-card-footer">
-            <ejs-button id="view_@project.Id"
-                        content="View Details"
-                        cssClass="btn-view-details"
-                        onclick="viewProjectDetails('@Url.Action("Details", "Projects", new { id = project.Id })')">
-            </ejs-button>
-
-            @if (!project.IsConnected)
-            {
-                <ejs-button id="github_@project.Id" 
-                            content="Connect"
-                            cssClass="btn-github-connect"
-                            iconCss="fab fa-github"
-                            onclick="showGithubDialog('@project.Id')">
-                </ejs-button>
-            }
-            else
-            {
-                <ejs-button id="github_@project.Id" 
-                            content="Disconnect"
-                            cssClass="btn-github-disconnect"
-                            onclick="disconnectRepo('@project.Id')">
-                </ejs-button>
-            }
-        </div>
-    </div>
+    }
 }

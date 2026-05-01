@@ -30,13 +30,13 @@
             <h1 class="task-details-title">@Model.Title</h1>
             <div class="task-details-meta">
                 <span class="text-primary fw-bold">@Model.ProjectName</span>
-                <span>•</span>
-                <span class="@(isOverdue ? "text-danger fw-bold" : "")">
+                <span class="text-light">|</span>
+                <span class="@(isOverdue ? "text-danger fw-bold" : "text-secondary")">
                     <i class="fas fa-calendar-alt me-1"></i> Due @Model.DueDate.ToString("MMM dd, yyyy")
                 </span>
                 @if (isOverdue)
                 {
-                    <span class="badge status-overdue ms-1">Overdue</span>
+                    <span class="soft-badge bg-soft-danger ms-1">Overdue</span>
                 }
             </div>
         </div>
@@ -54,7 +54,7 @@
             </div>
 
             <div class="card-custom">
-                <h5 class="fw-bold mb-4">Activity & Commits</h5>
+                <h5 class="fw-bold mb-4 text-main">Activity & Commits</h5>
                 <partial name="Component/_TabsPanelTask" model="Model"></partial>
             </div>
         </div>
@@ -63,18 +63,18 @@
         <div class="col-lg-4">
             <!-- Progress Summary Card -->
             <div class="card-custom mb-4 shadow-sm">
-                <h5 class="fw-bold mb-3">Progress Summary</h5>
-                <div class="project-card-progress-label mb-2">
-                    <span class="small fw-bold">Completion Rate</span>
-                    <span class="text-primary small fw-bold">@completion%</span>
-                </div>
-                <div class="mb-4">
+                <h5 class="fw-bold mb-4 text-main">Progress Summary</h5>
+                <div class="project-progress-area mb-4">
+                    <div class="d-flex justify-content-between smaller fw-bold mb-2">
+                        <span class="text-secondary">Completion Rate</span>
+                        <span class="text-main">@completion%</span>
+                    </div>
                     <ejs-progressbar id="task_progressbar" 
                                      type="Linear" 
                                      value="@completion" 
-                                     height="12px" 
-                                     trackThickness="12" 
-                                     progressThickness="12"
+                                     height="10px" 
+                                     trackThickness="10" 
+                                     progressThickness="10"
                                      cornerRadius="Round"
                                      progressColor="var(--primary-color)">
                     </ejs-progressbar>
@@ -83,11 +83,11 @@
                 <div class="mt-4 pt-3 border-top">
                     <div class="summary-stat-row">
                         <span class="summary-label">Linked Commits</span>
-                        <span class="summary-value text-primary"><i class="fas fa-code-branch me-1"></i> @Model.TotalLinkedCommits</span>
+                        <span class="summary-value text-primary fw-bold"><i class="fas fa-code-branch me-1"></i> @Model.TotalLinkedCommits</span>
                     </div>
                     <div class="summary-stat-row">
                         <span class="summary-label">Time Status</span>
-                        <span class="summary-value @(isOverdue ? "text-danger" : "text-success")">
+                        <span class="summary-value @(isOverdue ? "text-danger" : "text-success") fw-bold">
                             <i class="fas fa-clock me-1"></i> 
                             @(isOverdue ? "Overdue" : (diffDate < 0 ? "Due Today" : diffDate + " days left"))
                         </span>
@@ -101,8 +101,8 @@
 
             <!-- Quick Actions -->
             <div class="card-custom shadow-sm">
-                <h5 class="fw-bold mb-3">Quick Actions</h5>
-                <div class="d-flex flex-column gap-2">
+                <h5 class="fw-bold mb-3 text-main">Quick Actions</h5>
+                <div class="d-flex flex-column gap-1">
                     <button class="quick-action-btn"
                             hx-get
                             hx-action="ShowUpdateDialog"
@@ -110,10 +110,10 @@
                             hx-route-projectId="@Model.ProjectId"
                             hx-route-taskId="@Model.TaskId"
                             hx-target="#updateDialog">
-                        <i class="fas fa-edit"></i> Update Due Date
+                        <i class="fas fa-edit text-primary"></i> Update Due Date
                     </button>
                     <button class="quick-action-btn">
-                        <i class="fas fa-external-link-alt"></i> View Repository
+                        <i class="fas fa-external-link-alt text-secondary"></i> View Repository
                     </button>
                 </div>
             </div>

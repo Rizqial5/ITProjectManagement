@@ -91,5 +91,16 @@ namespace ProjectManagement.App.Repository
                 return new() { Success = false, Message = ex.Message };
             }
         }
+
+        public async Task<IEnumerable<GithubCommit>> GetRecentCommitsAsync(string userId, int take)
+        {
+            return await _dbContext.GithubCommits
+                .Include(c => c.Task)
+                    .ThenInclude(t => t.Project)
+                .Where(c => c.Task.Project.ProjectOwnerUserId == userId)
+                .OrderByDescending(c => c.CommitDate)
+                .Take(take)
+                .ToListAsync();
+        }
     }
 }

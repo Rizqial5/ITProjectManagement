@@ -8,5 +8,6 @@ namespace ProjectManagement.App.Repository.Interface
     public interface IGithubRepository
     {
         Task<ResponseResultDto> InsertGithubCommit(List<GithubCommitApiResponse> newCommits, int repoId);
+        Task<IEnumerable<GithubCommit>> GetRecentCommitsAsync(string userId, int take);
     }
 }

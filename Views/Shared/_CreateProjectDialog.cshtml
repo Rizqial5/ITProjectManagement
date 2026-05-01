@@ -2,28 +2,28 @@
 @model CreateProjectDto
 
 
-<form asp-action="CreateProject" id="createForm" asp-controller="Home" method="post">
+<form asp-action="CreateProject" id="createForm" asp-controller="Home" method="post" class="p-2">
 
 	<div class="mb-3">
-		<label asp-for="Title" class="form-label"></label>
-		<ejs-textbox ejs-for="Title" class="form-control" cssClass="e-error"></ejs-textbox>
+		<label asp-for="Title" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
+		<ejs-textbox ejs-for="Title" cssClass="e-outline"></ejs-textbox>
 		@* <span asp-validation-for="Title"></span> *@
 	</div>
 
 	<div class="mb-3">
-		<label asp-for="Description" class="form-label"></label>
-        <ejs-textbox ejs-for="Description" class="form-control" ></ejs-textbox>
+		<label asp-for="Description" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
+        <ejs-textbox ejs-for="Description" cssClass="e-outline"></ejs-textbox>
 		@* <span asp-validation-for="Description"></span> *@
 	</div>
 
-    <div class="mb-3">
-        <label asp-for="EndDate" class="form-label"></label>
-        <ejs-datepicker ejs-for="EndDate" class="form-control"></ejs-datepicker>
+    <div class="mb-4">
+        <label asp-for="EndDate" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
+        <ejs-datepicker ejs-for="EndDate" cssClass="e-outline"></ejs-datepicker>
         @* <span asp-validation-for="Description"></span> *@
     </div>
 
-	<div class="text-end mb-3" >
-		<ejs-button id="submit"  isPrimary="true" content="Add Project"/>
+	<div class="text-end pt-3 border-top" >
+		<button type="submit" id="submit" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 10px; background-color: var(--primary-color); border: none;">Add Project</button>
 	</div>
 </form>
 

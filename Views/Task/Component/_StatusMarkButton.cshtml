@@ -7,12 +7,14 @@
 @if (Model.Status != "Done")
 {
     <button id="btnMarkDone"
-            class="e-btn e-success"
+            class="btn btn-success w-100 fw-bold py-2 shadow-sm" style="border-radius: 12px; transition: all 0.2s;"
             hx-post="@Url.Action("SetToDone", "Task")"
             hx-vals='{"taskId": "@Model.TaskId", "projectId": "@Model.ProjectId"}'
             hx-trigger="click"
-            hx-swap="none">
-        <i class="fas fa-check"></i> Mark as Done
+            hx-swap="none"
+            onmouseover="this.style.transform='translateY(-2px)'"
+            onmouseout="this.style.transform='translateY(0)'">
+        <i class="fas fa-check-circle me-1"></i> Mark as Done
     </button>
 }
 

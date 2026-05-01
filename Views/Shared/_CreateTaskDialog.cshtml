@@ -17,34 +17,30 @@
             width="40%" visible="false" showCloseIcon="true" isModal="true"
             target="body">
             <e-content-template>
-                <form asp-action="AddTask" id="createTaskForm" asp-controller="Task" method="post">
+                <form asp-action="AddTask" id="createTaskForm" asp-controller="Task" method="post" class="p-2">
                     @Html.HiddenFor(i=> i.ProjectID)
                     <div class="mb-3">
-                        <label asp-for="Title" class="form-label"></label>
-                        <ejs-textbox ejs-for="Title" class="form-control" cssClass="e-error"></ejs-textbox>
-                        @* <span asp-validation-for="Title"></span> *@
+                        <label asp-for="Title" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
+                        <ejs-textbox ejs-for="Title" cssClass="e-outline"></ejs-textbox>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Description" class="form-label"></label>
-                        <ejs-textbox ejs-for="Description" class="form-control"></ejs-textbox>
-                        @* <span asp-validation-for="Description"></span> *@
+                        <label asp-for="Description" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
+                        <ejs-textbox ejs-for="Description" cssClass="e-outline"></ejs-textbox>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Status" class="form-label"></label>
-                        <ejs-dropdownlist dataSource="@dataDropDown" ejs-for="Status"></ejs-dropdownlist>
-                        @* <span asp-validation-for="Description"></span> *@
+                        <label asp-for="Status" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
+                        <ejs-dropdownlist dataSource="@dataDropDown" ejs-for="Status" cssClass="e-outline"></ejs-dropdownlist>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="TargetDate" class="form-label"></label>
-                        <ejs-datepicker ejs-for="TargetDate" format="yyyy-MM-dd" class="form-control"></ejs-datepicker>
-                        @* <span asp-validation-for="Description"></span> *@
+                    <div class="mb-4">
+                        <label asp-for="TargetDate" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
+                        <ejs-datepicker ejs-for="TargetDate" format="yyyy-MM-dd" cssClass="e-outline"></ejs-datepicker>
                     </div>
 
-                    <div class="text-end mb-3">
-                        <ejs-button id="submit" isPrimary="true" content="Add Project" />
+                    <div class="text-end pt-3 border-top">
+                        <button type="submit" id="submit" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 10px; background-color: var(--primary-color); border: none;">Add Task</button>
                     </div>
                 </form>
             </e-content-template>

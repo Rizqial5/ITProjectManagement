@@ -4,29 +4,24 @@
 @using Syncfusion.EJ2
 @model ProjectManagement.App.ViewModel.TaskViewModel
 @{
-    ViewData["Title"] = "Projects";
-    var statusList = Enum.GetNames<Status>().ToArray();
-    var sortList = new[] { "Name", "Date" };
     var priority = Model.Priority ?? "Low";
-
     var desc = Model.Description ?? "";
     var lines = desc.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
     bool isList =
-        lines.Length > 1 &&                              // lebih dari 1 baris
+        lines.Length > 1 &&
         lines.All(l =>
-            l.TrimStart().StartsWith("-") ||             // contoh: "- item"
-            l.TrimStart().StartsWith("*") ||             // contoh: "* item"
-            char.IsDigit(l.TrimStart().FirstOrDefault()) // contoh: "1. item"
+            l.TrimStart().StartsWith("-") ||
+            l.TrimStart().StartsWith("*") ||
+            char.IsDigit(l.TrimStart().FirstOrDefault())
         );
 }
 
-
 <div class="card-custom" id="detailsPanel">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="fw-bold m-0">Task Details</h5>
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <h5 class="fw-bold m-0 text-main">Task Details</h5>
         <ejs-button id="btnEditTaskDetails"
-                    cssClass="e-outline"
+                    cssClass="e-outline d-flex align-items-center justify-content-center"
                     iconCss="fas fa-pencil-alt"
                     hx-get="@Url.Action("EditTaskDetails", "Task", new { projectId = Model.ProjectId, taskId = Model.TaskId })"
                     hx-target="#detailsPanel"
@@ -34,55 +29,63 @@
                     hx-swap="outerHTML">
         </ejs-button>
     </div>
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card-section">
-                <div><b>Description</b></div>
-                @if (isList)
-                {
-                    <ul class="task-description-list">
-                        @foreach (var line in lines)
-                        {
-                            // bersihkan prefix list seperti "-", "*", "1."
-                            var text = line.TrimStart();
-                            text = text.TrimStart('-', '*').Trim();
-
-                            // menghapus numbering "1." , "2." , dst
-                            if (char.IsDigit(text.FirstOrDefault()) && text.Contains("."))
+    
+    <div class="row g-4">
+        <div class="col-md-7">
+            <div class="mb-4">
+                <div class="text-secondary smaller fw-bold text-uppercase mb-2" style="letter-spacing: 0.5px;">Description</div>
+                <div class="text-main" style="line-height: 1.6;">
+                    @if (isList)
+                    {
+                        <ul class="mb-0 ps-3">
+                            @foreach (var line in lines)
                             {
-                                var idx = text.IndexOf(".");
-                                if (idx > 0) text = text.Substring(idx + 1).Trim();
-                            }
+                                var text = line.TrimStart();
+                                text = text.TrimStart('-', '*').Trim();
 
-                            <li>@text</li>
-                        }
-                    </ul>
-                }
-                else
-                {
-                    <div>@Model.Description</div>
-                }
-            </div>
-            <div class="card-section">
-                <div><b>Status</b></div>
-                <div>@Model.Status</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card-section">
-                <div><b>Assignee</b></div>
-                <div class="d-flex align-items-center">
-                    <div class="avatar-circle me-2">@(Model.AssigneeName?[0].ToString().ToUpper() ?? "?")</div>
-                    <span>@(Model.AssigneeName ?? "Unassigned")</span>
+                                if (char.IsDigit(text.FirstOrDefault()) && text.Contains("."))
+                                {
+                                    var idx = text.IndexOf(".");
+                                    if (idx > 0) text = text.Substring(idx + 1).Trim();
+                                }
+                                <li class="mb-1">@text</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="m-0">@Model.Description</p>
+                    }
                 </div>
             </div>
-            <div class="card-section">
-                <div><b>Priority</b></div>
-                <span class="badge badge-priority-low">@priority</span>
+            
+            <div>
+                <div class="text-secondary smaller fw-bold text-uppercase mb-2" style="letter-spacing: 0.5px;">Status</div>
+                <span class="soft-badge @(Model.Status == "ToDo" ? "bg-soft-indigo" : "bg-soft-success")">@Model.Status</span>
             </div>
-            <div class="card-section">
-                <div><b>Last Updated</b></div>
-                <div>@Model.LastUpdated</div>
+        </div>
+        
+        <div class="col-md-5">
+            <div class="p-3 bg-light rounded-3" style="border: 1px solid var(--border-color);">
+                <div class="mb-3">
+                    <div class="text-secondary smaller fw-bold text-uppercase mb-2" style="letter-spacing: 0.5px;">Assignee</div>
+                    <div class="d-flex align-items-center">
+                        <div class="user-avatar-circle me-3" style="width: 32px; height: 32px; font-size: 0.8rem; box-shadow: none;">
+                            @(Model.AssigneeName?[0].ToString().ToUpper() ?? "?")
+                        </div>
+                        <span class="fw-bold text-main">@(Model.AssigneeName ?? "Unassigned")</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3 pt-3 border-top">
+                    <div class="text-secondary smaller fw-bold text-uppercase mb-2" style="letter-spacing: 0.5px;">Priority</div>
+                    <span class="badge @(priority == "High" ? "priority-high" : "priority-low")">@priority</span>
+                </div>
+                
+                <div class="pt-3 border-top">
+                    <div class="text-secondary smaller fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px;">Last Updated</div>
+                    <div class="text-main small fw-bold">@Model.LastUpdated</div>
+                </div>
             </div>
         </div>
     </div>

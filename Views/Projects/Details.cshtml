@@ -19,7 +19,7 @@
     </ejs-breadcrumb>
 </div>
 
-<div class="details-header flex-column flex-md-row">
+<div class="details-header flex-column flex-md-row align-items-center">
     <div>
         <h1 class="details-title">
             @Model.Title
@@ -27,14 +27,14 @@
         </h1>
         <p class="details-desc">@Model.Description</p>
     </div>
-    <div class="d-flex gap-2 mt-3 mt-md-0">
+    <div class="d-flex gap-3 mt-3 mt-md-0">
         @if (!Model.IsConnected)
         {
-            <ejs-button id="connectRepo" content="Connect GitHub" cssClass="btn-github-connect" iconCss="fab fa-github" onclick="showGithubDialog('@Model.Id')"></ejs-button>
+            <ejs-button id="connectRepo" content="Connect GitHub" cssClass="e-primary px-4 py-2" iconCss="fab fa-github" onclick="showGithubDialog('@Model.Id')"></ejs-button>
         }
         else
         {
-            <ejs-button id="disconnectRepo" content="Disconnect GitHub" cssClass="btn-github-disconnect" iconCss="fab fa-github" onclick="disconnectRepo('@Model.Id')"></ejs-button>
+            <ejs-button id="disconnectRepo" content="Disconnect GitHub" cssClass="e-warning px-4 py-2" iconCss="fab fa-github" onclick="disconnectRepo('@Model.Id')"></ejs-button>
         }
     </div>
 </div>
@@ -44,16 +44,16 @@
     <div class="col-lg-8">
         <div class="card-custom mb-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold m-0">Project Overview</h5>
-                <div class="text-secondary small">
+                <h5 class="fw-bold m-0 text-main">Project Overview</h5>
+                <div class="text-secondary smaller fw-bold text-uppercase" style="letter-spacing: 1px;">
                     <i class="fas fa-calendar-alt me-1"></i> Due @Model.DueDate.ToString("MMM dd, yyyy")
                 </div>
             </div>
 
-            <div class="project-card-progress-section">
-                <div class="project-card-progress-label">
-                    <span>Overall Completion</span>
-                    <span>@Model.Progress%</span>
+            <div class="project-progress-area mb-4">
+                <div class="d-flex justify-content-between small fw-bold mb-2">
+                    <span class="text-secondary">Overall Completion</span>
+                    <span class="text-main">@Model.Progress%</span>
                 </div>
                 <ejs-progressbar id="project_progress" 
                                  type="Linear" 
@@ -70,12 +70,12 @@
                 <div class="stat-card">
                     <i class="fas fa-tasks text-primary"></i>
                     <div class="value">@Model.TotalTasks</div>
-                    <div class="label">Total Tasks</div>
+                    <div class="label">Tasks</div>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-check-circle text-success"></i>
                     <div class="value">@Model.CompletedTasks</div>
-                    <div class="label">Completed</div>
+                    <div class="label">Done</div>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-code-branch text-warning"></i>
@@ -87,8 +87,8 @@
 
         <div class="card-custom">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold m-0">Project Tasks</h5>
-                <ejs-button id="addTaskButton" content="New Task" cssClass="e-primary" iconCss="e-icons e-plus" isPrimary="true" onclick="showCreateTaskDialog()"></ejs-button>
+                <h5 class="fw-bold m-0 text-main">Project Tasks</h5>
+                <ejs-button id="addTaskButton" content="New Task" cssClass="e-primary" iconCss="e-icons e-plus" onclick="showCreateTaskDialog()"></ejs-button>
             </div>
 
             <div class="tasks-list-modern">
@@ -143,8 +143,8 @@
     <div class="col-lg-4">
         <div class="card-custom">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold m-0">Team Members</h5>
-                <button class="btn btn-primary btn-sm rounded-circle" style="width: 32px; height: 32px; padding: 0;" onclick="showAddMemberDialog()">
+                <h5 class="fw-bold m-0 text-main">Team Members</h5>
+                <button class="btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" onclick="showAddMemberDialog()">
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
@@ -152,7 +152,7 @@
             <div class="team-list-container">
                 @if (!Model.Members.Any())
                 {
-                    <div class="text-center py-4 text-secondary small">No members assigned.</div>
+                    <div class="text-center py-4 text-secondary smaller fw-bold">No members assigned.</div>
                 }
                 else
                 {

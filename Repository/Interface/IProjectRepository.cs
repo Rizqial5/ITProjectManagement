@@ -20,5 +20,7 @@ namespace ProjectManagement.App.Repository.Interface
         Task<ResponseResultDto> DisconnectRepo(string userId, int projectId);
         Task<ResponseResultDto<GitHubRepoDto>> CheckConnectedProject(int projectId);
 
+        Task<IEnumerable<Project>> GetActiveProjectsAsync(string userId, int take);
+        Task<(int TotalProjects, int TotalTasks, int TotalCompletedTasks)> GetDashboardStatsAsync(string userId);
     }
 }

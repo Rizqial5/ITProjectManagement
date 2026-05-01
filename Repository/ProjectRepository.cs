@@ -241,5 +241,41 @@ namespace ProjectManagement.App.Repository
             await _dbContext.SaveChangesAsync();
             return true;
         }
+
+        public async Task<IEnumerable<Project>> GetActiveProjectsAsync(string userId, int take)
+        {
+            var activeProjectsData = await _dbContext.Projects
+                .Include(p => p.Tasks)
+                    .ThenInclude(t => t.Commits)
+                .Where(p => p.ProjectOwnerUserId == userId)
+                .Where(p => p.Tasks.Any(t => t.Status == Models.Enum.Status.InProgress || t.Status == Models.Enum.Status.ToDo))
+                .ToListAsync();
+
+            return activeProjectsData
+                .Select(p => new
+                {
+                    Project = p,
+                    LatestCommitDate = p.Tasks.SelectMany(t => t.Commits).Any()
+                        ? p.Tasks.SelectMany(t => t.Commits).Max(c => c.CommitDate)
+                        : p.CreatedAt
+                })
+                .OrderByDescending(x => x.LatestCommitDate)
+                .Take(take)
+                .Select(x => x.Project);
+        }
+
+        public async Task<(int TotalProjects, int TotalTasks, int TotalCompletedTasks)> GetDashboardStatsAsync(string userId)
+        {
+            var allProjects = await _dbContext.Projects
+                .Include(p => p.Tasks)
+                .Where(p => p.ProjectOwnerUserId == userId)
+                .ToListAsync();
+
+            int totalProjects = allProjects.Count;
+            int totalTasks = allProjects.Sum(p => p.Tasks.Count);
+            int totalCompletedTasks = allProjects.Sum(p => p.Tasks.Count(t => t.Status == Models.Enum.Status.Done));
+
+            return (totalProjects, totalTasks, totalCompletedTasks);
+        }
     }
 }

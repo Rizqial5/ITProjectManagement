@@ -6,29 +6,29 @@
             width="400px" visible="false" showCloseIcon="true" isModal="true"
             target="body">
     <e-content-template>
-        <form asp-action="AddMember" id="addMemberForm" asp-controller="Projects" method="post">
+        <form asp-action="AddMember" id="addMemberForm" asp-controller="Projects" method="post" class="p-2">
             <input type="hidden" asp-for="ProjectId" />
             
             <div class="mb-3">
-                <label class="form-label">Select User</label>
+                <label class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;">Select User</label>
                 <ejs-dropdownlist id="userDropdown" dataSource="@ViewBag.AllUsers" ejs-for="UserId" 
                                  placeholder="Search User..." allowFiltering="true"
-                                 popupHeight="250px">
+                                 popupHeight="250px" cssClass="e-outline">
                     <e-dropdownlist-fields text="text" value="value"></e-dropdownlist-fields>
                 </ejs-dropdownlist>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Role</label>
+            <div class="mb-4">
+                <label class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;">Role</label>
                 <ejs-dropdownlist id="roleDropdown" dataSource="@ViewBag.Roles" ejs-for="Role"
-                                 placeholder="Select Role" popupHeight="200px">
+                                 placeholder="Select Role" popupHeight="200px" cssClass="e-outline">
                     <e-dropdownlist-fields text="text" value="value"></e-dropdownlist-fields>
                 </ejs-dropdownlist>
             </div>
 
-            <div class="text-end mt-4">
-                <ejs-button id="btnCancelAddMember" type="button" content="Cancel" cssClass="e-flat" onclick="hideAddMemberDialog()"></ejs-button>
-                <ejs-button id="btnSubmitAddMember" isPrimary="true" content="Add Member" type="submit"></ejs-button>
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top mt-4">
+                <button type="button" class="btn btn-light fw-bold px-4 py-2" style="border-radius: 10px; border: 1px solid var(--border-color);" onclick="hideAddMemberDialog()">Cancel</button>
+                <button type="submit" id="btnSubmitAddMember" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 10px; background-color: var(--primary-color); border: none;">Add Member</button>
             </div>
         </form>
     </e-content-template>

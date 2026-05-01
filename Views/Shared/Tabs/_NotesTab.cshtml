@@ -24,10 +24,13 @@
 
     <!-- Display Mode -->
     <div id="notesDisplayMode" style="display: block;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h5 style="margin: 0;">Notes</h5>
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <div class="fw-bold text-main">
+                <i class="fas fa-sticky-note me-2 text-warning"></i>
+                Notes
+            </div>
             <ejs-button id="btnEditNotes"
-                        content="Edit"
+                        content="Edit Notes"
                         cssClass="e-outline"
                         iconCss="fas fa-pencil-alt"
             onclick="initializeNotes()">
@@ -43,8 +46,8 @@
     </div>
 
     <div id="notesEditMode" style="display: none;">
-        <div class="notes-edit-header">
-            <h5>Edit Notes</h5>
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <h5 class="fw-bold text-main m-0">Edit Notes</h5>
         </div>
 
         <div class="notes-editor-wrapper">
@@ -58,17 +61,13 @@
             </ejs-richtexteditor>
         </div>
 
-        <div class="notes-action-bar">
-            <ejs-button id="btnSaveNotes"
-                        content="Save"
-                        cssClass="e-success"
-                        iconCss="fas fa-save">
-            </ejs-button>
-            <ejs-button id="btnCancelNotes"
-                        content="Cancel"
-                        cssClass="e-outline"
-                        iconCss="fas fa-times">
-            </ejs-button>
+        <div class="d-flex justify-content-end gap-2 mt-3 pt-2">
+            <button type="button" id="btnCancelNotes" class="btn btn-light fw-bold px-4" style="border-radius: 10px; border: 1px solid var(--border-color);">
+                Cancel
+            </button>
+            <button type="button" id="btnSaveNotes" class="btn btn-primary fw-bold px-4" style="border-radius: 10px; background-color: var(--primary-color); border: none;">
+                <i class="fas fa-save me-1"></i> Save
+            </button>
         </div>
     </div>
 

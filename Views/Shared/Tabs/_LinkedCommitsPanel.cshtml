@@ -10,13 +10,14 @@
 {
     <!-- Linked Commits Card -->
 
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <div class="card-title">
-            <i class="fab fa-git-alt me-1 text-danger"></i>
+    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <div class="fw-bold text-main">
+            <i class="fab fa-git-alt me-2 text-danger"></i>
             Linked Commits (@Model.TotalLinkedCommits)
         </div>
         <ejs-button id="btnAddCommit"
-                    cssClass="e-outline"
+                    cssClass="e-primary"
+                    content="Link Commit"
                     iconCss="e-icons e-plus"
                     hx-get="@Url.Action("ShowLinkCommit", "Task", new { projectId = Model.ProjectId, isConnected = Model.isConnectedRepo })"
                     hx-target="#commitGrid"
@@ -25,7 +26,7 @@
         </ejs-button>
 
     </div>
-    <div id="listCommit" class="mt-3" style="max-height: 500px; overflow-y: auto;">
+    <div id="listCommit" class="mt-4">
         @if (Model.Commits != null && Model.Commits.Any())
         {
             <div class="commit-list" id="commitList">
@@ -34,17 +35,17 @@
                     <div class="commit-item-modern">
                         <div class="commit-timeline">
                             <div class="commit-sha-badge">@commit.DisplaySHA</div>
-                            <div class="commit-line"></div>
                         </div>
                         <div class="flex-grow-1">
                             <div class="commit-msg">@commit.Message</div>
                             <div class="commit-author-date">
-                                <span><i class="fas fa-user-circle me-1 text-primary"></i> @commit.AuthorName</span>
-                                <span><i class="fas fa-calendar-alt me-1 text-secondary"></i> @commit.CommitDate.ToString("MMM dd, yyyy")</span>
+                                <span><i class="fas fa-user-circle me-1 text-primary opacity-75"></i> @commit.AuthorName</span>
+                                <span class="text-light">|</span>
+                                <span><i class="fas fa-calendar-alt me-1 text-secondary opacity-75"></i> @commit.CommitDate.ToString("MMM dd, yyyy")</span>
                             </div>
                         </div>
-                        <div class="ms-2">
-                            <a href="#" class="btn btn-sm btn-outline-light text-primary border-0" title="View Commit">
+                        <div class="ms-2 pt-1">
+                            <a href="#" class="btn btn-sm btn-link p-0 text-primary" title="View on GitHub">
                                 <i class="fas fa-external-link-alt"></i>
                             </a>
                         </div>
@@ -54,9 +55,10 @@
         }
         else
         {
-            <div class="text-center p-5 text-muted">
-                <i class="fas fa-code-branch fa-3x mb-3 opacity-25"></i>
-                <p>No commits linked to this task yet.</p>
+            <div class="no-repo-connected text-center py-5">
+                <i class="fas fa-code-branch fa-3x mb-3 opacity-20"></i>
+                <p class="m-0">No commits linked to this task yet.</p>
+                <p class="smaller text-muted mt-1">Use the "Link Commit" button to add related work.</p>
             </div>
         }
     </div>
