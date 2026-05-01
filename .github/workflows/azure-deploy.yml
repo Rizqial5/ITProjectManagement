@@ -46,7 +46,7 @@ jobs:
           dotnet ef migrations bundle --project ProjectManagement.App.csproj -o ${{env.DOTNET_ROOT}}/myapp/migrate --self-contained
 
       - name: Upload artifact for deployment job
-        uses: actions/artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
