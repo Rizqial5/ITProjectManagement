@@ -30,8 +30,9 @@ namespace ProjectManagement.App.Repository
             return await _dbContext.TaskItems
                 .Include(i => i.Project)
                 .Include(i => i.Commits)
-                .Include(i => i.AssignedUser) // Wajib ditambahkan agar tidak null
-                .AsNoTracking() // Mengabaikan cache memori agar selalu ambil data terbaru dari DB
+                    .ThenInclude(c => c.Repo)
+                .Include(i => i.AssignedUser)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == taskId);
         }
 

@@ -32,6 +32,8 @@
             <div class="commit-list" id="commitList">
                 @foreach (var commit in Model.Commits)
                 {
+                    var commitUrl = commit.Repo != null ? $"{commit.Repo.RepoUrl.TrimEnd('/')}/commit/{commit.Sha}" : "#";
+                    
                     <div class="commit-item-modern">
                         <div class="commit-timeline">
                             <div class="commit-sha-badge">@commit.DisplaySHA</div>
@@ -45,9 +47,12 @@
                             </div>
                         </div>
                         <div class="ms-2 pt-1">
-                            <a href="#" class="btn btn-sm btn-link p-0 text-primary" title="View on GitHub">
-                                <i class="fas fa-external-link-alt"></i>
-                            </a>
+                            @if (commitUrl != "#")
+                            {
+                                <a href="@commitUrl" target="_blank" class="btn btn-sm btn-link p-0 text-primary" title="View on GitHub">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            }
                         </div>
                     </div>
                 }
