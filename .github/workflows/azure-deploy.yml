@@ -46,7 +46,7 @@ jobs:
           dotnet ef migrations bundle --project ProjectManagement.App.csproj -o ${{env.DOTNET_ROOT}}/myapp/migrate --self-contained
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
+        uses: actions/artifact@v4
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
@@ -63,6 +63,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Run Migrations
         run: |
