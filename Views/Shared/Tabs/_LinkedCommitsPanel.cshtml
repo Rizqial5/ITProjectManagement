@@ -15,16 +15,15 @@
             <i class="fab fa-git-alt me-2 text-danger"></i>
             Linked Commits (@Model.TotalLinkedCommits)
         </div>
-        <ejs-button id="btnAddCommit"
-                    cssClass="e-primary"
-                    content="Link Commit"
-                    iconCss="e-icons e-plus"
-                    hx-get="@Url.Action("ShowLinkCommit", "Task", new { projectId = Model.ProjectId, isConnected = Model.isConnectedRepo })"
-                    hx-target="#commitGrid"
-                    hx-trigger="click"
-                    hx-swap="innerHTML">
-        </ejs-button>
-
+        <button id="btnOpenLinkCommit"
+                class="btn btn-primary fw-bold px-3 py-1 smaller"
+                style="border-radius: 8px; background-color: var(--primary-color); border: none;"
+                hx-get="@Url.Action("ShowLinkCommit", "Task", new { projectId = Model.ProjectId, isConnected = Model.isConnectedRepo })"
+                hx-target="#commitGrid"
+                hx-trigger="click"
+                hx-swap="innerHTML">
+            <i class="fas fa-plus me-1"></i> Link Commit
+        </button>
     </div>
     <div id="listCommit" class="mt-4">
         @if (Model.Commits != null && Model.Commits.Any())
@@ -76,38 +75,4 @@ else
 }
 
 
-<script>
-    var btnCommit =  document.getElementById("btnAddCommit");
-    var updateDateAction =  document.getElementById("updateDateAction");
-
-    document.body.addEventListener("htmx:afterRequest", function (evt) {
-        if (evt.detail.requestConfig.elt.id === "btnMarkDone") {
-            location.reload();
-        }
-    });
-
-    if(btnCommit)
-    {
-        btnCommit.addEventListener("htmx:afterOnLoad",  () => {
-
-            // Pastikan evt.detail dan evt.detail.target aman
-
-                openCommitDialog();
-
-        });
-
-    }
-
-    if(updateDateAction)
-    {
-        updateDateAction.addEventListener("htmx:afterOnLoad",  () => {
-
-            // Pastikan evt.detail dan evt.detail.target aman
-
-                showUpdateDateDialog();
-
-        });
-    }
-
-</script>
 @Html.EJS().ScriptManager()
