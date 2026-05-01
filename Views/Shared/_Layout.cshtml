@@ -188,6 +188,29 @@
         });
     </script>
 
+    <ejs-toast id="toast_global"></ejs-toast>
+
+    <script>
+        function showGlobalNotification(message, type) {
+            setTimeout(function() {
+                if (window.ejs && ejs.notifications && ejs.notifications.ToastUtility) {
+                    ejs.notifications.ToastUtility.show(message, type || 'Info', 3000);
+                }
+            }, 500);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            @if (TempData["RepoNotification"] != null)
+            {
+                <text>showGlobalNotification('@TempData["RepoNotification"]', 'Success');</text>
+            }
+            @if (TempData["RepoNotificationFailed"] != null)
+            {
+                <text>showGlobalNotification('@TempData["RepoNotificationFailed"]', 'Error');</text>
+            }
+        });
+    </script>
+
     <ejs-scripts></ejs-scripts>
 </body>
 </html>

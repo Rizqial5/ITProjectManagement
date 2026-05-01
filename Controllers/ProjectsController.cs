@@ -135,10 +135,25 @@ namespace ProjectManagement.App.Controllers
 
             var totalRecords = allProject.Count();
 
-            var data = allProject
+            var dataList = allProject.ToList();
+
+            // Trigger sync for connected projects on page load
+            if (User.IsConnectedGithub())
+            {
+                foreach (var p in dataList.Where(p => p.GithubRepoConnecteds.Any(c => c.Connected)))
+                {
+                    var checkConnectProject = await _projectRepository.CheckConnectedProject(p.Id);
+                    if (checkConnectProject.Success)
+                    {
+                        await SynchronizeCommitAsync(checkConnectProject);
+                    }
+                }
+            }
+
+            var data = dataList
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .OrderByDescending(i=> i.CreatedAt)
+                .OrderByDescending(i => i.CreatedAt)
                 .Select(ConvertToProjectViewModel);
 
             ViewBag.TotalRecords = totalRecords;
@@ -270,13 +285,15 @@ namespace ProjectManagement.App.Controllers
 
                     if (repoResponse.Success)
                     {
-                        TempData["RepoNotification"] = "Commits has been succesfully Synchronize";
+                        TempData["RepoNotification"] = $"Synchronized {newCommits.Count} new commits for {repoData.RepoName}";
                     }
                     else
                     {
-                        TempData["RepoNotification"] = "Failed to synchronize commit data";
+                        TempData["RepoNotificationFailed"] = $"Failed to save new commits for {repoData.RepoName}";
                     }
                 }
+                // Optional: set a message even if no new commits, but maybe too noisy for the list page.
+                // For now, we only set it if there are new ones or an error occurred.
             }
         }
     }
