@@ -3,45 +3,36 @@
 @model UpdateDateDto
 
 <ejs-dialog id="updateDateDialog" header="Update Target Date"
-            width="40%" visible="false" showCloseIcon="true" isModal="true"
+            width="400px" visible="false" showCloseIcon="true" isModal="true"
             target="body" close="closeDateDialog">
     <e-content-template>
         <form id="updateDateForm"
-        hx-post
-        hx-controller="@Model.ControllerName"
-        hx-action="UpdateDate"
-        hx-swap="none"
-        hx-on="htmx:afterOnLoad:handleUpdateDateResponse">
-            
+              hx-post
+              hx-controller="@Model.ControllerName"
+              hx-action="UpdateDate"
+              hx-swap="none"
+              hx-on:htmx:after-request="handleUpdateDateResponse(event)"
+              class="p-2">
 
             @Html.HiddenFor(i => i.ProjectId)
             @Html.HiddenFor(i => i.TaskId)
 
-
-            <div class="mb-3">
-                <label asp-for="SetNewDate" class="form-label"></label>
-                <ejs-datepicker ejs-for="SetNewDate" class="form-control" format="yyyy-MM-dd"></ejs-datepicker>
-                @* <span asp-validation-for="Description"></span> *@
+            <div class="mb-4">
+                <label asp-for="SetNewDate" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;">New Target Date</label>
+                <ejs-datepicker ejs-for="SetNewDate" cssClass="e-outline" format="yyyy-MM-dd" placeholder="Select date..."></ejs-datepicker>
             </div>
 
-            <div class="text-end mb-3">
-                <ejs-button id="submit" isPrimary="true" content="Update Date" type="submit" />
-            </div>
+            <div id="updateDateError" class="text-danger smaller mb-3 fw-bold"></div>
 
-            <div id="updateDateError" class="text-danger"></div>
+            <div class="text-end pt-3 border-top">
+                <button type="button" class="btn btn-light fw-bold px-4 py-2 me-2" style="border-radius: 10px; border: 1px solid var(--border-color);" onclick="closeDateDialog()">Cancel</button>
+                <button type="submit" id="submit" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 10px; background-color: var(--primary-color); border: none;">Update Date</button>
+            </div>
         </form>
     </e-content-template>
 </ejs-dialog>
 
-
 @Html.EJS().ScriptManager()
-
-<script>
-    document.addEventListener("htmx:afterOnLoad", function (evt) {
-        handleUpdateDateResponse(evt)
-        
-    });
-</script>
 
 
 

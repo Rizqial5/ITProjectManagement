@@ -124,4 +124,12 @@
 <partial name="_LinkCommitDialog"></partial>
 <div id="updateDialog"></div>
 
+<script>
+    document.body.addEventListener("htmx:afterOnLoad", function (evt) {
+        if (evt.detail.target.id === "updateDialog") {
+            showUpdateDateDialog();
+        }
+    });
+</script>
+
 @Html.EJS().ScriptManager()

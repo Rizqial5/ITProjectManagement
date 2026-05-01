@@ -74,23 +74,24 @@ function closeDateDialog() {
 }
 
 function handleUpdateDateResponse(evt) {
-    // Cek response, jika success, tutup dialog dan tampilkan toast
-    try {
-        var response = evt.detail.xhr.responseText;
-        var json = null;
-        try {
-            json = JSON.parse(response);
-        } catch { }
+    if (evt.detail.target.id !== "updateDateForm") return;
 
-        if (json && json.success === true && json.redirectUrl) {
-            closeDateDialog();
-            ejs.notifications.ToastUtility.show('Date updated successfully.', 'Success', 3000);
-            window.location.href = json.redirectUrl;
-        } else if (json && json.success === false && json.errorMessage) {
-            document.getElementById("updateDateError").innerText = json.errorMessage;
+    try {
+        var xhr = evt.detail.xhr;
+        if (xhr && xhr.status === 200) {
+            var response = xhr.responseText;
+            var json = JSON.parse(response);
+
+            if (json && json.success === true && json.redirectUrl) {
+                closeDateDialog();
+                // We use a small delay or skip toast because redirect will happen
+                window.location.href = json.redirectUrl;
+            } else if (json && json.success === false) {
+                var errorEl = document.getElementById("updateDateError");
+                if (errorEl) errorEl.innerText = json.errorMessage || "An error occurred.";
+            }
         }
-        // Jika partial, biarkan partial tetap muncul
     } catch (err) {
-        // fallback: do nothing
+        console.error("Error handling update date response:", err);
     }
 }
