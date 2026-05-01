@@ -27,25 +27,23 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies (npm)
-        run: |
-          cd Dev/ProjectManagement.App
-          npm install
+        run: npm install
 
       - name: Restore dependencies (dotnet)
-        run: dotnet restore Dev/ProjectManagement.App/ProjectManagement.App.csproj
+        run: dotnet restore ProjectManagement.App.csproj
 
       - name: Build with dotnet
-        run: dotnet build Dev/ProjectManagement.App/ProjectManagement.App.csproj --configuration Release --no-restore
+        run: dotnet build ProjectManagement.App.csproj --configuration Release --no-restore
 
       - name: dotnet publish
-        run: dotnet publish Dev/ProjectManagement.App/ProjectManagement.App.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish ProjectManagement.App.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Install dotnet-ef
         run: dotnet tool install --global dotnet-ef
 
       - name: Create Migration Bundle
         run: |
-          dotnet ef migrations bundle --project Dev/ProjectManagement.App/ProjectManagement.App.csproj -o ${{env.DOTNET_ROOT}}/myapp/migrate --self-contained
+          dotnet ef migrations bundle --project ProjectManagement.App.csproj -o ${{env.DOTNET_ROOT}}/myapp/migrate --self-contained
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
