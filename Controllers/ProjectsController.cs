@@ -285,11 +285,11 @@ namespace ProjectManagement.App.Controllers
 
                     if (repoResponse.Success)
                     {
-                        TempData["RepoNotification"] = $"Synchronized {newCommits.Count} new commits for {repoData.RepoName}";
+                        TempData["RepoNotification"] = $"Synchronized {newCommits.Count} new commits for {repoData.Name}";
                     }
                     else
                     {
-                        TempData["RepoNotificationFailed"] = $"Failed to save new commits for {repoData.RepoName}";
+                        TempData["RepoNotificationFailed"] = $"Failed to save new commits for {repoData.Name}";
                     }
                 }
                 // Optional: set a message even if no new commits, but maybe too noisy for the list page.
