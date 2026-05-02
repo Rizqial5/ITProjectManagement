@@ -4,6 +4,7 @@ namespace ProjectManagement.App.Models.Enum
     {
         Owner = 1,
         Manager = 2,
-        Member = 3
+        TeamLead = 3,
+        Member = 4
     }
 }

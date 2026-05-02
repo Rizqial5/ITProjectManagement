@@ -65,6 +65,7 @@ namespace ProjectManagement.App.Controllers
                 TotalCommits = projectData.GithubRepoConnecteds.FirstOrDefault(i=> i.Connected)?.Repo?.Commits?.Count() ?? 0,
                 Members = members.Select(m => new ProjectMemberDto
                 {
+                    UserId = m.UserId,
                     Name = m.User.UserName ?? m.User.Email ?? "Unknown",
                     Role = m.Role.ToString()
                 }).ToArray(),
@@ -128,6 +129,30 @@ namespace ProjectManagement.App.Controllers
             }
 
             return Json(new { success = false, message = "User is already a member or failed to add." });
+        }
+
+        [HttpPost]
+        [ProjectAuthorize(ProjectRole.Owner)]
+        public async Task<IActionResult> UpdateMemberRole(AddProjectMemberDto model)
+        {
+            var success = await _projectMemberRepository.UpdateMemberRoleAsync(model.ProjectId, model.UserId, model.Role);
+            if (success)
+            {
+                return Json(new { success = true, message = "Member role updated." });
+            }
+            return Json(new { success = false, message = "Failed to update member role." });
+        }
+
+        [HttpPost]
+        [ProjectAuthorize(ProjectRole.Owner, ProjectRole.Manager)]
+        public async Task<IActionResult> RemoveMember(int projectId, string userId)
+        {
+            var success = await _projectMemberRepository.RemoveMemberAsync(projectId, userId);
+            if (success)
+            {
+                return Json(new { success = true, message = "Member removed." });
+            }
+            return Json(new { success = false, message = "Failed to remove member. (Note: Owner cannot be removed)" });
         }
 
         public async Task<IActionResult> Page(int page = 1, int pageSize = 12)

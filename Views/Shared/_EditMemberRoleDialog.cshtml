@@ -1,0 +1,71 @@
+@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.Models.Enum
+@model AddProjectMemberDto
+
+<ejs-dialog id="editRoleDialog" header="Edit Member Role"
+            width="400px" visible="false" showCloseIcon="true" isModal="true"
+            target="body">
+    <e-content-template>
+        <form asp-action="UpdateMemberRole" id="editRoleForm" asp-controller="Projects" method="post" class="p-2">
+            <input type="hidden" asp-for="ProjectId" />
+            <input type="hidden" asp-for="UserId" id="editMemberUserId" />
+            
+            <div class="mb-4">
+                <label class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;">Select New Role</label>
+                <ejs-dropdownlist id="editRoleDropdown" dataSource="@ViewBag.Roles" ejs-for="Role"
+                                 placeholder="Select Role" popupHeight="200px" cssClass="e-outline">
+                    <e-dropdownlist-fields text="text" value="value"></e-dropdownlist-fields>
+                </ejs-dropdownlist>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top mt-4">
+                <button type="button" class="btn btn-light fw-bold px-4 py-2" style="border-radius: 10px; border: 1px solid var(--border-color);" onclick="hideEditRoleDialog()">Cancel</button>
+                <button type="submit" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 10px; background-color: var(--primary-color); border: none;">Update Role</button>
+            </div>
+        </form>
+    </e-content-template>
+</ejs-dialog>
+
+<script>
+    function showEditRoleDialog(userId, currentRole) {
+        document.getElementById("editMemberUserId").value = userId;
+        
+        var roleDropdown = document.getElementById("editRoleDropdown").ej2_instances[0];
+        // Map string role to enum value if needed, or just set by text
+        var roles = @Html.Raw(Json.Serialize(ViewBag.Roles));
+        var roleObj = roles.find(r => r.text === currentRole);
+        if (roleObj) {
+            roleDropdown.value = roleObj.value;
+        }
+
+        var dialog = document.getElementById("editRoleDialog").ej2_instances[0];
+        dialog.show();
+    }
+
+    function hideEditRoleDialog() {
+        var dialog = document.getElementById("editRoleDialog").ej2_instances[0];
+        dialog.hide();
+    }
+
+    $('#editRoleForm').on('submit', function (e) {
+        e.preventDefault();
+        var form = $(this);
+
+        $.ajax({
+            type: 'POST',
+            url: form.attr('action'),
+            data: form.serialize(),
+            success: function (response) {
+                if (response.success) {
+                    hideEditRoleDialog();
+                    location.reload();
+                } else {
+                    ejs.notifications.ToastUtility.show(response.message || "Failed to update role.", 'Error', 3000);
+                }
+            },
+            error: function () {
+                ejs.notifications.ToastUtility.show("An error occurred while updating the role.", 'Error', 3000)
+            }
+        });
+    });
+</script>

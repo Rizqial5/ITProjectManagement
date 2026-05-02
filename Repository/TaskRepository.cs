@@ -62,9 +62,9 @@ namespace ProjectManagement.App.Repository
 
         public async Task AddAsync(int projectId, CreateTaskDto task, string userId)
         {
-            // Only Owner and Manager can add tasks
-            if (!await IsAuthorized(projectId, userId, ProjectRole.Owner, ProjectRole.Manager))
-                throw new UnauthorizedAccessException("Only Project Owner or Manager can add tasks.");
+            // Only Owner, Manager and TeamLead can add tasks
+            if (!await IsAuthorized(projectId, userId, ProjectRole.Owner, ProjectRole.Manager, ProjectRole.TeamLead))
+                throw new UnauthorizedAccessException("Only Project Owner, Manager or Team Lead can add tasks.");
 
             TaskItem taskItem = new()
             {
@@ -85,9 +85,9 @@ namespace ProjectManagement.App.Repository
                 .FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == task.Id);
             if (existing == null) return false;
 
-            var isManager = await IsAuthorized(projectId, userId, ProjectRole.Owner, ProjectRole.Manager);
+            var canManage = await IsAuthorized(projectId, userId, ProjectRole.Owner, ProjectRole.Manager, ProjectRole.TeamLead);
 
-            if (!isManager)
+            if (!canManage)
             {
                 // If just a member, check if they are assigned to this task
                 if (existing.AssignedUserId != userId) return false;

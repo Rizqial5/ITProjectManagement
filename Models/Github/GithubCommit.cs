@@ -26,5 +26,8 @@ namespace ProjectManagement.App.Models.Github
         public bool isAssignedTask => TaskId.HasValue;
 
         public string? DisplaySHA => Sha.Substring(0,7);
+
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        public string? ProjectName { get; set; }
     }
 }

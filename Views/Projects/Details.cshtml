@@ -8,6 +8,7 @@
 
 <partial name="_CreateTaskDialog" model="new CreateTaskDto() {ProjectTitle = Model.Title, ProjectID = Model.Id}"></partial>
 <partial name="_AddMemberDialog" model="new AddProjectMemberDto() {ProjectId = Model.Id, ProjectTitle = Model.Title}"></partial>
+<partial name="_EditMemberRoleDialog" model="new AddProjectMemberDto() {ProjectId = Model.Id}"></partial>
 
 <div class="mb-4">
     <ejs-breadcrumb id="br-details" enableNavigation="true">
@@ -164,9 +165,23 @@
                         <div class="team-member-item">
                             <div class="member-info">
                                 <div class="member-avatar">@initials</div>
-                                <div class="member-name">@m.Name</div>
+                                <div>
+                                    <div class="member-name">@m.Name</div>
+                                    <span class="role-badge role-@m.Role.ToLower()">@m.Role</span>
+                                </div>
                             </div>
-                            <span class="role-badge role-@m.Role.ToLower()">@m.Role</span>
+                            
+                            @if (m.Role != "Owner") 
+                            {
+                                <div class="member-actions ms-auto">
+                                    <button class="btn btn-link text-secondary p-1" onclick="showEditRoleDialog('@m.UserId', '@m.Role')" title="Edit Role">
+                                        <i class="fas fa-edit small"></i>
+                                    </button>
+                                    <button class="btn btn-link text-danger p-1" onclick="removeMember('@m.UserId', '@m.Name')" title="Remove Member">
+                                        <i class="fas fa-user-minus small"></i>
+                                    </button>
+                                </div>
+                            }
                         </div>
                     }
                 }
@@ -208,4 +223,31 @@
     }
 
     // showGithubDialog is defined in the partial, but we might need to override/ensure it's available
+    function removeMember(userId, userName) {
+        showConfirmationDialog(
+            "Remove Member",
+            "Are you sure you want to remove " + userName + " from this project?",
+            function () {
+                $.ajax({
+                    url: '@Url.Action("RemoveMember", "Projects")',
+                    type: "POST",
+                    data: {
+                        projectId: '@Model.Id',
+                        userId: userId,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            ejs.notifications.ToastUtility.show(response.message || "Failed to remove member.", 'Error', 3000);
+                        }
+                    },
+                    error: function () {
+                        ejs.notifications.ToastUtility.show("An error occurred while removing the member.", 'Error', 3000);
+                    }
+                });
+            }
+        );
+    }
 </script>

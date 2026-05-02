@@ -55,13 +55,13 @@ namespace ProjectManagement.App.Controllers
 
             // Get Recent Activity through repository
             var recentCommits = await _githubRepository.GetRecentCommitsAsync(userId, 4);
-            
+
             var recentActivities = recentCommits
                 .Select(c => new RecentActivityViewModel
                 {
                     Title = c.Message ?? "New commit",
                     Author = c.AuthorName,
-                    ProjectName = c.Task?.Project?.Name ?? "Unknown Project",
+                    ProjectName = c.ProjectName ?? "Unknown Project",
                     Date = c.CommitDate,
                     ActivityType = "Commit",
                     Status = c.Task?.Status

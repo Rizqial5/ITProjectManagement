@@ -35,8 +35,9 @@ public ProjectTaskDto[] Tasks { get; set; } = Array.Empty<ProjectTaskDto>();
 
 public class ProjectMemberDto
 {
-public string Name { get; set; } = string.Empty;
-public string Role { get; set; } = string.Empty;
+    public string UserId { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
 }
 
 public class ProjectTaskDto

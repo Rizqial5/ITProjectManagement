@@ -112,13 +112,38 @@ namespace ProjectManagement.App.Repository
 
         public async Task<IEnumerable<GithubCommit>> GetRecentCommitsAsync(string userId, int take)
         {
-            return await _dbContext.GithubCommits
+            // Get RepoIds connected to projects the user is involved in (Owner or Member)
+            var userInvolvement = await _dbContext.GithubRepoConnecteds
+                .Where(c => c.Connected && (c.Project.ProjectOwnerUserId == userId || c.Project.ProjectMembers.Any(m => m.UserId == userId)))
+                .Select(c => new { c.RepoId, ProjectName = c.Project.Name })
+                .ToListAsync();
+
+            var connectedRepoIds = userInvolvement.Select(x => x.RepoId).Distinct().ToList();
+
+            if (!connectedRepoIds.Any()) return Enumerable.Empty<GithubCommit>();
+
+            var commits = await _dbContext.GithubCommits
                 .Include(c => c.Task)
                     .ThenInclude(t => t.Project)
-                .Where(c => c.Task.Project.ProjectOwnerUserId == userId)
+                .Include(c => c.Repo)
+                .Where(c => connectedRepoIds.Contains(c.RepoId))
                 .OrderByDescending(c => c.CommitDate)
                 .Take(take)
                 .ToListAsync();
+
+            // Set the ProjectName property for the view
+            foreach (var commit in commits)
+            {
+                commit.ProjectName = commit.Task?.Project?.Name;
+                
+                if (string.IsNullOrEmpty(commit.ProjectName))
+                {
+                    var projInfo = userInvolvement.FirstOrDefault(x => x.RepoId == commit.RepoId);
+                    commit.ProjectName = projInfo?.ProjectName ?? "Unknown Project";
+                }
+            }
+
+            return commits;
         }
     }
 }
