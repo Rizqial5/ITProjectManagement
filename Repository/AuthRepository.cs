@@ -74,13 +74,23 @@ namespace ProjectManagement.App.Repository
 
         public async Task<ApplicationUser?> LoginAsync(LoginViewModel model)
         {
-            // Cari user berdasarkan Email
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            ApplicationUser? user;
+
+            // Check if input is email
+            if (model.UsernameOrEmail.Contains("@"))
+            {
+                user = await _userManager.FindByEmailAsync(model.UsernameOrEmail);
+            }
+            else
+            {
+                user = await _userManager.FindByNameAsync(model.UsernameOrEmail);
+            }
+
             if (user == null)
                 return null;
 
-            // Login pakai UserName
-            var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, false);
+            // Login using UserName and Password
+            var result = await _signInManager.PasswordSignInAsync(user.UserName!, model.Password, model.RememberMe, false);
 
             return result.Succeeded ? user : null;
         }
@@ -92,6 +102,18 @@ namespace ProjectManagement.App.Repository
 
         public async Task<IdentityResult> RegisterAsync(RegisterViewModel model)
         {
+            var existingUserByEmail = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUserByEmail != null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = $"Email '{model.Email}' is already registered." });
+            }
+
+            var existingUserByName = await _userManager.FindByNameAsync(model.UserName);
+            if (existingUserByName != null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = $"Username '{model.UserName}' is already taken." });
+            }
+
             var user = new ApplicationUser
             {
                 UserName = model.UserName,

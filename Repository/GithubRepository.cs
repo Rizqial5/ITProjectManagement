@@ -20,75 +20,93 @@ namespace ProjectManagement.App.Repository
 
         public async Task<ResponseResultDto> InsertGithubCommit(List<GithubCommitApiResponse> newCommits, int repoId)
         {
-            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            var strategy = _dbContext.Database.CreateExecutionStrategy();
 
             try
             {
-                var listCommit = new List<GithubCommit>();
-                var taskRegex = new Regex(@"#(\d+)");
-
-                // Ambil semua keyword aktif dari DB
-                var activeKeywords = await _dbContext.StatusKeywords
-                    .Where(k => k.IsActive)
-                    .ToListAsync();
-
-                foreach (var item in newCommits)
+                return await strategy.ExecuteAsync(async () =>
                 {
-                    var commit = new GithubCommit()
-                    {
-                        Sha = item.Sha,
-                        Message = item.Commit.Message,
-                        AuthorName = item.Commit.Author.Name,
-                        AuthorEmail = item.Commit.Author.Email,
-                        CommitDate = item.Commit.Author.Date,
-                        RepoId = repoId,
-                    };
+                    await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
-                    // 1. Identifikasi Task ID (#angka)
-                    var match = taskRegex.Match(item.Commit.Message);
-                    if (match.Success && int.TryParse(match.Groups[1].Value, out int taskId))
+                    try
                     {
-                        var task = await _dbContext.TaskItems.FirstOrDefaultAsync(t => t.Id == taskId);
-                        if (task != null)
+                        var listCommit = new List<GithubCommit>();
+                        var taskRegex = new Regex(@"#(\d+)");
+
+                        // Ambil semua keyword aktif dari DB
+                        var activeKeywords = await _dbContext.StatusKeywords
+                            .Where(k => k.IsActive)
+                            .ToListAsync();
+
+                        foreach (var item in newCommits)
                         {
-                            commit.TaskId = taskId;
-
-                            // 2. Scan Status Keyword (Fase 4.2)
-                            foreach (var kw in activeKeywords)
+                            var commit = new GithubCommit()
                             {
-                                if (item.Commit.Message.Contains(kw.Keyword, StringComparison.OrdinalIgnoreCase))
+                                Sha = item.Sha,
+                                Message = item.Commit.Message,
+                                AuthorName = item.Commit.Author.Name,
+                                AuthorEmail = item.Commit.Author.Email,
+                                CommitDate = item.Commit.Author.Date,
+                                RepoId = repoId,
+                            };
+
+                            // 1. Identifikasi Task ID (#angka)
+                            var match = taskRegex.Match(item.Commit.Message);
+                            if (match.Success && int.TryParse(match.Groups[1].Value, out int taskId))
+                            {
+                                var task = await _dbContext.TaskItems.FirstOrDefaultAsync(t => t.Id == taskId);
+                                if (task != null)
                                 {
-                                    task.Status = kw.TargetStatus;
-                                    task.UpdatedAt = DateTime.UtcNow;
-                                    break; // Ambil keyword pertama yang cocok
+                                    commit.TaskId = taskId;
+
+                                    // 2. Scan Status Keyword (Fase 4.2)
+                                    foreach (var kw in activeKeywords)
+                                    {
+                                        if (item.Commit.Message.Contains(kw.Keyword, StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            task.Status = kw.TargetStatus;
+                                            task.UpdatedAt = DateTime.UtcNow;
+                                            break; // Ambil keyword pertama yang cocok
+                                        }
+                                    }
                                 }
                             }
+
+                            listCommit.Add(commit);
                         }
+
+                        await _dbContext.GithubCommits.AddRangeAsync(listCommit);
+                        await _dbContext.SaveChangesAsync();
+
+                        if (newCommits.Any())
+                        {
+                            var latesCommitDate = newCommits.Max(c => c.Commit.Author.Date);
+                            var existingRepo = await _dbContext.GithubRepos.FirstOrDefaultAsync(r => r.RepoId == repoId);
+                            if (existingRepo != null)
+                            {
+                                existingRepo.LastKnownCommitDate = latesCommitDate;
+                            }
+                        }
+
+                        await _dbContext.SaveChangesAsync();
+                        await transaction.CommitAsync();
+
+                        return new ResponseResultDto()
+                        {
+                            Success = true,
+                            Message = "Commits Synced and Task Statuses Updated via Keywords"
+                        };
                     }
-
-                    listCommit.Add(commit);
-                }
-
-                await _dbContext.GithubCommits.AddRangeAsync(listCommit);
-                await _dbContext.SaveChangesAsync();
-
-                var latesCommitDate = newCommits.Max(c => c.Commit.Author.Date);
-                var existingRepo = await _dbContext.GithubRepos.FirstOrDefaultAsync(r => r.RepoId == repoId);
-                existingRepo!.LastKnownCommitDate = latesCommitDate;
-
-                await _dbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return new()
-                {
-                    Success = true,
-                    Message = "Commits Synced and Task Statuses Updated via Keywords"
-                };
+                    catch (Exception)
+                    {
+                        await transaction.RollbackAsync();
+                        throw; // Throw supaya ExecutionStrategy bisa melakukan retry jika perlu
+                    }
+                });
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                return new() { Success = false, Message = ex.Message };
+                return new ResponseResultDto { Success = false, Message = ex.Message };
             }
         }
 

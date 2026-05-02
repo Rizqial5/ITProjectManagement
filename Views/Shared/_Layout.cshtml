@@ -1,10 +1,11 @@
 ﻿@using ProjectManagement.App.Extensions
+@using ProjectManagement.App.DTO.Project
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ProjectManagement.App</title>
+    <title>@ViewData["Title"] - CommitLink</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,114 +26,128 @@
         <partial name="_ConfirmationDialog"></partial>
 
         <!-- Navbar -->
-        <nav class="navbar navbar-expand-sm">
-            <div class="container-fluid p-0 d-flex justify-content-between">
-                <div class="d-flex align-items-center gap-3">
-                    <button id="sidebarToggle" class="btn">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <a class="navbar-brand d-none d-md-block" href="@Url.Action("Index", "Home")">ProjectManagement</a>
-                    
-                    <div class="search-container d-none d-lg-block ms-4">
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0 border-0 ps-0 text-secondary">
-                                <i class="fas fa-search"></i>
-                            </span>
-                            <input type="text" class="form-control border-0 bg-transparent ps-2" placeholder="Search anything..." style="box-shadow: none; width: 300px;">
+        @if (ViewBag.HideNavAndSidebar != true)
+        {
+            <nav class="navbar navbar-expand-sm">
+                <div class="container-fluid p-0 d-flex justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <button id="sidebarToggle" class="btn">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <a class="navbar-brand d-none d-md-flex align-items-center gap-2" href="@Url.Action("Index", "Home")">
+                            <div class="bg-primary rounded-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;">
+                                <i class="fas fa-link text-white fs-6"></i>
+                            </div>
+                            <span class="fw-800 text-main tracking-tight" style="font-size: 1.25rem; letter-spacing: -0.5px;">Commit<span class="text-primary">Link</span></span>
+                        </a>
+                        
+                        <div class="search-container d-none d-lg-block ms-4">
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 border-0 ps-0 text-secondary">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control border-0 bg-transparent ps-2" placeholder="Search anything..." style="box-shadow: none; width: 300px;">
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="d-flex align-items-center gap-4">
-                    @if (User.Identity != null && User.Identity.IsAuthenticated)
-                    {
-                        <div class="d-flex gap-2">
-                            @if (!User.IsConnectedGithub())
-                            {
-                                <ejs-button id="btnConnectGithubGlobal"
-                                            cssClass="e-outline d-none d-md-inline-block px-3 py-2"
-                                            content="Connect GitHub"
-                                            iconCss="fab fa-github"
-                                            onclick="window.location.href='@Url.Action("Connect", "GithubAuth")'">
+                    <div class="d-flex align-items-center gap-4">
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <div class="d-flex gap-2">
+                                @if (!User.IsConnectedGithub())
+                                {
+                                    <ejs-button id="btnConnectGithubGlobal"
+                                                cssClass="e-outline d-none d-md-inline-block px-3 py-2"
+                                                content="Connect GitHub"
+                                                iconCss="fab fa-github"
+                                                onclick="window.location.href='@Url.Action("Connect", "GithubAuth")'">
+                                    </ejs-button>
+                                }
+
+                                <ejs-button id="btnNewProjectGlobal"
+                                            cssClass="e-primary d-none d-md-inline-block px-4 py-2"
+                                            content="New Project"
+                                            iconCss="e-icons e-plus"
+                                            onclick="createProject()">
                                 </ejs-button>
-                            }
-
-                            <ejs-button id="btnNewProjectGlobal"
-                                        cssClass="e-primary d-none d-md-inline-block px-4 py-2"
-                                        content="New Project"
-                                        iconCss="e-icons e-plus"
-                                        onclick="createProject()">
-                            </ejs-button>
-                        </div>
-
-                        <div class="nav-notifications position-relative">
-                            <a href="#" class="text-secondary">
-                                <i class="fas fa-bell fs-5"></i>
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1 border border-light" style="font-size: 0.5rem;">3</span>
-                            </a>
-                        </div>
-
-                        <div class="user-profile-header d-flex align-items-center gap-3 ps-3 border-start">
-                            <div class="text-end d-none d-sm-block">
-                                <div class="fw-bold small text-main">@User.Identity.Name</div>
-                                <div class="text-secondary smaller">Team Lead</div>
                             </div>
-                            <div class="user-avatar-circle">
-                                @(User.Identity.Name?[0].ToString().ToUpper())
+
+                            <div class="nav-notifications position-relative">
+                                <a href="#" class="text-secondary">
+                                    <i class="fas fa-bell fs-5"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1 border border-light" style="font-size: 0.5rem;">3</span>
+                                </a>
                             </div>
-                            
-                            <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
-                                <button type="submit" class="btn btn-link text-secondary p-0">
-                                    <i class="fas fa-sign-out-alt"></i>
-                                </button>
-                            </form>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="d-flex gap-3">
-                            <a class="btn btn-link text-dark text-decoration-none fw-600" asp-controller="Account" asp-action="Login">Login</a>
-                            <a class="btn btn-primary px-4" asp-controller="Account" asp-action="Register">Register</a>
-                        </div>
-                    }
+
+                            <div class="user-profile-header d-flex align-items-center gap-3 ps-3 border-start">
+                                <div class="text-end d-none d-sm-block">
+                                    <div class="fw-bold small text-main">@User.Identity.Name</div>
+                                    <div class="text-secondary smaller">Team Lead</div>
+                                </div>
+                                <div class="user-avatar-circle">
+                                    @(User.Identity.Name?[0].ToString().ToUpper())
+                                </div>
+                                
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                    <button type="submit" class="btn btn-link text-secondary p-0">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex gap-3">
+                                <a class="btn btn-link text-dark text-decoration-none fw-600" asp-controller="Account" asp-action="Login">Login</a>
+                                <a class="btn btn-primary px-4" asp-controller="Account" asp-action="Register">Register</a>
+                            </div>
+                        }
+                    </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        }
 
         <!-- Wrapper (sidebar + content) -->
         <div class="app-wrapper">
             <!-- Sidebar -->
-            <div id="sidebar" class="e-sidebar">
-                <div class="sidebar-menu">
-                    <a href="@Url.Action("Index", "Home")" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
-                        <i class="fas fa-chart-line"></i> Dashboard
-                    </a>
-                    <a href="@Url.Action("Page", "Projects")" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Projects" ? "active" : "")">
-                        <i class="fas fa-columns"></i> Projects
-                    </a>
+            @if (ViewBag.HideNavAndSidebar != true)
+            {
+                <div id="sidebar" class="e-sidebar">
+                    <div class="sidebar-menu">
+                        <a href="@Url.Action("Index", "Home")" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                        <a href="@Url.Action("Page", "Projects")" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Projects" ? "active" : "")">
+                            <i class="fas fa-columns"></i> Projects
+                        </a>
+                    </div>
                 </div>
-            </div>
+            }
 
             <!-- Main Content -->
-            <div class="main-wrapper">
-                <div class="custom-container">
-                    <main role="main" id="main-content">
+            <div class="main-wrapper @(ViewBag.HideNavAndSidebar == true ? "p-0" : "")">
+                <div class="custom-container d-flex flex-column">
+                    <main role="main" id="main-content" class="@(ViewBag.HideNavAndSidebar == true ? "flex-grow-1 d-flex flex-column" : "")">
                         @RenderBody()
                     </main>
                 </div>
                 
-                <footer class="mt-auto">
-                    <div class="footer-content">
-                        <div class="footer-copyright">
-                            &copy; 2024 ProjectManagement <span class="text-light ms-2">|</span> <span class="ms-2">v1.0.4</span>
+                @if (ViewBag.HideNavAndSidebar != true)
+                {
+                    <footer class="mt-auto">
+                        <div class="footer-content">
+                            <div class="footer-copyright">
+                                &copy; 2024 CommitLink <span class="text-light ms-2">|</span> <span class="ms-2">v1.0.4</span>
+                            </div>
+                            <div class="footer-links">
+                                <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+                                <a href="#">Terms</a>
+                                <a href="#">Support</a>
+                            </div>
                         </div>
-                        <div class="footer-links">
-                            <a asp-controller="Home" asp-action="Privacy">Privacy</a>
-                            <a href="#">Terms</a>
-                            <a href="#">Support</a>
-                        </div>
-                    </div>
-                </footer>
+                    </footer>
+                }
             </div>
         </div>
     </div>
@@ -148,6 +163,9 @@
         let sidebarObj;
 
         function initSidebar() {
+            const sidebarElement = document.getElementById('sidebar');
+            if (!sidebarElement) return;
+
             if (sidebarObj) {
                 sidebarObj.destroy();
             }
@@ -179,10 +197,12 @@
             });
 
             const toggleBtn = document.getElementById('sidebarToggle');
-            toggleBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                sidebarObj.toggle();
-            });
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (sidebarObj) sidebarObj.toggle();
+                });
+            }
 
             // Handle active links or other sidebar interactions
         });
@@ -211,6 +231,7 @@
         });
     </script>
 
+    <partial name="_CreateProjectModal" />
     <ejs-scripts></ejs-scripts>
 </body>
 </html>

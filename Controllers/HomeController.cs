@@ -48,9 +48,9 @@ namespace ProjectManagement.App.Controllers
                     Id = p.Id,
                     Title = p.Name,
                     Description = p.Description ?? string.Empty,
-                    Status = p.Tasks.Any(t => t.Status == Models.Enum.Status.InProgress) ? Models.Enum.Status.InProgress : Models.Enum.Status.ToDo,
-                    TaskTotal = p.Tasks.Count,
-                    TaskComplete = p.Tasks.Count(t => t.Status == Models.Enum.Status.Done)
+                    Status = p.Tasks != null && p.Tasks.Any(t => t.Status == Models.Enum.Status.InProgress) ? Models.Enum.Status.InProgress : Models.Enum.Status.ToDo,
+                    TaskTotal = p.Tasks?.Count ?? 0,
+                    TaskComplete = p.Tasks?.Count(t => t.Status == Models.Enum.Status.Done) ?? 0
                 }).ToList();
 
             // Get Recent Activity through repository
@@ -61,10 +61,10 @@ namespace ProjectManagement.App.Controllers
                 {
                     Title = c.Message ?? "New commit",
                     Author = c.AuthorName,
-                    ProjectName = c.Task.Project.Name,
+                    ProjectName = c.Task?.Project?.Name ?? "Unknown Project",
                     Date = c.CommitDate,
                     ActivityType = "Commit",
-                    Status = c.Task.Status
+                    Status = c.Task?.Status
                 })
                 .ToList();
 
@@ -78,6 +78,7 @@ namespace ProjectManagement.App.Controllers
             };
 
             ViewBag.IsProjectEmpty = stats.TotalProjects == 0;
+            ViewBag.HideNavAndSidebar = stats.TotalProjects == 0;
 
             return View(dashboardData);
         }
