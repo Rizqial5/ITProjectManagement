@@ -840,6 +840,19 @@ footer {
     border-color: var(--primary-color) !important;
 }
 
+/* Animations */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.animate-bounce {
+    animation: bounce 2s infinite;
+}
+
+.shadow-indigo {
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .main-wrapper {

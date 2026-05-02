@@ -9,186 +9,231 @@
 
 @model DashboardViewModel
 
-<div class="mb-4">
-    <h2 class="fw-800 text-main mb-1" style="font-weight: 800; letter-spacing: -0.5px;">Dashboard Overview</h2>
-    <p class="text-secondary small">Monitor your workspace metrics and project health in real-time.</p>
-</div>
-
-<!-- KPI Summary Cards -->
-<div class="row g-4 mb-4">
-    <div class="col-md-3">
-        <div class="kpi-card">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="stat-icon bg-soft-indigo" style="width: 36px; height: 36px; font-size: 1rem;">
-                    <i class="fas fa-project-diagram"></i>
-                </div>
-                <span class="text-success smaller fw-bold">+12%</span>
-            </div>
-            <div class="text-secondary smaller fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">Total Projects</div>
-            <h3 class="fw-800 m-0" style="font-weight: 800;">@Model.TotalProjects</h3>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="kpi-card">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="stat-icon" style="background: #fffbeb; color: #d97706; width: 36px; height: 36px; font-size: 1rem;">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <span class="text-warning smaller fw-bold">Active</span>
-            </div>
-            <div class="text-secondary smaller fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">Total Tasks</div>
-            <h3 class="fw-800 m-0" style="font-weight: 800;">@Model.TotalTasks</h3>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="kpi-card">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="stat-icon" style="background: #f0fdf4; color: #16a34a; width: 36px; height: 36px; font-size: 1rem;">
-                    <i class="fas fa-check-double"></i>
-                </div>
-                <span class="text-success smaller fw-bold">Check</span>
-            </div>
-            <div class="text-secondary smaller fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">Completed</div>
-            <h3 class="fw-800 m-0" style="font-weight: 800;">@Model.TotalCompletedTasks</h3>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="kpi-card">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="stat-icon" style="background: #fef2f2; color: #dc2626; width: 36px; height: 36px; font-size: 1rem;">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <span class="text-danger smaller fw-bold">High</span>
-            </div>
-            <div class="text-secondary smaller fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">Efficiency</div>
-            <h3 class="fw-800 m-0" style="font-weight: 800;">@(Model.TotalTasks > 0 ? (Model.TotalCompletedTasks * 100 / Model.TotalTasks) : 0)%</h3>
-        </div>
-    </div>
-</div>
-
-<div class="row g-4">
-    <!-- Active Projects Grid -->
-    <div class="col-lg-8">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold m-0 text-main">Active Projects</h4>
-            <a href="@Url.Action("Page", "Projects")" class="text-primary text-decoration-none small fw-bold">Browse All <i class="fas fa-chevron-right ms-1"></i></a>
-        </div>
-
-        <div class="row g-3">
-            @if (Model.RecentProjects.Any())
-            {
-                foreach (var project in Model.RecentProjects)
-                {
-                    var progress = project.TaskTotal > 0 ? (project.TaskComplete * 100 / project.TaskTotal) : 0;
-                    <div class="col-md-6">
-                        <div class="project-h-card" onclick="window.location.href='@Url.Action("Details", "Projects", new { id = project.Id })'" style="cursor: pointer;">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h6 class="fw-bold m-0 text-main">@project.Title</h6>
-                                <span class="soft-badge @(project.Status == Status.Done ? "bg-soft-success" : "bg-soft-indigo")" style="font-size: 0.6rem; padding: 2px 8px;">
-                                    @project.Status
-                                </span>
-                            </div>
-                            <p class="text-secondary smaller mb-3 line-clamp-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2rem;">
-                                @project.Description
-                            </p>
-                            
-                            <div class="project-progress-area mb-2">
-                                <div class="d-flex justify-content-between smaller fw-bold mb-1">
-                                    <span class="text-secondary">Progress</span>
-                                    <span class="text-main">@progress%</span>
-                                </div>
-                                <ejs-progressbar id="progress_@project.Id" 
-                                                 type="Linear" 
-                                                 value="@progress" 
-                                                 height="6px" 
-                                                 trackThickness="6" 
-                                                 progressThickness="6"
-                                                 cornerRadius="Round"
-                                                 progressColor="var(--primary-color)">
-                                </ejs-progressbar>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center pt-1">
-                                <div class="d-flex -space-x-2">
-                                    <div class="user-avatar-circle" style="width: 24px; height: 24px; font-size: 0.5rem; border: 2px solid #fff; border-radius: 8px;">JD</div>
-                                    <div class="user-avatar-circle" style="width: 24px; height: 24px; font-size: 0.5rem; border: 2px solid #fff; border-radius: 8px; background: #10b981; margin-left: -8px;">AS</div>
-                                </div>
-                                <div class="text-secondary smaller fw-bold">
-                                    @project.TaskComplete/@project.TaskTotal Tasks
-                                </div>
-                            </div>
+@if (Model.TotalProjects == 0)
+{
+    <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1" style="min-height: 100vh;">
+        <div class="card-custom text-center p-5 shadow-elegant" style="max-width: 600px; border-radius: 32px; background: white;">
+            <div class="empty-state-illustration mb-4">
+                <div class="position-relative d-inline-block">
+                    <div class="bg-soft-indigo rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 120px; height: 120px;">
+                        <i class="fas fa-rocket fa-4x text-primary animate-bounce"></i>
+                    </div>
+                    <div class="position-absolute" style="bottom: -10px; right: -10px;">
+                        <div class="bg-white rounded-circle p-2 shadow-sm">
+                            <i class="fas fa-plus-circle fa-2x text-success"></i>
                         </div>
                     </div>
-                }
-            }
-            else
-            {
-                <div class="col-12">
-                    <div class="card-custom text-center py-5 border-dashed">
-                        <i class="fas fa-folder-open fa-3x text-light mb-3"></i>
-                        <p class="text-secondary">No active projects found. Start by creating one.</p>
-                        <ejs-button cssClass="e-primary mt-2" content="Create Project" onclick="createProject()"></ejs-button>
+                </div>
+            </div>
+            
+            <h2 class="fw-800 text-main mb-3" style="font-size: 2rem;">Ready to launch your first project?</h2>
+            <p class="text-secondary mb-4 px-4" style="font-size: 1.1rem; line-height: 1.6;">
+                Welcome to your new workspace! It looks a bit empty here. Let's start by creating your first project to organize your tasks and collaborate with your team.
+            </p>
+            
+            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                <button class="btn btn-primary px-5 py-3 fw-bold shadow-indigo" onclick="createProject()" style="border-radius: 16px; font-size: 1.1rem;">
+                    <i class="fas fa-plus me-2"></i> Create First Project
+                </button>
+            </div>
+            
+            <div class="mt-5 pt-4 border-top border-light">
+                <div class="row g-3">
+                    <div class="col-4">
+                        <div class="text-secondary smaller fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px;">Step 1</div>
+                        <div class="small fw-bold text-main">Define Project</div>
+                    </div>
+                    <div class="col-4 border-start border-end">
+                        <div class="text-secondary smaller fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px;">Step 2</div>
+                        <div class="small fw-bold text-main">Add Tasks</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-secondary smaller fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px;">Step 3</div>
+                        <div class="small fw-bold text-main">Connect GitHub</div>
                     </div>
                 </div>
-            }
+            </div>
+
+            <div class="mt-4">
+                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                    <button type="submit" class="btn btn-link text-secondary smaller text-decoration-none fw-bold p-0">
+                        <i class="fas fa-sign-out-alt me-1"></i> Sign out and come back later
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="mb-4">
+        <h2 class="fw-800 text-main mb-1" style="font-weight: 800; letter-spacing: -0.5px;">Dashboard Overview</h2>
+        <p class="text-secondary small">Monitor your workspace metrics and project health in real-time.</p>
+    </div>
+
+    <!-- KPI Summary Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="kpi-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="stat-icon bg-soft-indigo" style="width: 36px; height: 36px; font-size: 1rem;">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <span class="text-success smaller fw-bold">+12%</span>
+                </div>
+                <div class="text-secondary smaller fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">Total Projects</div>
+                <h3 class="fw-800 m-0" style="font-weight: 800;">@Model.TotalProjects</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="kpi-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="stat-icon" style="background: #fffbeb; color: #d97706; width: 36px; height: 36px; font-size: 1rem;">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <span class="text-warning smaller fw-bold">Active</span>
+                </div>
+                <div class="text-secondary smaller fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">Total Tasks</div>
+                <h3 class="fw-800 m-0" style="font-weight: 800;">@Model.TotalTasks</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="kpi-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="stat-icon" style="background: #f0fdf4; color: #16a34a; width: 36px; height: 36px; font-size: 1rem;">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <span class="text-success smaller fw-bold">Check</span>
+                </div>
+                <div class="text-secondary smaller fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">Completed</div>
+                <h3 class="fw-800 m-0" style="font-weight: 800;">@Model.TotalCompletedTasks</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="kpi-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="stat-icon" style="background: #fef2f2; color: #dc2626; width: 36px; height: 36px; font-size: 1rem;">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <span class="text-danger smaller fw-bold">High</span>
+                </div>
+                <div class="text-secondary smaller fw-bold text-uppercase mb-1" style="letter-spacing: 1px;">Efficiency</div>
+                <h3 class="fw-800 m-0" style="font-weight: 800;">@(Model.TotalTasks > 0 ? (Model.TotalCompletedTasks * 100 / Model.TotalTasks) : 0)%</h3>
+            </div>
         </div>
     </div>
 
-    <!-- Recent Activity Timeline -->
-    <div class="col-lg-4">
-        <div class="card-custom border-0 shadow-elegant" style="border-radius: 24px;">
-            <h4 class="fw-bold mb-4 text-main">Recent Activity</h4>
-            
-            <div class="timeline-container ps-1">
-                @if (Model.RecentActivities.Any())
-                {
-                    foreach (var activity in Model.RecentActivities)
-                    {
-                        var timeSpan = DateTime.UtcNow - activity.Date;
-                        string timeAgo = timeSpan.TotalMinutes < 60 ? $"{(int)timeSpan.TotalMinutes} mins ago" :
-                                         timeSpan.TotalHours < 24 ? $"{(int)timeSpan.TotalHours} hours ago" :
-                                         $"{(int)timeSpan.TotalDays} days ago";
+    <div class="row g-4">
+        <!-- Active Projects Grid -->
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold m-0 text-main">Active Projects</h4>
+                <a href="@Url.Action("Page", "Projects")" class="text-primary text-decoration-none small fw-bold">Browse All <i class="fas fa-chevron-right ms-1"></i></a>
+            </div>
 
-                        <div class="timeline-item">
-                            <div class="timeline-dot" style="@(activity.Status == Status.Done ? "border-color: #10b981;" : "")"></div>
-                            <div class="ps-3">
-                                <div class="fw-bold small text-main">@activity.Title</div>
-                                <div class="text-secondary smaller mb-2">@timeAgo • <span class="text-primary fw-bold">@activity.ProjectName</span></div>
-                                <p class="text-secondary smaller m-0">@activity.Author • @activity.ActivityType</p>
+            <div class="row g-3">
+                @if (Model.RecentProjects.Any())
+                {
+                    foreach (var project in Model.RecentProjects)
+                    {
+                        var progress = project.TaskTotal > 0 ? (project.TaskComplete * 100 / project.TaskTotal) : 0;
+                        <div class="col-md-6">
+                            <div class="project-h-card" onclick="window.location.href='@Url.Action("Details", "Projects", new { id = project.Id })'" style="cursor: pointer;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="fw-bold m-0 text-main">@project.Title</h6>
+                                    <span class="soft-badge @(project.Status == Status.Done ? "bg-soft-success" : "bg-soft-indigo")" style="font-size: 0.6rem; padding: 2px 8px;">
+                                        @project.Status
+                                    </span>
+                                </div>
+                                <p class="text-secondary smaller mb-3 line-clamp-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2rem;">
+                                    @project.Description
+                                </p>
+                                
+                                <div class="project-progress-area mb-2">
+                                    <div class="d-flex justify-content-between smaller fw-bold mb-1">
+                                        <span class="text-secondary">Progress</span>
+                                        <span class="text-main">@progress%</span>
+                                    </div>
+                                    <ejs-progressbar id="progress_@project.Id" 
+                                                     type="Linear" 
+                                                     value="@progress" 
+                                                     height="6px" 
+                                                     trackThickness="6" 
+                                                     progressThickness="6"
+                                                     cornerRadius="Round"
+                                                     progressColor="var(--primary-color)">
+                                    </ejs-progressbar>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center pt-1">
+                                    <div class="d-flex -space-x-2">
+                                        <div class="user-avatar-circle" style="width: 24px; height: 24px; font-size: 0.5rem; border: 2px solid #fff; border-radius: 8px;">JD</div>
+                                        <div class="user-avatar-circle" style="width: 24px; height: 24px; font-size: 0.5rem; border: 2px solid #fff; border-radius: 8px; background: #10b981; margin-left: -8px;">AS</div>
+                                    </div>
+                                    <div class="text-secondary smaller fw-bold">
+                                        @project.TaskComplete/@project.TaskTotal Tasks
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     }
                 }
                 else
                 {
-                    <div class="text-center py-4">
-                        <p class="text-secondary smaller">No recent activity found.</p>
+                    <div class="col-12">
+                        <div class="card-custom text-center py-5 border-dashed">
+                            <i class="fas fa-folder-open fa-3x text-light mb-3"></i>
+                            <p class="text-secondary">No active projects found. Start by creating one.</p>
+                            <ejs-button cssClass="e-primary mt-2" content="Create Project" onclick="createProject()"></ejs-button>
+                        </div>
                     </div>
                 }
             </div>
+        </div>
 
-            <div class="mt-4">
-                <button class="btn btn-light w-100 fw-bold small text-secondary py-2" style="border-radius: 12px; border: 1px solid var(--border-color);">
-                    View Full History
-                </button>
+        <!-- Recent Activity Timeline -->
+        <div class="col-lg-4">
+            <div class="card-custom border-0 shadow-elegant" style="border-radius: 24px;">
+                <h4 class="fw-bold mb-4 text-main">Recent Activity</h4>
+                
+                <div class="timeline-container ps-1">
+                    @if (Model.RecentActivities.Any())
+                    {
+                        foreach (var activity in Model.RecentActivities)
+                        {
+                            var timeSpan = DateTime.UtcNow - activity.Date;
+                            string timeAgo = timeSpan.TotalMinutes < 60 ? $"{(int)timeSpan.TotalMinutes} mins ago" :
+                                             timeSpan.TotalHours < 24 ? $"{(int)timeSpan.TotalHours} hours ago" :
+                                             $"{(int)timeSpan.TotalDays} days ago";
+
+                            <div class="timeline-item">
+                                <div class="timeline-dot" style="@(activity.Status == Status.Done ? "border-color: #10b981;" : "")"></div>
+                                <div class="ps-3">
+                                    <div class="fw-bold small text-main">@activity.Title</div>
+                                    <div class="text-secondary smaller mb-2">@timeAgo • <span class="text-primary fw-bold">@activity.ProjectName</span></div>
+                                    <p class="text-secondary smaller m-0">@activity.Author • @activity.ActivityType</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <p class="text-secondary smaller">No recent activity found.</p>
+                        </div>
+                    }
+                </div>
+
+                <div class="mt-4">
+                    <button class="btn btn-light w-100 fw-bold small text-secondary py-2" style="border-radius: 12px; border: 1px solid var(--border-color);">
+                        View Full History
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+}
 
-<ejs-dialog id="createProjectDialog" header="Create New Project"
-            width="500px" visible="false" showCloseIcon="true" isModal="true"
-            target="#dialogTarget">
-    <e-content-template>
-        <partial name="_CreateProjectDialog" model="new CreateProjectDto()"></partial>
-    </e-content-template>
-</ejs-dialog>
-
-<script>
-    function createProject() {
-        var dialog = document.getElementById("createProjectDialog").ej2_instances[0];
-        dialog.show();
-    }
-</script>
+<ejs-scripts></ejs-scripts>
 
 
