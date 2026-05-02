@@ -17,6 +17,7 @@ using System;
 using System.Dynamic;
 using System.Security.Claims;
 using ProjectManagement.App.Filters;
+using ProjectManagement.App.Extensions;
 
 namespace ProjectManagement.App.Controllers
 {
@@ -44,6 +45,10 @@ namespace ProjectManagement.App.Controllers
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var workspaceId = User.GetWorkspaceId();
+
+                if (workspaceId == null) return RedirectToAction("Index", "Home");
+
                 ViewBag.ProjectID = workspaceViewModel.ProjectID;
                 ViewBag.ProjectName = workspaceViewModel.ProjectName;
 
@@ -56,7 +61,7 @@ namespace ProjectManagement.App.Controllers
 
 
                 // Check if Project has Connected with repo
-                var checkConnectProject = await _projectRepository.CheckConnectedProject(workspaceViewModel.ProjectID, userId);
+                var checkConnectProject = await _projectRepository.CheckConnectedProject(workspaceViewModel.ProjectID, workspaceId.Value, userId!);
 
 
                 if (checkConnectProject.Success)
@@ -65,7 +70,7 @@ namespace ProjectManagement.App.Controllers
                     ViewBag.RepoUrl = checkConnectProject.Data.Html_Url;
 
                     //Check and sync latest commit
-                    await SynchronizeCommitAsync(checkConnectProject, userId);
+                    await SynchronizeCommitAsync(checkConnectProject, userId!);
 
                 }
 
@@ -138,7 +143,11 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> GetTasks([FromBody] DataManagerRequest DataManagerRequest, int projectId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var data = await _taskRepository.GetAllAsync(projectId, userId);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return Json(new { result = new List<TaskItem>(), count = 0 });
+
+            var data = await _taskRepository.GetAllAsync(projectId, workspaceId.Value, userId!);
 
             
 
@@ -166,7 +175,11 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> UpdateTask([FromBody] TaskItem value, int projectId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _taskRepository.UpdateAsync(projectId, value, userId);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return Json(new { success = false });
+
+            var result = await _taskRepository.UpdateAsync(projectId, value, workspaceId.Value, userId!);
             return Json(new { success = result });
         }
 
@@ -175,7 +188,11 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> DeleteTask([FromBody] TaskItem value, int projectId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _taskRepository.DeleteAsync(projectId, value.Id, userId);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return Json(new { success = false });
+
+            var result = await _taskRepository.DeleteAsync(projectId, value.Id, workspaceId.Value, userId!);
             return Json(new { success = result });
         }
 
@@ -202,13 +219,14 @@ namespace ProjectManagement.App.Controllers
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var workspaceId = User.GetWorkspaceId();
 
-            if(string.IsNullOrWhiteSpace(userId))
+            if(string.IsNullOrWhiteSpace(userId) || workspaceId == null)
             {
                 return Json(new ResponseResultDto
                 {
                     Success = false,
-                    Message = "User not authenticated"
+                    Message = "User not authenticated or workspace not found"
                 });
             }
 
@@ -220,7 +238,7 @@ namespace ProjectManagement.App.Controllers
                 RepoOwner = repo.Name // sementara
             };
 
-            var response = await _projectRepository.ConnectRepo(userId, projectId, insertRepo);
+            var response = await _projectRepository.ConnectRepo(userId, projectId, workspaceId.Value, insertRepo);
 
             if(response.Success)
             {
@@ -244,8 +262,11 @@ namespace ProjectManagement.App.Controllers
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var workspaceId = User.GetWorkspaceId();
 
-                var response = await _projectRepository.DisconnectRepo(userId, projectId);
+                if (workspaceId == null) return Json(new { success = false });
+
+                var response = await _projectRepository.DisconnectRepo(userId!, projectId, workspaceId.Value);
 
                 TempData["RepoNotification"] = "Project has successfully disconnected";
 

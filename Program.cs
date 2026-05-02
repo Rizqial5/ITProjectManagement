@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagement.App.Data;
+using ProjectManagement.App.Extensions;
 using ProjectManagement.App.Middleware;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Repository;
@@ -50,9 +51,12 @@ builder.Services.AddSession();
 
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<IGithubRepository, GithubRepository>();
 builder.Services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
+
+builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, CustomUserClaimsPrincipalFactory>();
 
 //Services
 builder.Services.AddScoped<IGithubService, GithubService>();

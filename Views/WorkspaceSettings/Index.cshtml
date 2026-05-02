@@ -1,0 +1,124 @@
+@using ProjectManagement.App.DTO.Workspace
+@model WorkspaceSettingsDto
+@{
+    ViewData["Title"] = "Workspace Settings";
+}
+
+<div class="mb-4">
+    <h2 class="fw-800 text-main mb-1" style="font-weight: 800; letter-spacing: -0.5px;">Workspace Settings</h2>
+    <p class="text-secondary small">Manage your organization's identity and team members.</p>
+</div>
+
+<div class="row g-4">
+    <!-- General Settings -->
+    <div class="col-lg-5">
+        <div class="card-custom p-4 shadow-elegant h-100" style="border-radius: 24px; background: white;">
+            <h5 class="fw-bold mb-4 text-main"><i class="fas fa-building me-2 text-primary"></i> General Information</h5>
+            
+            <form id="workspaceNameForm" asp-action="UpdateName" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="mb-4">
+                    <label class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;">Workspace Name</label>
+                    <input asp-for="Name" class="form-control px-3 py-2" style="border-radius: 12px; border: 1px solid var(--border-color);" />
+                    <span asp-validation-for="Name" class="text-danger smaller"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;">Workspace Owner</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 0.7rem;">@Model.OwnerName[0].ToString().ToUpper()</div>
+                        <span class="fw-bold text-main">@Model.OwnerName</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;">Created At</label>
+                    <p class="text-main fw-500">@Model.CreatedAt.ToString("dd MMMM yyyy")</p>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 12px;">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Member List -->
+    <div class="col-lg-7">
+        <div class="card-custom p-4 shadow-elegant h-100" style="border-radius: 24px; background: white;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold m-0 text-main"><i class="fas fa-users me-2 text-primary"></i> Organization Members</h5>
+                <span class="badge bg-soft-indigo text-primary fw-bold px-3 py-2" style="border-radius: 10px;">@Model.Members.Count Total</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle border-0">
+                    <thead>
+                        <tr class="text-secondary smaller fw-bold text-uppercase" style="letter-spacing: 0.5px; border-bottom: 1px solid #f1f5f9;">
+                            <th class="pb-3 border-0">Member</th>
+                            <th class="pb-3 border-0">Role</th>
+                            <th class="pb-3 border-0 text-end">Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var member in Model.Members)
+                        {
+                            <tr>
+                                <td class="py-3 border-0">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="user-avatar-circle" style="width: 36px; height: 36px;">@member.UserName[0].ToString().ToUpper()</div>
+                                        <div>
+                                            <div class="fw-bold text-main small">@member.UserName</div>
+                                            <div class="text-secondary smaller">@member.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 border-0">
+                                    <span class="soft-badge @(member.Role == "Admin" ? "bg-soft-success" : "bg-soft-indigo")" style="font-size: 0.65rem;">
+                                        @member.Role
+                                    </span>
+                                </td>
+                                <td class="py-3 border-0 text-end text-secondary smaller fw-bold">
+                                    @member.JoinedAt.ToString("MMM yyyy")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 p-3 bg-light text-center" style="border-radius: 16px; border: 1px dashed var(--border-color);">
+                <p class="text-secondary smaller m-0">To invite more members to your organization, please contact your SuperAdmin (currently in Phase 2 roadmap).</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('#workspaceNameForm').on('submit', function (e) {
+            e.preventDefault();
+            var form = $(this);
+
+            $.ajax({
+                type: 'POST',
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        ejs.notifications.ToastUtility.show("Workspace name updated!", 'Success', 3000);
+                        // Optional: reload after a delay to update header
+                        setTimeout(function() { location.reload(); }, 1500);
+                    } else {
+                        ejs.notifications.ToastUtility.show(response.message || "Update failed.", 'Error', 3000);
+                    }
+                },
+                error: function () {
+                    ejs.notifications.ToastUtility.show("An error occurred.", 'Error', 3000)
+                }
+            });
+        });
+    </script>
+}

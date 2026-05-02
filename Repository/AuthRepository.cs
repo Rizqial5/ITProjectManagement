@@ -20,19 +20,21 @@ namespace ProjectManagement.App.Repository
         private readonly IDataProtector _protector;
 
         private readonly AppDbContext _dbContext;
-
-
-
+        private readonly IWorkspaceRepository _workspaceRepository;
 
         public AuthRepository(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            AppDbContext dbContext, IDataProtectionProvider protector, IGithubService githubService)
+            AppDbContext dbContext, 
+            IDataProtectionProvider protector, 
+            IGithubService githubService,
+            IWorkspaceRepository workspaceRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _dbContext = dbContext;
             _protector = protector.CreateProtector("GithubTokenProtector");
             _githubService = githubService;
+            _workspaceRepository = workspaceRepository;
         }
 
         public async Task<ResponseResultDto<GithubAuth>> GetGithubCreds(string userId)
@@ -56,7 +58,7 @@ namespace ProjectManagement.App.Repository
                 {
                     Success = true,
                     Data = githubCredentials
-                    
+
                 };
 
 
@@ -114,14 +116,42 @@ namespace ProjectManagement.App.Repository
                 return IdentityResult.Failed(new IdentityError { Description = $"Username '{model.UserName}' is already taken." });
             }
 
-            var user = new ApplicationUser
+            var strategy = _dbContext.Database.CreateExecutionStrategy();
+
+            return await strategy.ExecuteAsync(async () =>
             {
-                UserName = model.UserName,
-                Email = model.Email,
+                await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
-            };
+                try
+                {
+                    var user = new ApplicationUser
+                    {
+                        UserName = model.UserName,
+                        Email = model.Email,
+                    };
 
-            return await _userManager.CreateAsync(user, model.Password);
+                    var result = await _userManager.CreateAsync(user, model.Password);
+
+                    if (result.Succeeded)
+                    {
+                        // Create Default Workspace via WorkspaceRepository
+                        await _workspaceRepository.CreateDefaultWorkspaceAsync(user.Id, user.UserName);
+
+                        await transaction.CommitAsync();
+                    }
+                    else
+                    {
+                        await transaction.RollbackAsync();
+                    }
+
+                    return result;
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return IdentityResult.Failed(new IdentityError { Description = $"An error occurred during registration: {ex.Message}" });
+                }
+            });
         }
 
         public async Task<List<ApplicationUser>> GetAllUsersAsync()

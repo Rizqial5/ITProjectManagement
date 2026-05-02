@@ -6,15 +6,15 @@ namespace ProjectManagement.App.DTO.Project
     {
 
         [Required]
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
         [Required]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         [Display(Name = "Target Date")]
-        public DateTime EndDate { get; set; } = DateTime.UtcNow;
+        public DateTime? EndDate { get; set; }
 
-        public string ProjectOwnerUserId { get; set; } = string.Empty; // tambahkan ini
+        public string? ProjectOwnerUserId { get; set; }
     }
 }

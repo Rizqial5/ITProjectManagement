@@ -18,8 +18,8 @@
 
     <div class="mb-4">
         <label asp-for="EndDate" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
-        <ejs-datepicker ejs-for="EndDate" cssClass="e-outline"></ejs-datepicker>
-        @* <span asp-validation-for="Description"></span> *@
+        <ejs-datepicker id="EndDate" ejs-for="EndDate" name="EndDate" format="yyyy-MM-dd" cssClass="e-outline"></ejs-datepicker>
+        <span asp-validation-for="EndDate" class="text-danger smaller"></span>
     </div>
 
 	<div class="text-end pt-3 border-top" >

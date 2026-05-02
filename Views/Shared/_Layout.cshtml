@@ -38,7 +38,13 @@
                             <div class="bg-primary rounded-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;">
                                 <i class="fas fa-link text-white fs-6"></i>
                             </div>
-                            <span class="fw-800 text-main tracking-tight" style="font-size: 1.25rem; letter-spacing: -0.5px;">Commit<span class="text-primary">Link</span></span>
+                            <div class="d-flex flex-column line-height-1">
+                                <span class="fw-800 text-main tracking-tight" style="font-size: 1.25rem; letter-spacing: -0.5px;">Commit<span class="text-primary">Link</span></span>
+                                @if (User.Identity?.IsAuthenticated == true && !string.IsNullOrEmpty(User.GetWorkspaceName()))
+                                {
+                                    <span class="text-secondary smaller fw-bold" style="font-size: 0.65rem; margin-top: -2px;">@User.GetWorkspaceName()</span>
+                                }
+                            </div>
                         </a>
                         
                         <div class="search-container d-none d-lg-block ms-4">
@@ -119,6 +125,9 @@
                         </a>
                         <a href="@Url.Action("Page", "Projects")" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Projects" ? "active" : "")">
                             <i class="fas fa-columns"></i> Projects
+                        </a>
+                        <a href="@Url.Action("Index", "WorkspaceSettings")" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "WorkspaceSettings" ? "active" : "")">
+                            <i class="fas fa-cog"></i> Settings
                         </a>
                     </div>
                 </div>

@@ -33,5 +33,9 @@ namespace ProjectManagement.App.Models.Workspace
         public ICollection<ProjectMember> ProjectMembers { get; set; } = new List<ProjectMember>();
 
         public ICollection<GithubRepoConnected> GithubRepoConnecteds { get; set; }
+
+        // Multi-tenancy
+        public int? WorkspaceId { get; set; }
+        public Workspace? Workspace { get; set; } = null!;
     }
 }

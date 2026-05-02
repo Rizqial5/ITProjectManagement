@@ -23,26 +23,32 @@ namespace ProjectManagement.App.Controllers
         private readonly IGithubRepository _githubRepo;
         private readonly IProjectMemberRepository _projectMemberRepository;
         private readonly IAuthRepository _authRepository;
+        private readonly IWorkspaceRepository _workspaceRepository;
 
         public ProjectsController(IProjectRepository projectRepository, 
             IGithubService githubService, 
             IGithubRepository githubRepo,
             IProjectMemberRepository projectMemberRepository,
-            IAuthRepository authRepository)
+            IAuthRepository authRepository,
+            IWorkspaceRepository workspaceRepository)
         {
             _projectRepository = projectRepository;
             _githubService = githubService;
             _githubRepo = githubRepo;
             _projectMemberRepository = projectMemberRepository;
             _authRepository = authRepository;
+            _workspaceRepository = workspaceRepository;
         }
 
         [ProjectAuthorize]
         public async Task<IActionResult> Details(int id)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var workspaceId = User.GetWorkspaceId();
 
-            var projectData = await _projectRepository.GetAsync(id,userId);
+            if (workspaceId == null) return RedirectToAction("Index", "Home");
+
+            var projectData = await _projectRepository.GetAsync(id, workspaceId.Value, userId!);
 
             if (projectData == null) return NotFound();
 
@@ -81,16 +87,16 @@ namespace ProjectManagement.App.Controllers
                        .ThenByDescending(i => i.DueDate).ToArray()
             };
 
-            // Menyiapkan data untuk Dialog Add Member
-            var allUsers = await _authRepository.GetAllUsersAsync();
-            ViewBag.AllUsers = allUsers.Select(u => new { value = u.Id, text = u.UserName ?? u.Email }).ToList();
+            // Menyiapkan data untuk Dialog Add Member (Hanya user di workspace yang sama)
+            var workspaceUsers = await _workspaceRepository.GetWorkspaceMembersAsync(workspaceId.Value);
+            ViewBag.AllUsers = workspaceUsers.Select(u => new { value = u.Id, text = u.UserName ?? u.Email }).ToList();
 
             ViewBag.Roles = Enum.GetValues(typeof(ProjectRole))
                 .Cast<ProjectRole>()
                 .Select(r => new { value = (int)r, text = r.ToString() })
                 .ToList();
 
-            var checkConnectProject = await _projectRepository.CheckConnectedProject(project.Id, userId);
+            var checkConnectProject = await _projectRepository.CheckConnectedProject(project.Id, workspaceId.Value, userId!);
 
             if (checkConnectProject.Success && User.IsConnectedGithub())
             {
@@ -135,6 +141,9 @@ namespace ProjectManagement.App.Controllers
         [ProjectAuthorize(ProjectRole.Owner)]
         public async Task<IActionResult> UpdateMemberRole(AddProjectMemberDto model)
         {
+            var workspaceId = User.GetWorkspaceId();
+            if (workspaceId == null) return Json(new { success = false, message = "Workspace context not found." });
+
             var success = await _projectMemberRepository.UpdateMemberRoleAsync(model.ProjectId, model.UserId, model.Role);
             if (success)
             {
@@ -147,6 +156,9 @@ namespace ProjectManagement.App.Controllers
         [ProjectAuthorize(ProjectRole.Owner, ProjectRole.Manager)]
         public async Task<IActionResult> RemoveMember(int projectId, string userId)
         {
+            var workspaceId = User.GetWorkspaceId();
+            if (workspaceId == null) return Json(new { success = false, message = "Workspace context not found." });
+
             var success = await _projectMemberRepository.RemoveMemberAsync(projectId, userId);
             if (success)
             {
@@ -158,8 +170,11 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> Page(int page = 1, int pageSize = 12)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var workspaceId = User.GetWorkspaceId();
 
-            var allProject = await _projectRepository.GetAllAsync(userId);
+            if (workspaceId == null) return RedirectToAction("Index", "Home");
+
+            var allProject = await _projectRepository.GetAllAsync(workspaceId.Value, userId!);
 
             var totalRecords = allProject.Count();
 
@@ -170,7 +185,7 @@ namespace ProjectManagement.App.Controllers
             {
                 foreach (var p in dataList.Where(p => p.GithubRepoConnecteds.Any(c => c.Connected)))
                 {
-                    var checkConnectProject = await _projectRepository.CheckConnectedProject(p.Id, userId);
+                    var checkConnectProject = await _projectRepository.CheckConnectedProject(p.Id, workspaceId.Value, userId!);
                     if (checkConnectProject.Success)
                     {
                         await SynchronizeCommitAsync(checkConnectProject);
@@ -195,8 +210,11 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> GetPagedProjects(int currentPage, int pageSize)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var workspaceId = User.GetWorkspaceId();
 
-            var allProject = await _projectRepository.GetAllAsync(userId);
+            if (workspaceId == null) return PartialView("_ProjectCardListPartial", new List<ProjectCardViewModel>());
+
+            var allProject = await _projectRepository.GetAllAsync(workspaceId.Value, userId!);
 
 
             var data = allProject

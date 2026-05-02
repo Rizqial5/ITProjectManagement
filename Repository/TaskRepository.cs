@@ -18,11 +18,11 @@ namespace ProjectManagement.App.Repository
             _dbContext = dbContext;
         }
 
-        private async Task<bool> IsAuthorized(int projectId, string userId, params ProjectRole[] roles)
+        private async Task<bool> IsAuthorized(int projectId, int workspaceId, string userId, params ProjectRole[] roles)
         {
             var project = await _dbContext.Projects
                 .Include(p => p.ProjectMembers)
-                .FirstOrDefaultAsync(p => p.Id == projectId);
+                .FirstOrDefaultAsync(p => p.Id == projectId && p.WorkspaceId == workspaceId);
 
             if (project == null) return false;
             
@@ -38,18 +38,18 @@ namespace ProjectManagement.App.Repository
             return project.ProjectMembers.Any(m => m.UserId == userId && roles.Contains(m.Role));
         }
 
-        public async Task<IEnumerable<TaskItem>> GetAllAsync(int projectId, string userId)
+        public async Task<IEnumerable<TaskItem>> GetAllAsync(int projectId, int workspaceId, string userId)
         {
-            if (!await IsAuthorized(projectId, userId)) return Enumerable.Empty<TaskItem>();
+            if (!await IsAuthorized(projectId, workspaceId, userId)) return Enumerable.Empty<TaskItem>();
 
             return await _dbContext.TaskItems
                 .Where(t => t.ProjectId == projectId)
                 .ToListAsync();
         }
 
-        public async Task<TaskItem?> GetAsync(int projectId, int taskId, string userId)
+        public async Task<TaskItem?> GetAsync(int projectId, int taskId, int workspaceId, string userId)
         {
-            if (!await IsAuthorized(projectId, userId)) return null;
+            if (!await IsAuthorized(projectId, workspaceId, userId)) return null;
 
             return await _dbContext.TaskItems
                 .Include(i => i.Project)
@@ -60,10 +60,10 @@ namespace ProjectManagement.App.Repository
                 .FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == taskId);
         }
 
-        public async Task AddAsync(int projectId, CreateTaskDto task, string userId)
+        public async Task AddAsync(int projectId, CreateTaskDto task, int workspaceId, string userId)
         {
             // Only Owner, Manager and TeamLead can add tasks
-            if (!await IsAuthorized(projectId, userId, ProjectRole.Owner, ProjectRole.Manager, ProjectRole.TeamLead))
+            if (!await IsAuthorized(projectId, workspaceId, userId, ProjectRole.Owner, ProjectRole.Manager, ProjectRole.TeamLead))
                 throw new UnauthorizedAccessException("Only Project Owner, Manager or Team Lead can add tasks.");
 
             TaskItem taskItem = new()
@@ -79,13 +79,13 @@ namespace ProjectManagement.App.Repository
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<bool> UpdateAsync(int projectId, TaskItem task, string userId)
+        public async Task<bool> UpdateAsync(int projectId, TaskItem task, int workspaceId, string userId)
         {
             var existing = await _dbContext.TaskItems
                 .FirstOrDefaultAsync(t => t.ProjectId == projectId && t.Id == task.Id);
             if (existing == null) return false;
 
-            var canManage = await IsAuthorized(projectId, userId, ProjectRole.Owner, ProjectRole.Manager, ProjectRole.TeamLead);
+            var canManage = await IsAuthorized(projectId, workspaceId, userId, ProjectRole.Owner, ProjectRole.Manager, ProjectRole.TeamLead);
 
             if (!canManage)
             {
@@ -108,10 +108,10 @@ namespace ProjectManagement.App.Repository
             return true;
         }
 
-        public async Task<bool> DeleteAsync(int projectId, int taskId, string userId)
+        public async Task<bool> DeleteAsync(int projectId, int taskId, int workspaceId, string userId)
         {
             // Only Owner and Manager can delete tasks
-            if (!await IsAuthorized(projectId, userId, ProjectRole.Owner, ProjectRole.Manager))
+            if (!await IsAuthorized(projectId, workspaceId, userId, ProjectRole.Owner, ProjectRole.Manager))
                 return false;
 
             var task = await _dbContext.TaskItems
@@ -123,9 +123,9 @@ namespace ProjectManagement.App.Repository
             return true;
         }
 
-        public async Task<IEnumerable<CommitDto>> GetAllIntegratedCommitAsync(int projectId, int taskId, string userId)
+        public async Task<IEnumerable<CommitDto>> GetAllIntegratedCommitAsync(int projectId, int taskId, int workspaceId, string userId)
         {
-            if (!await IsAuthorized(projectId, userId)) return Enumerable.Empty<CommitDto>();
+            if (!await IsAuthorized(projectId, workspaceId, userId)) return Enumerable.Empty<CommitDto>();
 
             var commmitQuery = await _dbContext.GithubRepoConnecteds
                 .Include(i=> i.Repo)
@@ -146,9 +146,9 @@ namespace ProjectManagement.App.Repository
             return commitData;
         }
 
-        public async Task<IEnumerable<CommitDto>> GetAllCommitAsync(int projectId, string userId)
+        public async Task<IEnumerable<CommitDto>> GetAllCommitAsync(int projectId, int workspaceId, string userId)
         {
-            if (!await IsAuthorized(projectId, userId)) return Enumerable.Empty<CommitDto>();
+            if (!await IsAuthorized(projectId, workspaceId, userId)) return Enumerable.Empty<CommitDto>();
 
             var commmitQuery = await _dbContext.GithubRepoConnecteds
                .Include(i => i.Repo)
@@ -171,12 +171,12 @@ namespace ProjectManagement.App.Repository
             return commitData;
         }
 
-        public async Task<ResponseResultDto> ConnectCommitToTaskAsync(int repoId, int commitId, int taskId, string userId)
+        public async Task<ResponseResultDto> ConnectCommitToTaskAsync(int repoId, int commitId, int taskId, int workspaceId, string userId)
         {
             var task = await _dbContext.TaskItems.FirstOrDefaultAsync(t => t.Id == taskId);
             if (task == null) return new() { Success = false, Message = "Task not found" };
 
-            if (!await IsAuthorized(task.ProjectId, userId))
+            if (!await IsAuthorized(task.ProjectId, workspaceId, userId))
                 return new() { Success = false, Message = "Unauthorized access" };
 
             var checkExistingCommit = await _dbContext.GithubCommits.FirstOrDefaultAsync(i => i.RepoId == repoId && i.Id == commitId);
@@ -188,9 +188,9 @@ namespace ProjectManagement.App.Repository
             return new() { Success = true, Message = string.Empty };
         }
 
-        public async Task<int> GetTotalIntegratedCommit(int projectId, int taskId, string userId)
+        public async Task<int> GetTotalIntegratedCommit(int projectId, int taskId, int workspaceId, string userId)
         {
-            if (!await IsAuthorized(projectId, userId)) return 0;
+            if (!await IsAuthorized(projectId, workspaceId, userId)) return 0;
 
             var commmitQuery = await _dbContext.GithubRepoConnecteds
                 .Include(i => i.Repo)
@@ -202,7 +202,7 @@ namespace ProjectManagement.App.Repository
             return totalCommit ?? 0;
         }
 
-        public async Task<ResponseResultDto> SetTaskStatus(int projectId, int taskId, Status setStatus, string userId)
+        public async Task<ResponseResultDto> SetTaskStatus(int projectId, int taskId, Status setStatus, int workspaceId, string userId)
         {
             try
             {
@@ -211,7 +211,7 @@ namespace ProjectManagement.App.Repository
 
                 if (checkTask == null) return new() { Success = false, Message = "Task is not found" };
 
-                var isAuthorized = await IsAuthorized(projectId, userId, ProjectRole.Owner, ProjectRole.Manager);
+                var isAuthorized = await IsAuthorized(projectId, workspaceId, userId, ProjectRole.Owner, ProjectRole.Manager);
                 if (!isAuthorized && checkTask.AssignedUserId != userId)
                 {
                     return new() { Success = false, Message = "Unauthorized: You are not assigned to this task." };
@@ -239,20 +239,20 @@ namespace ProjectManagement.App.Repository
             }     
         }
 
-        public async Task<IEnumerable<GithubCommit>> GetLinkedCommit(int repoId, int taskId, string userId)
+        public async Task<IEnumerable<GithubCommit>> GetLinkedCommit(int repoId, int taskId, int workspaceId, string userId)
         {
             var task = await _dbContext.TaskItems.FirstOrDefaultAsync(t => t.Id == taskId);
-            if (task == null || !await IsAuthorized(task.ProjectId, userId))
+            if (task == null || !await IsAuthorized(task.ProjectId, workspaceId, userId))
                 return Enumerable.Empty<GithubCommit>();
 
             return await _dbContext.GithubCommits.Where(i=> i.RepoId == repoId && i.TaskId == taskId).ToListAsync();
         }
 
-        public async Task<bool> UpdateDateAsync(TaskItem updatedData, string userId)
+        public async Task<bool> UpdateDateAsync(TaskItem updatedData, int workspaceId, string userId)
         {
             try
             {
-                if (!await IsAuthorized(updatedData.ProjectId, userId, ProjectRole.Owner, ProjectRole.Manager))
+                if (!await IsAuthorized(updatedData.ProjectId, workspaceId, userId, ProjectRole.Owner, ProjectRole.Manager))
                     return false;
 
                 var existing = await _dbContext.TaskItems
@@ -273,14 +273,14 @@ namespace ProjectManagement.App.Repository
             }
         }
 
-        public async Task AddNoteAsync(SaveNotesDto notesDto, string userId)
+        public async Task AddNoteAsync(SaveNotesDto notesDto, int workspaceId, string userId)
         {
             var existing = await _dbContext.TaskItems
                 .FirstOrDefaultAsync(t => t.ProjectId == notesDto.ProjectId && t.Id == notesDto.TaskId);
 
             if (existing == null) throw new Exception("Task is not exists in database");
 
-            var isAuthorized = await IsAuthorized(notesDto.ProjectId, userId, ProjectRole.Owner, ProjectRole.Manager);
+            var isAuthorized = await IsAuthorized(notesDto.ProjectId, workspaceId, userId, ProjectRole.Owner, ProjectRole.Manager);
             if (!isAuthorized && existing.AssignedUserId != userId)
             {
                 throw new UnauthorizedAccessException("Unauthorized access to task notes.");
@@ -292,9 +292,9 @@ namespace ProjectManagement.App.Repository
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<string?> GetNotesAsync(int projectId, int taskId, string userId)
+        public async Task<string?> GetNotesAsync(int projectId, int taskId, int workspaceId, string userId)
         {
-            if (!await IsAuthorized(projectId, userId)) return null;
+            if (!await IsAuthorized(projectId, workspaceId, userId)) return null;
 
             return await _dbContext.TaskItems
                 .Where(t => t.ProjectId == projectId && t.Id == taskId)

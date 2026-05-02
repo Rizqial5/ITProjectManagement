@@ -1,5 +1,8 @@
 # ProjectManagement.App - Architecture and UI Standards
 
+## Engineering Standards
+- **Validation:** Selalu jalankan `dotnet build` setelah melakukan perubahan kode untuk memastikan tidak ada error sebelum melaporkan ke user atau melanjutkan tugas.
+
 ## UI / UX Design Standards
 - **Theme:** High-fidelity, modern Dribbble-style UI.
 - **Typography:** Inter font family (`wght@300;400;500;600;700;800`).

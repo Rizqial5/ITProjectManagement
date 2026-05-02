@@ -22,6 +22,8 @@ namespace ProjectManagement.App.Data
         public DbSet<GithubCommit> GithubCommits { get; set; }
         public DbSet<StatusKeyword> StatusKeywords { get; set; }
         public DbSet<ProjectMember> ProjectMembers { get; set; }
+        public DbSet<Workspace> Workspaces { get; set; }
+        public DbSet<WorkspaceMember> WorkspaceMembers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -45,6 +47,21 @@ namespace ProjectManagement.App.Data
 
             builder.Entity<ApplicationUser>().HasData(user1, user2, user3);
 
+            // Workspace and WorkspaceMember configuration
+            builder.Entity<WorkspaceMember>()
+                .HasKey(wm => new { wm.WorkspaceId, wm.UserId });
+
+            builder.Entity<Workspace>()
+                .HasOne(w => w.Owner)
+                .WithMany()
+                .HasForeignKey(w => w.OwnerUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Project>()
+                .HasOne(p => p.Workspace)
+                .WithMany(w => w.Projects)
+                .HasForeignKey(p => p.WorkspaceId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // ProjectMember relationship
             builder.Entity<ProjectMember>()

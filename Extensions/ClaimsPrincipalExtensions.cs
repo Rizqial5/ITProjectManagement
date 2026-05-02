@@ -18,5 +18,20 @@ namespace ProjectManagement.App.Extensions
         {
             return user.FindFirst("GitHubUser")?.Value;
         }
+
+        public static int? GetWorkspaceId(this ClaimsPrincipal user)
+        {
+            var workspaceIdClaim = user.FindFirst("WorkspaceId")?.Value;
+            if (int.TryParse(workspaceIdClaim, out int workspaceId))
+            {
+                return workspaceId;
+            }
+            return null;
+        }
+
+        public static string? GetWorkspaceName(this ClaimsPrincipal user)
+        {
+            return user.FindFirst("WorkspaceName")?.Value;
+        }
     }
 }
