@@ -1,0 +1,9 @@
+@using ProjectManagement.App.DTO.Project
+
+<ejs-dialog id="createProjectDialog" header="Create New Project"
+            width="500px" visible="false" showCloseIcon="true" isModal="true"
+            target="#dialogTarget">
+    <e-content-template>
+        <partial name="_CreateProjectDialog" model="new CreateProjectDto()"></partial>
+    </e-content-template>
+</ejs-dialog>
