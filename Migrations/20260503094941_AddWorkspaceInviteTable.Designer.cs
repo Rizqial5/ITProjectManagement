@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectManagement.App.Data;
 
@@ -11,9 +12,11 @@ using ProjectManagement.App.Data;
 namespace ProjectManagement.App.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260503094941_AddWorkspaceInviteTable")]
+    partial class AddWorkspaceInviteTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -227,7 +230,7 @@ namespace ProjectManagement.App.Migrations
                         {
                             Id = "user-admin",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d158daa5-49df-4dde-b39a-74c511bd8be5",
+                            ConcurrencyStamp = "4b2c0bd5-e45e-4353-9e1b-bfaa9a7331b6",
                             Email = "admin@project.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
@@ -243,7 +246,7 @@ namespace ProjectManagement.App.Migrations
                         {
                             Id = "user-dev",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a1a6aa98-7c23-4b53-8569-d24988682c48",
+                            ConcurrencyStamp = "a5d39a32-f3b9-4226-829b-8113e7570254",
                             Email = "dev@project.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
@@ -259,7 +262,7 @@ namespace ProjectManagement.App.Migrations
                         {
                             Id = "user-viewer",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "7c411c0c-9e87-408a-9784-f7a2d50903a7",
+                            ConcurrencyStamp = "0aa31198-5c45-4a4b-a667-9d8677c49f9e",
                             Email = "viewer@project.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
@@ -496,17 +499,8 @@ namespace ProjectManagement.App.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ActionUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("DeclineUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("IconCssClass")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
@@ -523,16 +517,9 @@ namespace ProjectManagement.App.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("RelatedInviteId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
+                    b.Property<string>("Url")
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
 
                     b.HasKey("Id");
 
@@ -704,9 +691,6 @@ namespace ProjectManagement.App.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("InviteeId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("InviterUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -722,8 +706,6 @@ namespace ProjectManagement.App.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("InviteeId");
 
                     b.HasIndex("InviterUserId");
 
@@ -942,10 +924,6 @@ namespace ProjectManagement.App.Migrations
 
             modelBuilder.Entity("ProjectManagement.App.Models.Workspace.WorkspaceInvite", b =>
                 {
-                    b.HasOne("ProjectManagement.App.Models.ApplicationUser", "Invitee")
-                        .WithMany()
-                        .HasForeignKey("InviteeId");
-
                     b.HasOne("ProjectManagement.App.Models.ApplicationUser", "Inviter")
                         .WithMany()
                         .HasForeignKey("InviterUserId")
@@ -957,8 +935,6 @@ namespace ProjectManagement.App.Migrations
                         .HasForeignKey("WorkspaceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Invitee");
 
                     b.Navigation("Inviter");
 

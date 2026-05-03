@@ -90,11 +90,56 @@
             </div>
             
             <div class="mt-4 p-3 bg-light text-center" style="border-radius: 16px; border: 1px dashed var(--border-color);">
-                <p class="text-secondary smaller m-0">To invite more members to your organization, please contact your SuperAdmin (currently in Phase 2 roadmap).</p>
+                <h6 class="fw-bold text-main mb-3">Invite New Member</h6>
+                <form id="inviteMemberForm" asp-action="SendWorkspaceInvite" asp-controller="Invites" method="post">
+                     @Html.AntiForgeryToken()
+                    <div class="input-group">
+                        <input type="email" name="Email" class="form-control" placeholder="Enter user's email address" required>
+                        <button class="btn btn-primary" type="submit">Send Invite</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+
+    <!-- My Joined Workspaces (Syncfusion Grid) -->
+    <div class="col-lg-12">
+        <div class="card-custom p-4 shadow-elegant mt-4" style="border-radius: 24px; background: white;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold m-0 text-main"><i class="fas fa-network-wired me-2 text-primary"></i> My Workspaces</h5>
+                <span class="badge bg-soft-indigo text-primary fw-bold px-3 py-2" style="border-radius: 10px;">@Model.UserWorkspaces.Count Total Joined</span>
+            </div>
+
+            @{
+                var stackedcss = (new { @class = "fw-bold text-main" });
+            }
+
+            <ejs-grid id="GridJoinedWorkspaces" dataSource="@Model.UserWorkspaces" allowPaging="true" allowSorting="true" gridLines="None">
+                <e-grid-pagesettings pageSize="5"></e-grid-pagesettings>
+                <e-grid-columns>
+                    <e-grid-column field="WorkspaceName" headerText="WORKSPACE NAME" width="200" class="fw-bold text-main"></e-grid-column>
+                    <e-grid-column field="Role" headerText="MY ROLE" width="120" template="#roleTemplate"></e-grid-column>
+                    <e-grid-column field="JoinedAt" headerText="JOINED DATE" width="150" format="dd MMM yyyy" textAlign="Right"></e-grid-column>
+                    <e-grid-column headerText="ACTION" width="100" textAlign="Center" template="#actionTemplate"></e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
+        </div>
+    </div>
 </div>
+
+<!-- Template for Grid Role Column -->
+<script id="roleTemplate" type="text/x-template">
+    ${if(Role === 'Admin')}
+        <span class="soft-badge bg-soft-success" style="font-size: 0.65rem;">${Role}</span>
+    ${else}
+        <span class="soft-badge bg-soft-indigo" style="font-size: 0.65rem;">${Role}</span>
+    ${/if}
+</script>
+
+<!-- Template for Grid Action Column -->
+<script id="actionTemplate" type="text/x-template">
+    <button class="btn btn-link text-primary p-0 smaller fw-bold text-decoration-none" onclick="window.location.href='/Home/Index'">Switch</button>
+</script>
 
 @section Scripts {
     <script>
@@ -117,6 +162,33 @@
                 },
                 error: function () {
                     ejs.notifications.ToastUtility.show("An error occurred.", 'Error', 3000)
+                }
+            });
+        });
+
+        $('#inviteMemberForm').on('submit', function (e) {
+            e.preventDefault();
+            var form = $(this);
+
+             $.ajax({
+                type: 'POST',
+                url: '/Invites/send-workspace-invite',
+                contentType: 'application/json',
+                data: JSON.stringify({ Email: form.find('input[name="Email"]').val() }),
+                headers: {
+                    'RequestVerificationToken': form.find('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        ejs.notifications.ToastUtility.show(response.message, 'Success', 4000);
+                        form.trigger('reset');
+                    } else {
+                        ejs.notifications.ToastUtility.show(response.message || "Failed to send invite.", 'Error', 4000);
+                    }
+                },
+                error: function (xhr) {
+                     var error = xhr.responseJSON ? xhr.responseJSON.message : "An unknown error occurred.";
+                    ejs.notifications.ToastUtility.show(error, 'Error', 4000);
                 }
             });
         });

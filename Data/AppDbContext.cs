@@ -24,6 +24,8 @@ namespace ProjectManagement.App.Data
         public DbSet<ProjectMember> ProjectMembers { get; set; }
         public DbSet<Workspace> Workspaces { get; set; }
         public DbSet<WorkspaceMember> WorkspaceMembers { get; set; }
+        public DbSet<WorkspaceInvite> WorkspaceInvites { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -55,6 +57,18 @@ namespace ProjectManagement.App.Data
                 .HasOne(w => w.Owner)
                 .WithMany()
                 .HasForeignKey(w => w.OwnerUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<WorkspaceInvite>()
+                .HasOne(wi => wi.Workspace)
+                .WithMany()
+                .HasForeignKey(wi => wi.WorkspaceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<WorkspaceInvite>()
+                .HasOne(wi => wi.Inviter)
+                .WithMany()
+                .HasForeignKey(wi => wi.InviterUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Project>()

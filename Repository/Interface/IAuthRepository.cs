@@ -12,9 +12,7 @@ namespace ProjectManagement.App.Repository.Interface
         Task<IdentityResult> RegisterAsync(RegisterViewModel model);
         Task<ApplicationUser?> LoginAsync(LoginViewModel model);
         Task LogoutAsync();
-
         Task<ResponseResultDto<GithubAuth>> SaveOrUpdateGithubCredentials(CreateGithubAuthDto model);
         Task<ResponseResultDto<GithubAuth>> GetGithubCreds(string userId);
-        Task<List<ApplicationUser>> GetAllUsersAsync();
     }
 }

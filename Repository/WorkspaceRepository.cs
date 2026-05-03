@@ -41,12 +41,19 @@ namespace ProjectManagement.App.Repository
             return workspace;
         }
 
-        public async Task<IEnumerable<Workspace>> GetUserWorkspacesAsync(string userId)
+        public async Task<IEnumerable<WorkspaceMember>> GetUserWorkspacesAsync(string userId)
         {
             return await _dbContext.WorkspaceMembers
                 .Where(wm => wm.UserId == userId)
                 .Include(wm => wm.Workspace)
-                .Select(wm => wm.Workspace)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<WorkspaceMember>> GetUserWorkspaceDetailsAsync(string userId)
+        {
+            return await _dbContext.WorkspaceMembers
+                .Where(wm => wm.UserId == userId)
+                .Include(wm => wm.Workspace)
                 .ToListAsync();
         }
 

@@ -79,11 +79,22 @@
                                 </ejs-button>
                             </div>
 
-                            <div class="nav-notifications position-relative">
-                                <a href="#" class="text-secondary">
+                            <div class="nav-notifications position-relative dropdown">
+                                <a class="text-secondary dropdown-toggle" href="#" role="button" id="notificationBell" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-bell fs-5"></i>
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1 border border-light" style="font-size: 0.5rem;">3</span>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger p-1 border border-light" style="font-size: 0.5rem; display: none; width: 1.25rem; height: 1.25rem; align-items: center; justify-content: center;" id="notificationCount"></span>
                                 </a>
+                                <div class="dropdown-menu dropdown-menu-end shadow-elegant" aria-labelledby="notificationBell" style="border-radius: 12px; min-width: 350px; max-width: 350px; border: 1px solid #f1f5f9;">
+                                    <div class="px-3 pt-2 pb-2 d-flex justify-content-between align-items-center">
+                                        <h6 class="dropdown-header fw-bold text-main p-0">Notifications</h6>
+                                        <a class="text-primary smaller fw-bold text-decoration-none" href="#" id="markAllAsReadBtn">Mark all as read</a>
+                                    </div>
+                                    <div id="notificationDropdownContent" style="max-height: 400px; overflow-y: auto;">
+                                        <div class="dropdown-item text-center text-secondary py-4">Loading...</div>
+                                    </div>
+                                    <div class="dropdown-divider m-0"></div>
+                                    <a class="dropdown-item text-center text-primary fw-bold py-2" href="#">View All Notifications</a>
+                                </div>
                             </div>
 
                             <div class="user-profile-header d-flex align-items-center gap-3 ps-3 border-start">
@@ -163,6 +174,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/project.js" asp-append-version="true"></script>
+    <script src="~/js/notification.js" asp-append-version="true"></script>
     <script src="~/js/htmx.min.js"></script>
     <script src="~/js/_hyperscript.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)

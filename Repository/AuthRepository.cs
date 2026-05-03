@@ -21,13 +21,15 @@ namespace ProjectManagement.App.Repository
 
         private readonly AppDbContext _dbContext;
         private readonly IWorkspaceRepository _workspaceRepository;
+        private readonly IInviteRepository _inviteRepository;
 
         public AuthRepository(UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            AppDbContext dbContext, 
-            IDataProtectionProvider protector, 
+            AppDbContext dbContext,
+            IDataProtectionProvider protector,
             IGithubService githubService,
-            IWorkspaceRepository workspaceRepository)
+            IWorkspaceRepository workspaceRepository,
+            IInviteRepository inviteRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -35,6 +37,7 @@ namespace ProjectManagement.App.Repository
             _protector = protector.CreateProtector("GithubTokenProtector");
             _githubService = githubService;
             _workspaceRepository = workspaceRepository;
+            _inviteRepository = inviteRepository;
         }
 
         public async Task<ResponseResultDto<GithubAuth>> GetGithubCreds(string userId)
@@ -134,9 +137,16 @@ namespace ProjectManagement.App.Repository
 
                     if (result.Succeeded)
                     {
-                        // Create Default Workspace via WorkspaceRepository
-                        await _workspaceRepository.CreateDefaultWorkspaceAsync(user.Id, user.UserName);
+                        // Check for and accept any pending invites for this email
+                        await _inviteRepository.AcceptPendingInvitesForUser(user.Email, user.Id);
 
+                        // If user wasn't added to a workspace via invite, create a default one
+                        var isInAnyWorkspace = await _dbContext.WorkspaceMembers.AnyAsync(wm => wm.UserId == user.Id);
+                        if (!isInAnyWorkspace)
+                        {
+                            await _workspaceRepository.CreateDefaultWorkspaceAsync(user.Id, user.UserName);
+                        }
+                        
                         await transaction.CommitAsync();
                     }
                     else
@@ -152,11 +162,6 @@ namespace ProjectManagement.App.Repository
                     return IdentityResult.Failed(new IdentityError { Description = $"An error occurred during registration: {ex.Message}" });
                 }
             });
-        }
-
-        public async Task<List<ApplicationUser>> GetAllUsersAsync()
-        {
-            return await _userManager.Users.ToListAsync();
         }
 
         public async Task<ResponseResultDto<GithubAuth>> SaveOrUpdateGithubCredentials(CreateGithubAuthDto model)

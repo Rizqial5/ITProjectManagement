@@ -26,13 +26,13 @@ namespace ProjectManagement.App.Extensions
 
             // Get the user's workspaces
             var workspaces = await _workspaceRepository.GetUserWorkspacesAsync(user.Id);
-            var firstWorkspace = workspaces.FirstOrDefault();
+            var firstWorkspaceMember = workspaces.FirstOrDefault();
 
-            if (firstWorkspace != null)
+            if (firstWorkspaceMember != null && firstWorkspaceMember.Workspace != null)
             {
                 // Add WorkspaceId as a claim
-                identity.AddClaim(new Claim("WorkspaceId", firstWorkspace.Id.ToString()));
-                identity.AddClaim(new Claim("WorkspaceName", firstWorkspace.Name));
+                identity.AddClaim(new Claim("WorkspaceId", firstWorkspaceMember.WorkspaceId.ToString()));
+                identity.AddClaim(new Claim("WorkspaceName", firstWorkspaceMember.Workspace.Name));
             }
 
             return identity;
