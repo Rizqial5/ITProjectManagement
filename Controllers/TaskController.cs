@@ -12,6 +12,8 @@ using Syncfusion.EJ2.Base;
 using Ganss.Xss;
 using ProjectManagement.App.Filters;
 using System.Security.Claims;
+using ProjectManagement.App.Extensions;
+using ProjectManagement.App.Models.Github;
 
 
 namespace ProjectManagement.App.Controllers
@@ -34,8 +36,12 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> Details(int projectId, int taskId, bool isConnected)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var taskItem = await _taskRepository.GetAsync(projectId, taskId, userId);
-            var countCommit = isConnected ? await _taskRepository.GetTotalIntegratedCommit(projectId, taskId, userId) : 0;
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return RedirectToAction("Index", "Home");
+
+            var taskItem = await _taskRepository.GetAsync(projectId, taskId, workspaceId.Value, userId!);
+            var countCommit = isConnected ? await _taskRepository.GetTotalIntegratedCommit(projectId, taskId, workspaceId.Value, userId!) : 0;
 
             if(taskItem == null)
             {
@@ -48,7 +54,7 @@ namespace ProjectManagement.App.Controllers
             string? repoUrl = null;
             if (isConnected)
             {
-                var checkRepo = await _projectRepository.CheckConnectedProject(projectId, userId);
+                var checkRepo = await _projectRepository.CheckConnectedProject(projectId, workspaceId.Value, userId!);
                 if (checkRepo.Success && checkRepo.Data != null)
                 {
                     repoUrl = checkRepo.Data.Html_Url;
@@ -117,7 +123,11 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> ShowUpdateDialog(int projectId, int taskId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var taskItem = await _taskRepository.GetAsync(projectId, taskId, userId);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return NotFound();
+
+            var taskItem = await _taskRepository.GetAsync(projectId, taskId, workspaceId.Value, userId!);
             if (taskItem == null) return NotFound();
 
             var model = new UpdateDateDto
@@ -138,7 +148,11 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> ShowLinkedCommit(int projectId, int repoId, int taskId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var model = await _taskRepository.GetLinkedCommit(repoId, taskId, userId);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return PartialView("_ListLinkedCommit", new List<GithubCommit>());
+
+            var model = await _taskRepository.GetLinkedCommit(repoId, taskId, workspaceId.Value, userId!);
 
 
             return PartialView("_ListLinkedCommit", model);
@@ -150,7 +164,11 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> EditTaskDetails(int projectId,int taskId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var task = await _taskRepository.GetAsync(projectId, taskId, userId); 
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return NotFound();
+
+            var task = await _taskRepository.GetAsync(projectId, taskId, workspaceId.Value, userId!); 
             if (task == null) return NotFound();
 
             var members = await _projectMemberRepository.GetProjectMembersAsync(projectId);
@@ -179,6 +197,10 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> UpdateTaskDetails(EditTaskDescDto model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return Json(new { success = false });
+
             if (ModelState.IsValid)
             {
 
@@ -190,11 +212,11 @@ namespace ProjectManagement.App.Controllers
                     AssignedUserId = model.AssignedUserId
                 };
 
-                var success = await _taskRepository.UpdateAsync(model.ProjectId, updatedData, userId);
+                var success = await _taskRepository.UpdateAsync(model.ProjectId, updatedData, workspaceId.Value, userId!);
 
                 if(success)
                 {
-                    var task = await _taskRepository.GetAsync(model.ProjectId, model.TaskId, userId);
+                    var task = await _taskRepository.GetAsync(model.ProjectId, model.TaskId, workspaceId.Value, userId!);
 
                     var updatedModel = new TaskViewModel
                     {
@@ -227,6 +249,10 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> UpdateDate(UpdateDateDto model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return Json(new { success = false });
+
             if (ModelState.IsValid)
             {
                 TaskItem updatedData = new()
@@ -236,7 +262,7 @@ namespace ProjectManagement.App.Controllers
                     TargetDate = model.SetNewDate,
                 };
 
-                var success = await _taskRepository.UpdateDateAsync(updatedData, userId);
+                var success = await _taskRepository.UpdateDateAsync(updatedData, workspaceId.Value, userId!);
 
                 if (success)
                 {
@@ -283,7 +309,11 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> DetailsPanel(int projectId, int taskId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var task = await _taskRepository.GetAsync(projectId, taskId, userId);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return NotFound();
+
+            var task = await _taskRepository.GetAsync(projectId, taskId, workspaceId.Value, userId!);
             if (task == null) return NotFound();
             var model = new TaskViewModel
             {
@@ -304,12 +334,16 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> GetCommitRepo([FromBody] DataManagerRequest DataManagerRequest, int projectId, int taskId, bool isConnected)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return Json(new { result = new List<CommitDto>(), count = 0 });
+
             IEnumerable<CommitDto> commitData;
 
 
             if (isConnected)
             {
-                commitData = await _taskRepository.GetAllIntegratedCommitAsync(projectId, taskId, userId);
+                commitData = await _taskRepository.GetAllIntegratedCommitAsync(projectId, taskId, workspaceId.Value, userId!);
 
                 
             }
@@ -331,12 +365,16 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> GetAvailableCommit([FromBody] DataManagerRequest DataManagerRequest, int projectId, bool isConnected)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return Json(new { result = new List<CommitDto>(), count = 0 });
+
             IEnumerable<CommitDto> commitData;
 
 
             if (isConnected)
             {
-                commitData = await _taskRepository.GetAllCommitAsync(projectId, userId);
+                commitData = await _taskRepository.GetAllCommitAsync(projectId, workspaceId.Value, userId!);
 
 
             }
@@ -357,9 +395,13 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> LinkCommit(int projectId, int commitId, int repoId, int taskId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return Json(new { success = false });
+
             try
             {
-                var result = await _taskRepository.ConnectCommitToTaskAsync(repoId, commitId, taskId, userId);
+                var result = await _taskRepository.ConnectCommitToTaskAsync(repoId, commitId, taskId, workspaceId.Value, userId!);
 
                 if (result.Success)
                 {
@@ -387,11 +429,15 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> SetToDone(int taskId, int projectId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return Json(new { success = false });
+
             try
             {
                 var status = Status.Done;
 
-                var result = await _taskRepository.SetTaskStatus(projectId, taskId, status, userId);
+                var result = await _taskRepository.SetTaskStatus(projectId, taskId, status, workspaceId.Value, userId!);
 
                 if (result.Success)
                 {
@@ -423,9 +469,13 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> AddTask(CreateTaskDto newTask, int projectId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return Json(new { success = false });
+
             try
             {
-                await _taskRepository.AddAsync(projectId, newTask, userId);
+                await _taskRepository.AddAsync(projectId, newTask, workspaceId.Value, userId!);
 
                 TempData["RepoNotification"] = $"Task {newTask.Title} added succesfully";
 
@@ -445,9 +495,13 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> AddNotes([FromBody] SaveNotesDto dataNote)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return Json(new { success = false });
+
             try
             {
-                await _taskRepository.AddNoteAsync(dataNote, userId);
+                await _taskRepository.AddNoteAsync(dataNote, workspaceId.Value, userId!);
 
                 return Json(new { success = true, message= "Notes sucessfully saved" });
             }

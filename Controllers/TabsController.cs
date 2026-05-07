@@ -6,6 +6,7 @@ using ProjectManagement.App.Repository.Interface;
 using ProjectManagement.App.ViewModel;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using ProjectManagement.App.Extensions;
 
 namespace ProjectManagement.App.Controllers
 {
@@ -21,11 +22,15 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> LoadCommitsTab(int projectId, int taskId, bool isConnected)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var taskItem = await _taskRepository.GetAsync(projectId, taskId, userId);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return NotFound();
+
+            var taskItem = await _taskRepository.GetAsync(projectId, taskId, workspaceId.Value, userId!);
 
             if (taskItem == null) return NotFound();
 
-            var countCommit = isConnected ? await _taskRepository.GetTotalIntegratedCommit(projectId, taskId, userId) : 0;
+            var countCommit = isConnected ? await _taskRepository.GetTotalIntegratedCommit(projectId, taskId, workspaceId.Value, userId!) : 0;
 
             var taskModel = new TaskViewModel()
             {
@@ -42,7 +47,11 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> LoadNotesTab(int projectId, int taskId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var notes = await _taskRepository.GetNotesAsync(projectId, taskId, userId);
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return NotFound();
+
+            var notes = await _taskRepository.GetNotesAsync(projectId, taskId, workspaceId.Value, userId!);
 
             SaveNotesDto modelNotes = new()
             {

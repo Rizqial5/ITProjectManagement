@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO.Project;
+using ProjectManagement.App.Extensions;
 using ProjectManagement.App.Models;
 using ProjectManagement.App.Models.Workspace;
 using ProjectManagement.App.Repository.Interface;
@@ -27,8 +28,9 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var workspaceId = User.GetWorkspaceId();
 
-            if (string.IsNullOrWhiteSpace(userId))
+            if (string.IsNullOrWhiteSpace(userId) || workspaceId == null)
             {
                 return View(new DashboardViewModel());
             }
@@ -37,10 +39,10 @@ namespace ProjectManagement.App.Controllers
             ViewBag.Github = githubUsername ?? string.Empty;
 
             // Get dashboard stats through repository
-            var stats = await _projectRepository.GetDashboardStatsAsync(userId);
+            var stats = await _projectRepository.GetDashboardStatsAsync(workspaceId.Value, userId);
 
             // Get Active Projects through repository
-            var activeProjectsData = await _projectRepository.GetActiveProjectsAsync(userId, 4);
+            var activeProjectsData = await _projectRepository.GetActiveProjectsAsync(workspaceId.Value, userId, 4);
 
             var recentProjects = activeProjectsData
                 .Select(p => new ProjectViewModel
@@ -91,15 +93,20 @@ namespace ProjectManagement.App.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-
-                    return Json(new { success = false });
+                    var errors = string.Join("; ", ModelState.Values
+                        .SelectMany(x => x.Errors)
+                        .Select(x => x.ErrorMessage));
+                    return Json(new { success = false, message = "Validation failed: " + errors });
                 }
 
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var workspaceId = User.GetWorkspaceId();
+
+                if (workspaceId == null) return Json(new { success = false, message = "Workspace not found." });
 
                 createProjectDto.ProjectOwnerUserId = userId;
 
-                await _projectRepository.AddAsync(createProjectDto);
+                await _projectRepository.AddAsync(createProjectDto, workspaceId.Value);
 
                 TempData["RepoNotification"] = "Project successfully created";
 
@@ -118,15 +125,18 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> DeleteProject([FromBody] int[] projectId)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var workspaceId = User.GetWorkspaceId();
 
-            var result = await _projectRepository.DeleteAsync(projectId, userId);
+            if (workspaceId == null) return Json(new { success = false, message = "Workspace not found." });
+
+            var result = await _projectRepository.DeleteAsync(projectId, workspaceId.Value, userId);
 
             if(!result)
             {
                 return Json(new { success = false, message = "No Project found to delete" });
             }
 
-            var refreshData = await _projectRepository.GetAllAsync(userId);
+            var refreshData = await _projectRepository.GetAllAsync(workspaceId.Value, userId);
 
             var showData = refreshData.Select(i => new ProjectViewModel
             {
@@ -142,6 +152,9 @@ namespace ProjectManagement.App.Controllers
         public async Task<IActionResult> UpdateProject([FromBody] CRUDModel<ProjectViewModel> value)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var workspaceId = User.GetWorkspaceId();
+
+            if (workspaceId == null) return Json(new { success = false, message = "Workspace not found." });
 
             var updatedProject = new Project
             {
@@ -152,7 +165,7 @@ namespace ProjectManagement.App.Controllers
                 ProjectOwnerUserId = userId,
             };
 
-            var result = await _projectRepository.UpdateAsync(updatedProject, userId!);
+            var result = await _projectRepository.UpdateAsync(updatedProject, workspaceId.Value, userId!);
 
             if (!result)
             {

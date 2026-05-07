@@ -1,0 +1,196 @@
+@using ProjectManagement.App.DTO.Workspace
+@model WorkspaceSettingsDto
+@{
+    ViewData["Title"] = "Workspace Settings";
+}
+
+<div class="mb-4">
+    <h2 class="fw-800 text-main mb-1" style="font-weight: 800; letter-spacing: -0.5px;">Workspace Settings</h2>
+    <p class="text-secondary small">Manage your organization's identity and team members.</p>
+</div>
+
+<div class="row g-4">
+    <!-- General Settings -->
+    <div class="col-lg-5">
+        <div class="card-custom p-4 shadow-elegant h-100" style="border-radius: 24px; background: white;">
+            <h5 class="fw-bold mb-4 text-main"><i class="fas fa-building me-2 text-primary"></i> General Information</h5>
+            
+            <form id="workspaceNameForm" asp-action="UpdateName" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="mb-4">
+                    <label class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;">Workspace Name</label>
+                    <input asp-for="Name" class="form-control px-3 py-2" style="border-radius: 12px; border: 1px solid var(--border-color);" />
+                    <span asp-validation-for="Name" class="text-danger smaller"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;">Workspace Owner</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 0.7rem;">@Model.OwnerName[0].ToString().ToUpper()</div>
+                        <span class="fw-bold text-main">@Model.OwnerName</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;">Created At</label>
+                    <p class="text-main fw-500">@Model.CreatedAt.ToString("dd MMMM yyyy")</p>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 12px;">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Member List -->
+    <div class="col-lg-7">
+        <div class="card-custom p-4 shadow-elegant h-100" style="border-radius: 24px; background: white;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold m-0 text-main"><i class="fas fa-users me-2 text-primary"></i> Organization Members</h5>
+                <span class="badge bg-soft-indigo text-primary fw-bold px-3 py-2" style="border-radius: 10px;">@Model.Members.Count Total</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle border-0">
+                    <thead>
+                        <tr class="text-secondary smaller fw-bold text-uppercase" style="letter-spacing: 0.5px; border-bottom: 1px solid #f1f5f9;">
+                            <th class="pb-3 border-0">Member</th>
+                            <th class="pb-3 border-0">Role</th>
+                            <th class="pb-3 border-0 text-end">Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var member in Model.Members)
+                        {
+                            <tr>
+                                <td class="py-3 border-0">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="user-avatar-circle" style="width: 36px; height: 36px;">@member.UserName[0].ToString().ToUpper()</div>
+                                        <div>
+                                            <div class="fw-bold text-main small">@member.UserName</div>
+                                            <div class="text-secondary smaller">@member.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 border-0">
+                                    <span class="soft-badge @(member.Role == "Admin" ? "bg-soft-success" : "bg-soft-indigo")" style="font-size: 0.65rem;">
+                                        @member.Role
+                                    </span>
+                                </td>
+                                <td class="py-3 border-0 text-end text-secondary smaller fw-bold">
+                                    @member.JoinedAt.ToString("MMM yyyy")
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 p-3 bg-light text-center" style="border-radius: 16px; border: 1px dashed var(--border-color);">
+                <h6 class="fw-bold text-main mb-3">Invite New Member</h6>
+                <form id="inviteMemberForm" asp-action="SendWorkspaceInvite" asp-controller="Invites" method="post">
+                     @Html.AntiForgeryToken()
+                    <div class="input-group">
+                        <input type="email" name="Email" class="form-control" placeholder="Enter user's email address" required>
+                        <button class="btn btn-primary" type="submit">Send Invite</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Joined Workspaces (Syncfusion Grid) -->
+    <div class="col-lg-12">
+        <div class="card-custom p-4 shadow-elegant mt-4" style="border-radius: 24px; background: white;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold m-0 text-main"><i class="fas fa-network-wired me-2 text-primary"></i> My Workspaces</h5>
+                <span class="badge bg-soft-indigo text-primary fw-bold px-3 py-2" style="border-radius: 10px;">@Model.UserWorkspaces.Count Total Joined</span>
+            </div>
+
+            @{
+                var stackedcss = (new { @class = "fw-bold text-main" });
+            }
+
+            <ejs-grid id="GridJoinedWorkspaces" dataSource="@Model.UserWorkspaces" allowPaging="true" allowSorting="true" gridLines="None">
+                <e-grid-pagesettings pageSize="5"></e-grid-pagesettings>
+                <e-grid-columns>
+                    <e-grid-column field="WorkspaceName" headerText="WORKSPACE NAME" width="200" class="fw-bold text-main"></e-grid-column>
+                    <e-grid-column field="Role" headerText="MY ROLE" width="120" template="#roleTemplate"></e-grid-column>
+                    <e-grid-column field="JoinedAt" headerText="JOINED DATE" width="150" format="dd MMM yyyy" textAlign="Right"></e-grid-column>
+                    <e-grid-column headerText="ACTION" width="100" textAlign="Center" template="#actionTemplate"></e-grid-column>
+                </e-grid-columns>
+            </ejs-grid>
+        </div>
+    </div>
+</div>
+
+<!-- Template for Grid Role Column -->
+<script id="roleTemplate" type="text/x-template">
+    ${if(Role === 'Admin')}
+        <span class="soft-badge bg-soft-success" style="font-size: 0.65rem;">${Role}</span>
+    ${else}
+        <span class="soft-badge bg-soft-indigo" style="font-size: 0.65rem;">${Role}</span>
+    ${/if}
+</script>
+
+<!-- Template for Grid Action Column -->
+<script id="actionTemplate" type="text/x-template">
+    <button class="btn btn-link text-primary p-0 smaller fw-bold text-decoration-none" onclick="window.location.href='/Home/Index'">Switch</button>
+</script>
+
+@section Scripts {
+    <script>
+        $('#workspaceNameForm').on('submit', function (e) {
+            e.preventDefault();
+            var form = $(this);
+
+            $.ajax({
+                type: 'POST',
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        ejs.notifications.ToastUtility.show("Workspace name updated!", 'Success', 3000);
+                        // Optional: reload after a delay to update header
+                        setTimeout(function() { location.reload(); }, 1500);
+                    } else {
+                        ejs.notifications.ToastUtility.show(response.message || "Update failed.", 'Error', 3000);
+                    }
+                },
+                error: function () {
+                    ejs.notifications.ToastUtility.show("An error occurred.", 'Error', 3000)
+                }
+            });
+        });
+
+        $('#inviteMemberForm').on('submit', function (e) {
+            e.preventDefault();
+            var form = $(this);
+
+             $.ajax({
+                type: 'POST',
+                url: '/Invites/send-workspace-invite',
+                contentType: 'application/json',
+                data: JSON.stringify({ Email: form.find('input[name="Email"]').val() }),
+                headers: {
+                    'RequestVerificationToken': form.find('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        ejs.notifications.ToastUtility.show(response.message, 'Success', 4000);
+                        form.trigger('reset');
+                    } else {
+                        ejs.notifications.ToastUtility.show(response.message || "Failed to send invite.", 'Error', 4000);
+                    }
+                },
+                error: function (xhr) {
+                     var error = xhr.responseJSON ? xhr.responseJSON.message : "An unknown error occurred.";
+                    ejs.notifications.ToastUtility.show(error, 'Error', 4000);
+                }
+            });
+        });
+    </script>
+}

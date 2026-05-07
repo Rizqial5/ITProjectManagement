@@ -1,5 +1,9 @@
 # ProjectManagement.App - Architecture and UI Standards
 
+## Engineering Standards
+- **Validation:** Selalu jalankan `dotnet build` setelah melakukan perubahan kode untuk memastikan tidak ada error sebelum melaporkan ke user atau melanjutkan tugas.
+- **UI Components:** Selalu prioritaskan penggunaan komponen **Syncfusion (EJS)** untuk elemen UI yang interaktif (Grid, Dialog, Form, Chart, dll) guna menjaga konsistensi dan estetika high-fidelity.
+
 ## UI / UX Design Standards
 - **Theme:** High-fidelity, modern Dribbble-style UI.
 - **Typography:** Inter font family (`wght@300;400;500;600;700;800`).

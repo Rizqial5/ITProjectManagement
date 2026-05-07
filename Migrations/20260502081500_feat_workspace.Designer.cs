@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectManagement.App.Data;
 
@@ -11,9 +12,11 @@ using ProjectManagement.App.Data;
 namespace ProjectManagement.App.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260502081500_feat_workspace")]
+    partial class feat_workspace
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -227,7 +230,7 @@ namespace ProjectManagement.App.Migrations
                         {
                             Id = "user-admin",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d158daa5-49df-4dde-b39a-74c511bd8be5",
+                            ConcurrencyStamp = "4722f6ce-3f29-4496-be2d-6c98670ce59b",
                             Email = "admin@project.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
@@ -243,7 +246,7 @@ namespace ProjectManagement.App.Migrations
                         {
                             Id = "user-dev",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a1a6aa98-7c23-4b53-8569-d24988682c48",
+                            ConcurrencyStamp = "22cdf904-d7a9-49dd-a3db-3db5fffb5d35",
                             Email = "dev@project.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
@@ -259,7 +262,7 @@ namespace ProjectManagement.App.Migrations
                         {
                             Id = "user-viewer",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "7c411c0c-9e87-408a-9784-f7a2d50903a7",
+                            ConcurrencyStamp = "737d48c4-e63b-41f9-9cde-8afa10288507",
                             Email = "viewer@project.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
@@ -488,59 +491,6 @@ namespace ProjectManagement.App.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ProjectManagement.App.Models.Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ActionUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeclineUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("IconCssClass")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("RecipientId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("RecipientUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("RelatedInviteId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RecipientId");
-
-                    b.ToTable("Notifications");
-                });
-
             modelBuilder.Entity("ProjectManagement.App.Models.Workspace.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -686,52 +636,6 @@ namespace ProjectManagement.App.Migrations
                     b.ToTable("Workspaces");
                 });
 
-            modelBuilder.Entity("ProjectManagement.App.Models.Workspace.WorkspaceInvite", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("InviteeEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("InviteeId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("InviterUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("WorkspaceId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InviteeId");
-
-                    b.HasIndex("InviterUserId");
-
-                    b.HasIndex("WorkspaceId");
-
-                    b.ToTable("WorkspaceInvites");
-                });
-
             modelBuilder.Entity("ProjectManagement.App.Models.Workspace.WorkspaceMember", b =>
                 {
                     b.Property<int>("WorkspaceId")
@@ -868,15 +772,6 @@ namespace ProjectManagement.App.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ProjectManagement.App.Models.Notification", b =>
-                {
-                    b.HasOne("ProjectManagement.App.Models.ApplicationUser", "Recipient")
-                        .WithMany()
-                        .HasForeignKey("RecipientId");
-
-                    b.Navigation("Recipient");
-                });
-
             modelBuilder.Entity("ProjectManagement.App.Models.Workspace.Project", b =>
                 {
                     b.HasOne("ProjectManagement.App.Models.ApplicationUser", "ProjectOwner")
@@ -938,31 +833,6 @@ namespace ProjectManagement.App.Migrations
                         .IsRequired();
 
                     b.Navigation("Owner");
-                });
-
-            modelBuilder.Entity("ProjectManagement.App.Models.Workspace.WorkspaceInvite", b =>
-                {
-                    b.HasOne("ProjectManagement.App.Models.ApplicationUser", "Invitee")
-                        .WithMany()
-                        .HasForeignKey("InviteeId");
-
-                    b.HasOne("ProjectManagement.App.Models.ApplicationUser", "Inviter")
-                        .WithMany()
-                        .HasForeignKey("InviterUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("ProjectManagement.App.Models.Workspace.Workspace", "Workspace")
-                        .WithMany()
-                        .HasForeignKey("WorkspaceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Invitee");
-
-                    b.Navigation("Inviter");
-
-                    b.Navigation("Workspace");
                 });
 
             modelBuilder.Entity("ProjectManagement.App.Models.Workspace.WorkspaceMember", b =>

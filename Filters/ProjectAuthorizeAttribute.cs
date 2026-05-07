@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using ProjectManagement.App.Extensions;
 using ProjectManagement.App.Models.Enum;
 using ProjectManagement.App.Repository.Interface;
 using System.Security.Claims;
@@ -28,8 +29,9 @@ namespace ProjectManagement.App.Filters
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var workspaceId = context.HttpContext.User.GetWorkspaceId();
             
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrEmpty(userId) || workspaceId == null)
             {
                 context.Result = new ChallengeResult();
                 return;
@@ -55,7 +57,7 @@ namespace ProjectManagement.App.Filters
 
             if (projectIdObj != null && int.TryParse(projectIdObj.ToString(), out int projectId))
             {
-                var isAuthorized = await _projectRepository.IsUserAuthorizedAsync(projectId, userId, _roles);
+                var isAuthorized = await _projectRepository.IsUserAuthorizedAsync(projectId, workspaceId.Value, userId, _roles);
                 
                 if (!isAuthorized)
                 {
