@@ -1,37 +1,125 @@
-﻿@using ProjectManagement.App.ViewModel
+@using ProjectManagement.App.ViewModel
 @using Syncfusion.EJ2
 @model TaskViewModel
 
-<div class="p-3" id="commmitDialogContent">
+<style>
+    #ExistingCommitGrid {
+        border: none !important;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    #ExistingCommitGrid .e-gridheader {
+        border-bottom: 1px solid var(--border-color) !important;
+        background-color: #fcfdfe !important;
+    }
+    #ExistingCommitGrid .e-headercell {
+        background-color: #fcfdfe !important;
+        color: var(--text-secondary) !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+    #ExistingCommitGrid .e-row {
+        height: 70px !important;
+    }
+    #ExistingCommitGrid .e-rowcell {
+        border-bottom: 1px solid #f1f5f9 !important;
+        font-size: 0.9rem;
+        color: var(--text-main);
+    }
+    #ExistingCommitGrid .e-gridcontent tr:hover {
+        background-color: #f8fafc !important;
+    }
+    .commit-msg-text {
+        font-weight: 500;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.4;
+    }
+</style>
+
+<div class="p-0" id="commmitDialogContent">
     <ejs-grid id="ExistingCommitGrid"
               allowPaging="true"
               allowSorting="true"
               commandClick="onExistingCommandClick"
-              height="400">
+              gridLines="None"
+              toolbar="@(new List<string>() { "Search" })"
+              height="450">
+        <e-grid-pagesettings pageSize="7"></e-grid-pagesettings>
         <e-data-manager url='@Url.Action("GetAvailableCommit", "Task", new { projectId = Model.ProjectId, isConnected = Model.isConnectedRepo })'
                         adaptor="UrlAdaptor"></e-data-manager>
         <e-grid-columns>
             <e-grid-column field="Id" headerText="ID" isPrimaryKey="true" visible="false"></e-grid-column>
-            <e-grid-column field="Sha" headerText="Sha" visible="false"></e-grid-column>
-            <e-grid-column field="Message" headerText="Message" width="200" textAlign="Left"></e-grid-column>
-            <e-grid-column field="AuthorName" headerText="Author Name" width="50" textAlign="Left"></e-grid-column>
+            <e-grid-column field="RepoId" visible="false"></e-grid-column>
+            
+            <e-grid-column field="Sha" 
+                           headerText="SHA" 
+                           width="100" 
+                           textAlign="Left"
+                           template="#shaTemplate"></e-grid-column>
+
+            <e-grid-column field="Message" 
+                           headerText="Commit Message" 
+                           width="250" 
+                           textAlign="Left"
+                           template="#messageTemplate"></e-grid-column>
+
+            <e-grid-column field="AuthorName" 
+                           headerText="Author" 
+                           width="180" 
+                           textAlign="Left"
+                           template="#authorTemplate"></e-grid-column>
+
             <e-grid-column field="CommitDate"
-                           headerText="Commit Date"
-                           width="200"
+                           headerText="Date"
+                           width="140"
                            type="date"
-                           format="dd MMMM yyyy"
+                           format="MMM dd, yyyy"
                            textAlign="Left"></e-grid-column>
 
             <e-grid-column headerText="Actions"
-                           width="120"
+                           width="100"
                            textAlign="Center"
                            commands="@(new List<object>
                             {
-                                new { type = "None", buttonOption= new { content = "Link", cssClass = "e-primary" }}
+                                new { type = "None", buttonOption= new { content = "Link", cssClass = "e-outline e-primary px-3 py-1" }}
                             })">
             </e-grid-column>
 
         </e-grid-columns>
     </ejs-grid>
 </div>
+
+<!-- Templates -->
+<script id="shaTemplate" type="text/x-template">
+    ${if(ShortSha)}
+    <span class="badge bg-soft-indigo text-primary border-0 fw-bold px-2 py-1" style="font-family: monospace; font-size: 0.8rem;">
+        ${ShortSha}
+    </span>
+    ${/if}
+</script>
+
+<script id="messageTemplate" type="text/x-template">
+    <div class="commit-msg-text" title="${Message}">
+        ${Message}
+    </div>
+</script>
+
+<script id="authorTemplate" type="text/x-template">
+    <div class="d-flex align-items-center">
+        ${if(AuthorInitial)}
+        <div class="user-avatar-circle me-2" style="width: 28px; height: 28px; font-size: 0.75rem; background-color: var(--primary-soft); display: flex; align-items: center; justify-content: center; border-radius: 50%; color: var(--primary-color); font-weight: bold; border: 1px solid var(--primary-color);">
+            ${AuthorInitial}
+        </div>
+        <span class="fw-600 text-main">${AuthorName}</span>
+        ${else}
+        <span class="text-muted">Unknown</span>
+        ${/if}
+    </div>
+</script>
+
 @Html.EJS().ScriptManager()

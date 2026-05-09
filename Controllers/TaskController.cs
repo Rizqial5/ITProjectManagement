@@ -348,7 +348,21 @@ namespace ProjectManagement.App.Controllers
             DataOperations dataOperations = new();
             var result = dataOperations.Execute(commitData, DataManagerRequest);
 
-            return Json(new { result = result, count = commitData.Count() });
+            // Proyeksi data untuk menyederhanakan tampilan di Grid
+            var listResult = (result as IEnumerable<CommitDto>)?.Select(c => new
+            {
+                c.Id,
+                c.Message,
+                c.AuthorName,
+                c.CommitDate,
+                c.IsIntegrated,
+                c.Sha,
+                c.RepoId,
+                ShortSha = string.IsNullOrEmpty(c.Sha) ? "" : (c.Sha.Length > 7 ? c.Sha.Substring(0, 7) : c.Sha),
+                AuthorInitial = string.IsNullOrEmpty(c.AuthorName) ? "?" : c.AuthorName.Substring(0, 1).ToUpper()
+            });
+
+            return Json(new { result = listResult, count = commitData.Count() });
 
         }
 
