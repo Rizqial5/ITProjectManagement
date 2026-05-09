@@ -1,5 +1,6 @@
 @using ProjectManagement.App.DTO.Project
 @using ProjectManagement.App.DTO.Task
+@using ProjectManagement.App.Extensions
 @using Syncfusion.EJ2
 @model ProjectDetailsDto
 @{
@@ -190,7 +191,6 @@
     </div>
 </div>
 
-@Html.EJS().ScriptManager()
 
 <partial name="_GithubDialog"></partial>
 
@@ -251,3 +251,5 @@
         );
     }
 </script>
+
+@Html.EJS().ScriptManager()

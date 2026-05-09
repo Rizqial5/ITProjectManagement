@@ -6,24 +6,24 @@
 
 	<div class="mb-3">
 		<label asp-for="Title" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
-		<ejs-textbox ejs-for="Title" cssClass="e-outline"></ejs-textbox>
+		<ejs-textbox id="ProjectTitle" ejs-for="Title" cssClass="e-outline"></ejs-textbox>
 		@* <span asp-validation-for="Title"></span> *@
 	</div>
 
 	<div class="mb-3">
 		<label asp-for="Description" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
-        <ejs-textbox ejs-for="Description" cssClass="e-outline"></ejs-textbox>
+        <ejs-textbox id="ProjectDescription" ejs-for="Description" cssClass="e-outline"></ejs-textbox>
 		@* <span asp-validation-for="Description"></span> *@
 	</div>
 
     <div class="mb-4">
         <label asp-for="EndDate" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
-        <ejs-datepicker id="EndDate" ejs-for="EndDate" name="EndDate" format="yyyy-MM-dd" cssClass="e-outline"></ejs-datepicker>
+        <ejs-datepicker id="ProjectEndDate" ejs-for="EndDate" name="EndDate" format="yyyy-MM-dd" cssClass="e-outline"></ejs-datepicker>
         <span asp-validation-for="EndDate" class="text-danger smaller"></span>
     </div>
 
 	<div class="text-end pt-3 border-top" >
-		<button type="submit" id="submit" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 10px; background-color: var(--primary-color); border: none;">Add Project</button>
+		<button type="submit" id="btnProjectSubmit" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 10px; background-color: var(--primary-color); border: none;">Add Project</button>
 	</div>
 </form>
 

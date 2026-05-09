@@ -21,26 +21,26 @@
                     @Html.HiddenFor(i=> i.ProjectID)
                     <div class="mb-3">
                         <label asp-for="Title" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
-                        <ejs-textbox ejs-for="Title" cssClass="e-outline"></ejs-textbox>
+                        <ejs-textbox id="TaskTitle" ejs-for="Title" cssClass="e-outline"></ejs-textbox>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="Description" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
-                        <ejs-textbox ejs-for="Description" cssClass="e-outline"></ejs-textbox>
+                        <ejs-textbox id="TaskDescription" ejs-for="Description" cssClass="e-outline"></ejs-textbox>
                     </div>
 
                     <div class="mb-3">
                         <label asp-for="Status" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
-                        <ejs-dropdownlist dataSource="@dataDropDown" ejs-for="Status" cssClass="e-outline"></ejs-dropdownlist>
+                        <ejs-dropdownlist id="TaskStatus" dataSource="@dataDropDown" ejs-for="Status" cssClass="e-outline"></ejs-dropdownlist>
                     </div>
 
                     <div class="mb-4">
                         <label asp-for="TargetDate" class="text-secondary smaller fw-bold text-uppercase mb-2 d-block" style="letter-spacing: 0.5px;"></label>
-                        <ejs-datepicker ejs-for="TargetDate" format="yyyy-MM-dd" cssClass="e-outline"></ejs-datepicker>
+                        <ejs-datepicker id="TaskTargetDate" ejs-for="TargetDate" format="yyyy-MM-dd" cssClass="e-outline"></ejs-datepicker>
                     </div>
 
                     <div class="text-end pt-3 border-top">
-                        <button type="submit" id="submit" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 10px; background-color: var(--primary-color); border: none;">Add Task</button>
+                        <button type="submit" id="btnTaskSubmit" class="btn btn-primary fw-bold px-4 py-2" style="border-radius: 10px; background-color: var(--primary-color); border: none;">Add Task</button>
                     </div>
                 </form>
             </e-content-template>

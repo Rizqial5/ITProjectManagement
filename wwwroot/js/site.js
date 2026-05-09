@@ -112,7 +112,17 @@ function handleUpdateDateResponse(evt) {
     }
 }
 
-// Global HTMX listener to open Bootstrap Modals programmatically
+// Global HTMX listeners for Modals and Debugging
+document.addEventListener('DOMContentLoaded', function () {
+    // Force HTMX to process the main content area to ensure all dynamic elements are registered
+    if (typeof htmx !== 'undefined') {
+        const mainContent = document.getElementById('main-content') || document.getElementById('app-root');
+        if (mainContent) {
+            htmx.process(mainContent);
+        }
+    }
+});
+
 document.body.addEventListener('htmx:afterOnLoad', function (evt) {
     // If the target is within the default modal content, show it
     if (evt.detail.target.id === 'modal-default' || evt.detail.target.closest('#modal-default')) {
@@ -122,4 +132,16 @@ document.body.addEventListener('htmx:afterOnLoad', function (evt) {
             modalInstance.show();
         }
     }
+});
+
+document.body.addEventListener('htmx:responseError', function (evt) {
+    console.error('[HTMX] Response Error:', evt.detail.xhr.status, evt.detail.xhr.statusText);
+});
+
+document.body.addEventListener('htmx:sendError', function (evt) {
+    console.error('[HTMX] Send Error: Network issue or request blocked.');
+});
+
+document.body.addEventListener('htmx:beforeRequest', function (evt) {
+    // Request started
 });
