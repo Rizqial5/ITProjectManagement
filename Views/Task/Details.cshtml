@@ -104,11 +104,7 @@
                 <h5 class="fw-bold mb-3 text-main">Quick Actions</h5>
                 <div class="d-flex flex-column gap-1">
                     <button class="quick-action-btn"
-                            hx-get
-                            hx-action="ShowUpdateDialog"
-                            hx-controller="Task"
-                            hx-route-projectId="@Model.ProjectId"
-                            hx-route-taskId="@Model.TaskId"
+                            hx-get="@Url.Action("ShowUpdateDialog", "Task", new { projectId = Model.ProjectId, taskId = Model.TaskId })"
                             hx-target="#updateDialog">
                         <i class="fas fa-edit text-primary"></i> Update Due Date
                     </button>
