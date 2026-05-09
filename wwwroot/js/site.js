@@ -123,17 +123,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-document.body.addEventListener('htmx:afterOnLoad', function (evt) {
-    // If the target is within the default modal content, show it
-    if (evt.detail.target.id === 'modal-default' || evt.detail.target.closest('#modal-default')) {
-        const modalElement = document.getElementById('modal-default');
-        if (modalElement) {
-            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
-            modalInstance.show();
-        }
-    }
-});
-
 document.body.addEventListener('htmx:responseError', function (evt) {
     console.error('[HTMX] Response Error:', evt.detail.xhr.status, evt.detail.xhr.statusText);
 });

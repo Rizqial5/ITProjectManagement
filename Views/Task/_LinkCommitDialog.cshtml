@@ -1,15 +1,5 @@
-﻿@using ProjectManagement.App.ViewModel
+@using ProjectManagement.App.ViewModel
 @model TaskViewModel
-
-
-<ejs-dialog id="commitDialog" header="Link Github Commits" 
-            width="75%" visible="false" showCloseIcon="true" isModal="true"
-            target="body" close="closeCommitDialog">
-    <e-content-template>
-        <div class="content-dialog" id="commitGrid">
-        </div>
-    </e-content-template>
-</ejs-dialog>
 
 <script>
     function onExistingCommandClick(args){
@@ -18,8 +8,6 @@
             var commitId = rowData.Id;
             var RepoId = rowData.RepoId;
             var taskId = @Model.TaskId;
-
-            console.log("Linked");
 
             $.ajax({
                 url: '@Url.Action("LinkCommit", "Task")',
@@ -30,37 +18,33 @@
                     taskId : taskId
                 },
                 success: function (response) {
-                    
-
                     location.reload();
-
-                    
                 },
                 error: function (xhr, status, error) {
-                    location.reload();
                     console.error(error);
-
+                    location.reload();
                 }
             });
-
         }
     }
 
     function openCommitDialog(){
         var dialogObj = document.getElementById("commitDialog").ej2_instances[0];
-        
         dialogObj.show();
-
     }
-
-    
 
     function closeCommitDialog(){
-        var commitDialog = document.getElementById("commitGrid")
-        var contentDialog = document.getElementById("commmitDialogContent");
-
-        commitDialog.removeChild(contentDialog);
-
-
+        var dialogObj = document.getElementById("commitDialog").ej2_instances[0];
+        dialogObj.hide();
     }
 </script>
+
+<ejs-dialog id="commitDialog" header="Link Github Commits" 
+            width="75%" visible="false" showCloseIcon="true" isModal="true"
+            target="body">
+    <e-content-template>
+        <div class="content-dialog" id="commitGrid">
+             <partial name="_LinkCommitGrid" model="Model"></partial>
+        </div>
+    </e-content-template>
+</ejs-dialog>

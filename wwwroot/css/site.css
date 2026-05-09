@@ -784,7 +784,6 @@ footer {
 /* Syncfusion Custom Polishing */
 .e-grid {
     border: none !important;
-    border-radius: 16px !important;
     overflow: hidden !important;
 }
 
