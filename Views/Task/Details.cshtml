@@ -135,12 +135,9 @@
 <div id="updateDialog"></div>
 
 <script>
-    document.body.addEventListener("htmx:afterOnLoad", function (evt) {
+    document.body.addEventListener('htmx:afterOnLoad', function (evt) {
         if (evt.detail.target.id === "updateDialog") {
             showUpdateDateDialog();
-        }
-        if (evt.detail.target.id === "commitGrid") {
-            openCommitDialog();
         }
     });
 </script>

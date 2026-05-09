@@ -11,3 +11,24 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const defaultModal = document.getElementById('modal-default');
+        if (defaultModal) {
+            defaultModal.addEventListener('hidden.bs.modal', function () {
+                // Reset content to loading spinner when modal is closed
+                const modalContent = defaultModal.querySelector('.modal-content');
+                if (modalContent) {
+                    modalContent.innerHTML = `
+                        <div class="modal-body text-center p-5">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+    });
+</script>

@@ -111,3 +111,15 @@ function handleUpdateDateResponse(evt) {
         console.error("Error handling update date response:", err);
     }
 }
+
+// Global HTMX listener to open Bootstrap Modals programmatically
+document.body.addEventListener('htmx:afterOnLoad', function (evt) {
+    // If the target is within the default modal content, show it
+    if (evt.detail.target.id === 'modal-default' || evt.detail.target.closest('#modal-default')) {
+        const modalElement = document.getElementById('modal-default');
+        if (modalElement) {
+            const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+            modalInstance.show();
+        }
+    }
+});
