@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO.Workspace;
 using ProjectManagement.App.Extensions;
+using ProjectManagement.App.Models;
 using ProjectManagement.App.Repository.Interface;
 using System.Security.Claims;
 
@@ -14,17 +17,23 @@ namespace ProjectManagement.App.Controllers
         private readonly IAuthRepository _authRepository;
         private readonly INotificationRepository _notificationRepository;
         private readonly IUserRepository _userRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
         public WorkspaceSettingsController(
             IWorkspaceRepository workspaceRepository,
             IAuthRepository authRepository,
             INotificationRepository notificationRepository,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager)
         {
             _workspaceRepository = workspaceRepository;
             _authRepository = authRepository;
             _notificationRepository = notificationRepository;
             _userRepository = userRepository;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         public async Task<IActionResult> Index()
@@ -88,48 +97,31 @@ namespace ProjectManagement.App.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> InviteMember([FromBody] InviteMemberDto model)
+        public async Task<IActionResult> SwitchWorkspace(int workspaceId)
         {
-            var workspaceId = User.GetWorkspaceId();
-            var inviterId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var inviterName = User.Identity?.Name ?? "Someone";
-
-            if (workspaceId == null || inviterId == null)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
             {
-                return Json(new { success = false, message = "User context is missing." });
+                return Json(new { success = false, message = "User not authenticated." });
             }
 
-            if (!ModelState.IsValid)
+            var isMember = await _workspaceRepository.IsUserInWorkspaceAsync(workspaceId, userId);
+            if (!isMember)
             {
-                 var errors = string.Join("; ", ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage));
-                return Json(new { success = false, message = "Validation failed: " + errors });
+                return Json(new { success = false, message = "You do not have access to this workspace." });
             }
 
-            var userToInvite = await _userRepository.GetUserByEmailAsync(model.Email);
-            if (userToInvite == null)
+            HttpContext.Session.SetInt32("ActiveWorkspaceId", workspaceId);
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
             {
-                return Json(new { success = false, message = $"User with email '{model.Email}' not found." });
+                await _signInManager.RefreshSignInAsync(user);
             }
 
-            var isAlreadyMember = await _workspaceRepository.IsUserInWorkspaceAsync(workspaceId.Value, userToInvite.Id);
-            if (isAlreadyMember)
-            {
-                return Json(new { success = false, message = "This user is already a member of your workspace." });
-            }
+            TempData["RepoNotification"] = "Workspace switched successfully.";
 
-            // In a real app, this would use IInviteRepository to create a pending invite
-            // For now, as part of SaaS phase 2, let's assume direct invite + notification
-            var workspace = await _workspaceRepository.GetWorkspaceDetailsAsync(workspaceId.Value);
-
-            await _notificationRepository.CreateNotificationAsync(
-                recipientUserId: userToInvite.Id,
-                title: "Workspace Invitation",
-                message: $"{inviterName} invited you to join the '{workspace?.Name}' workspace.",
-                url: Url.Action("Index", "WorkspaceSettings"),
-                iconCssClass: "fas fa-user-plus"
-            );
-
-            return Json(new { success = true, message = $"An invitation notification has been sent to {model.Email}." });
+            return Json(new { success = true, redirectUrl = Url.Action("Index", "Home") });
         }
     }
 }

@@ -102,6 +102,15 @@ namespace ProjectManagement.App.Repository
             invite.Status = InviteStatus.Accepted;
             invite.InviteeId = inviteeUserId;
 
+            // Mark related notifications as read
+            var notifications = await _dbContext.Notifications
+                .Where(n => n.RelatedInviteId == invite.Id && n.RecipientUserId == inviteeUserId && !n.IsRead)
+                .ToListAsync();
+            foreach (var notification in notifications)
+            {
+                notification.IsRead = true;
+            }
+
             await _dbContext.SaveChangesAsync();
 
             return new ResponseResultDto { Success = true, Message = "Successfully joined the workspace." };
@@ -124,6 +133,16 @@ namespace ProjectManagement.App.Repository
             }
 
             invite.Status = InviteStatus.Declined;
+
+            // Mark related notifications as read
+            var declineNotifications = await _dbContext.Notifications
+                .Where(n => n.RelatedInviteId == invite.Id && n.RecipientUserId == inviteeUserId && !n.IsRead)
+                .ToListAsync();
+            foreach (var notification in declineNotifications)
+            {
+                notification.IsRead = true;
+            }
+
             await _dbContext.SaveChangesAsync();
 
             return new ResponseResultDto { Success = true, Message = "Invitation declined." };

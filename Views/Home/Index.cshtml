@@ -1,4 +1,4 @@
-﻿@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.DTO.Project
 @using ProjectManagement.App.Extensions
 @using ProjectManagement.App.Models.Enum
 @using ProjectManagement.App.ViewModel.Home
@@ -9,7 +9,7 @@
 
 @model DashboardViewModel
 
-@if (Model.TotalProjects == 0)
+@if (ViewBag.ShowLandingPage == true)
 {
     <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1" style="min-height: 100vh;">
         <div class="card-custom text-center p-5 shadow-elegant" style="max-width: 600px; border-radius: 32px; background: white;">

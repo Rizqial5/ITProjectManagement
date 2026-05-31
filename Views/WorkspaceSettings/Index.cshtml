@@ -138,11 +138,33 @@
 
 <!-- Template for Grid Action Column -->
 <script id="actionTemplate" type="text/x-template">
-    <button class="btn btn-link text-primary p-0 smaller fw-bold text-decoration-none" onclick="window.location.href='/Home/Index'">Switch</button>
+    <button class="btn btn-link text-primary p-0 smaller fw-bold text-decoration-none" onclick="switchWorkspace(${WorkspaceId})">Switch</button>
 </script>
 
 @section Scripts {
     <script>
+        function switchWorkspace(workspaceId) {
+            var token = $('input[name="__RequestVerificationToken"]').first().val();
+            $.ajax({
+                type: 'POST',
+                url: '/WorkspaceSettings/SwitchWorkspace',
+                data: {
+                    workspaceId: workspaceId,
+                    __RequestVerificationToken: token
+                },
+                success: function (response) {
+                    if (response.success) {
+                        window.location.href = response.redirectUrl;
+                    } else {
+                        ejs.notifications.ToastUtility.show(response.message || "Failed to switch workspace.", 'Error', 3000);
+                    }
+                },
+                error: function () {
+                    ejs.notifications.ToastUtility.show("An error occurred while switching workspace.", 'Error', 3000);
+                }
+            });
+        }
+
         $('#workspaceNameForm').on('submit', function (e) {
             e.preventDefault();
             var form = $(this);

@@ -16,12 +16,18 @@ namespace ProjectManagement.App.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IProjectRepository _projectRepository;
         private readonly IGithubRepository _githubRepository;
+        private readonly IWorkspaceRepository _workspaceRepository;
 
-        public HomeController(ILogger<HomeController> logger, IProjectRepository projectRepository, IGithubRepository githubRepository)
+        public HomeController(
+            ILogger<HomeController> logger,
+            IProjectRepository projectRepository,
+            IGithubRepository githubRepository,
+            IWorkspaceRepository workspaceRepository)
         {
             _logger = logger;
             _projectRepository = projectRepository;
             _githubRepository = githubRepository;
+            _workspaceRepository = workspaceRepository;
         }
 
         [Authorize]
@@ -79,8 +85,13 @@ namespace ProjectManagement.App.Controllers
                 RecentActivities = recentActivities
             };
 
+            var workspaces = await _workspaceRepository.GetUserWorkspacesAsync(userId);
+            var hasMultipleWorkspaces = workspaces.Count() > 1;
+            var hasSwitched = HttpContext.Session.GetInt32("ActiveWorkspaceId").HasValue;
+
             ViewBag.IsProjectEmpty = stats.TotalProjects == 0;
-            ViewBag.HideNavAndSidebar = stats.TotalProjects == 0;
+            ViewBag.ShowLandingPage = stats.TotalProjects == 0 && !hasSwitched;
+            ViewBag.HideNavAndSidebar = stats.TotalProjects == 0 && !hasMultipleWorkspaces;
 
             return View(dashboardData);
         }

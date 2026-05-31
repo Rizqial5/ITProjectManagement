@@ -45,6 +45,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     }));
 
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpContextAccessor();
 
 //Repositories
 builder.Services.AddSession();

@@ -1,4 +1,4 @@
-﻿using Htmx;
+using Htmx;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using ProjectManagement.App.DTO;
@@ -96,6 +96,15 @@ namespace ProjectManagement.App.Controllers
                 .Select(r => new { value = (int)r, text = r.ToString() })
                 .ToList();
 
+            var currentUserMember = members.FirstOrDefault(m => m.UserId == userId);
+            var currentUserRole = currentUserMember?.Role;
+            if (projectData.ProjectOwnerUserId == userId)
+            {
+                currentUserRole = ProjectRole.Owner;
+            }
+            ViewBag.CurrentUserRole = currentUserRole;
+            ViewBag.CurrentUserId = userId;
+
             var checkConnectProject = await _projectRepository.CheckConnectedProject(project.Id, workspaceId.Value, userId!);
 
             if (checkConnectProject.Success && User.IsConnectedGithub())
@@ -138,7 +147,7 @@ namespace ProjectManagement.App.Controllers
         }
 
         [HttpPost]
-        [ProjectAuthorize(ProjectRole.Owner)]
+        [ProjectAuthorize(ProjectRole.Owner, ProjectRole.Manager, ProjectRole.TeamLead)]
         public async Task<IActionResult> UpdateMemberRole(AddProjectMemberDto model)
         {
             var workspaceId = User.GetWorkspaceId();

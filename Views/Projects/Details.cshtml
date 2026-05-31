@@ -1,6 +1,7 @@
 @using ProjectManagement.App.DTO.Project
 @using ProjectManagement.App.DTO.Task
 @using ProjectManagement.App.Extensions
+@using ProjectManagement.App.Models.Enum
 @using Syncfusion.EJ2
 @model ProjectDetailsDto
 @{
@@ -146,9 +147,12 @@
         <div class="card-custom">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5 class="fw-bold m-0 text-main">Team Members</h5>
-                <button class="btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" onclick="showAddMemberDialog()">
-                    <i class="fas fa-plus"></i>
-                </button>
+                @if (ViewBag.CurrentUserRole == ProjectRole.Owner)
+                {
+                    <button class="btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" onclick="showAddMemberDialog()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                }
             </div>
 
             <div class="team-list-container">
@@ -172,16 +176,32 @@
                                 </div>
                             </div>
                             
-                            @if (m.Role != "Owner") 
+                            @if (m.Role != "Owner" && m.UserId != ViewBag.CurrentUserId) 
                             {
-                                <div class="member-actions ms-auto">
-                                    <button class="btn btn-link text-secondary p-1" onclick="showEditRoleDialog('@m.UserId', '@m.Role')" title="Edit Role">
-                                        <i class="fas fa-edit small"></i>
-                                    </button>
-                                    <button class="btn btn-link text-danger p-1" onclick="removeMember('@m.UserId', '@m.Name')" title="Remove Member">
-                                        <i class="fas fa-user-minus small"></i>
-                                    </button>
-                                </div>
+                                var canEditRole = ViewBag.CurrentUserRole == ProjectRole.Owner || 
+                                                  ViewBag.CurrentUserRole == ProjectRole.Manager || 
+                                                  ViewBag.CurrentUserRole == ProjectRole.TeamLead;
+                                
+                                var canRemoveMember = ViewBag.CurrentUserRole == ProjectRole.Owner || 
+                                                      ViewBag.CurrentUserRole == ProjectRole.Manager;
+
+                                if (canEditRole || canRemoveMember)
+                                {
+                                    <div class="member-actions ms-auto">
+                                        @if (canEditRole)
+                                        {
+                                            <button class="btn btn-link text-secondary p-1" onclick="showEditRoleDialog('@m.UserId', '@m.Role')" title="Edit Role">
+                                                <i class="fas fa-edit small"></i>
+                                            </button>
+                                        }
+                                        @if (canRemoveMember)
+                                        {
+                                            <button class="btn btn-link text-danger p-1" onclick="removeMember('@m.UserId', '@m.Name')" title="Remove Member">
+                                                <i class="fas fa-user-minus small"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                }
                             }
                         </div>
                     }

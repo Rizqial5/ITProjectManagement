@@ -1,5 +1,7 @@
-﻿@using ProjectManagement.App.Extensions
+@using ProjectManagement.App.Extensions
 @using ProjectManagement.App.DTO.Project
+@using System.Security.Claims
+@inject ProjectManagement.App.Repository.Interface.IWorkspaceRepository WorkspaceRepository
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,12 +43,47 @@
                             </div>
                             <div class="d-flex flex-column line-height-1">
                                 <span class="fw-800 text-main tracking-tight" style="font-size: 1.25rem; letter-spacing: -0.5px;">Commit<span class="text-primary">Link</span></span>
-                                @if (User.Identity?.IsAuthenticated == true && !string.IsNullOrEmpty(User.GetWorkspaceName()))
-                                {
-                                    <span class="text-secondary smaller fw-bold" style="font-size: 0.65rem; margin-top: -2px;">@User.GetWorkspaceName()</span>
-                                }
                             </div>
                         </a>
+
+                        @if (User.Identity?.IsAuthenticated == true && !string.IsNullOrEmpty(User.GetWorkspaceName()))
+                        {
+                            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                            var workspaces = userId != null
+                                ? await WorkspaceRepository.GetUserWorkspacesAsync(userId)
+                                : Enumerable.Empty<ProjectManagement.App.Models.Workspace.WorkspaceMember>();
+                            var currentWorkspaceId = User.GetWorkspaceId();
+
+                            <div class="dropdown ms-2 d-none d-md-block">
+                                <button class="btn btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 border-0 bg-transparent px-2 py-1" 
+                                        type="button" id="workspaceDropdown" data-bs-toggle="dropdown" aria-expanded="false" 
+                                        style="border-radius: 8px; color: #4b5563; font-weight: 600; font-size: 0.85rem; box-shadow: none;">
+                                    <i class="fas fa-building text-primary small"></i>
+                                    <span>@User.GetWorkspaceName()</span>
+                                </button>
+                                <ul class="dropdown-menu shadow-elegant border-0 py-2 mt-1" aria-labelledby="workspaceDropdown" 
+                                    style="border-radius: 12px; min-width: 220px; font-size: 0.85rem; border: 1px solid #f1f5f9;">
+                                    <li class="dropdown-header text-uppercase tracking-wider fw-bold text-secondary pb-2" style="font-size: 0.7rem; color: #94a3b8 !important;">Switch Workspace</li>
+                                    @foreach (var wm in workspaces)
+                                    {
+                                        var isActive = wm.WorkspaceId == currentWorkspaceId;
+                                        <li>
+                                            <a class="dropdown-item d-flex align-items-center justify-content-between py-2 px-3 @(isActive ? "active bg-light text-primary fw-bold" : "text-main")" 
+                                               href="#" onclick="globalSwitchWorkspace(@wm.WorkspaceId); return false;">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i class="fas fa-folder small @(isActive ? "text-primary" : "text-secondary")"></i>
+                                                    <span>@wm.Workspace?.Name</span>
+                                                </div>
+                                                @if (isActive)
+                                                {
+                                                    <i class="fas fa-check text-primary small"></i>
+                                                }
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
                         
                         <div class="search-container d-none d-lg-block ms-4">
                             <div class="input-group">
@@ -250,6 +287,46 @@
                 <text>showGlobalNotification('@TempData["RepoNotificationFailed"]', 'Error');</text>
             }
         });
+    </script>
+
+    <form id="globalSwitchWorkspaceForm" action="/WorkspaceSettings/SwitchWorkspace" method="post" style="display:none;">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="workspaceId" id="globalSwitchWorkspaceId" />
+    </form>
+
+    <script>
+        function globalSwitchWorkspace(workspaceId) {
+            var form = document.getElementById('globalSwitchWorkspaceForm');
+            document.getElementById('globalSwitchWorkspaceId').value = workspaceId;
+            var token = form.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            $.ajax({
+                type: 'POST',
+                url: form.action,
+                data: {
+                    workspaceId: workspaceId,
+                    __RequestVerificationToken: token
+                },
+                success: function (response) {
+                    if (response.success) {
+                        window.location.href = response.redirectUrl;
+                    } else {
+                        if (window.ejs && ejs.notifications && ejs.notifications.ToastUtility) {
+                            ejs.notifications.ToastUtility.show(response.message || "Failed to switch workspace.", 'Error', 3000);
+                        } else {
+                            alert(response.message || "Failed to switch workspace.");
+                        }
+                    }
+                },
+                error: function () {
+                    if (window.ejs && ejs.notifications && ejs.notifications.ToastUtility) {
+                        ejs.notifications.ToastUtility.show("An error occurred while switching workspace.", 'Error', 3000);
+                    } else {
+                        alert("An error occurred while switching workspace.");
+                    }
+                }
+            });
+        }
     </script>
 
     <partial name="_CreateProjectModal" />
