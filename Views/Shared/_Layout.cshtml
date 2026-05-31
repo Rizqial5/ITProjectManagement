@@ -101,20 +101,24 @@
                             <div class="d-flex gap-2">
                                 @if (!User.IsConnectedGithub())
                                 {
-                                    <ejs-button id="btnConnectGithubGlobal"
-                                                cssClass="e-outline d-none d-md-inline-block px-3 py-2"
-                                                content="Connect GitHub"
-                                                iconCss="fab fa-github"
-                                                onclick="window.location.href='@Url.Action("Connect", "GithubAuth")'">
-                                    </ejs-button>
+                                    <div class="d-none d-md-inline-block">
+                                        <ejs-button id="btnConnectGithubGlobal"
+                                                    cssClass="e-outline px-3 py-2"
+                                                    content="Connect GitHub"
+                                                    iconCss="fab fa-github"
+                                                    onclick="window.location.href='@Url.Action("Connect", "GithubAuth")'">
+                                        </ejs-button>
+                                    </div>
                                 }
 
-                                <ejs-button id="btnNewProjectGlobal"
-                                            cssClass="e-primary d-none d-md-inline-block px-4 py-2"
-                                            content="New Project"
-                                            iconCss="e-icons e-plus"
-                                            onclick="createProject()">
-                                </ejs-button>
+                                <div class="d-none d-md-inline-block">
+                                    <ejs-button id="btnNewProjectGlobal"
+                                                cssClass="e-primary px-4 py-2"
+                                                content="New Project"
+                                                iconCss="e-icons e-plus"
+                                                onclick="createProject()">
+                                    </ejs-button>
+                                </div>
                             </div>
 
                             <div class="nav-notifications position-relative dropdown">

@@ -1,4 +1,4 @@
-﻿@using ProjectManagement.App.DTO.Project
+@using ProjectManagement.App.DTO.Project
 @using ProjectManagement.App.Models.Enum
 @using ProjectManagement.App.ViewModel.Project
 @model IEnumerable<ProjectCardViewModel>
@@ -63,15 +63,18 @@
     @await Html.PartialAsync("_ProjectCardListPartial", Model)
 </div>
 
-<div class="d-flex justify-content-center mt-5 mb-5 pb-5">
-    <div class="card-custom p-2" style="border-radius: 12px; background: #fff; box-shadow: var(--shadow-sm);">
-        <ejs-pager id="ProjectPager"
-                   pageSize="@ViewBag.PageSize"
-                   totalRecordsCount="@ViewBag.TotalRecords"
-                   pageSizes="true">
-        </ejs-pager>
+@if (ViewBag.TotalRecords > ViewBag.PageSize)
+{
+    <div class="d-flex justify-content-center mt-5 mb-5 pb-5">
+        <div class="card-custom p-2" style="border-radius: 12px; background: #fff; box-shadow: var(--shadow-sm);">
+            <ejs-pager id="ProjectPager"
+                       pageSize="@ViewBag.PageSize"
+                       totalRecordsCount="@ViewBag.TotalRecords"
+                       pageSizes="true">
+            </ejs-pager>
+        </div>
     </div>
-</div>
+}
 
 <partial name="_GithubDialog"></partial>
 
@@ -87,9 +90,11 @@
         document.addEventListener("DOMContentLoaded", setPagerClick)
 
         function setPagerClick() {
-
-            var pager = document.getElementById("ProjectPager").ej2_instances[0];
-            pager.click = onPagerClick;
+            var pagerEl = document.getElementById("ProjectPager");
+            if (pagerEl && pagerEl.ej2_instances && pagerEl.ej2_instances[0]) {
+                var pager = pagerEl.ej2_instances[0];
+                pager.click = onPagerClick;
+            }
         }
 
         function onPagerClick(args) {
