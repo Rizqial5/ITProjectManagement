@@ -247,6 +247,8 @@ namespace ProjectManagement.App.Repository
             var activeProjectsQuery = _dbContext.Projects
                 .Include(p => p.Tasks)
                     .ThenInclude(t => t.Commits)
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(m => m.User)
                 .Where(p => p.WorkspaceId == workspaceId && (p.ProjectOwnerUserId == userId || p.ProjectMembers.Any(m => m.UserId == userId)))
                 .Where(p => p.Tasks.Any(t => t.Status == Models.Enum.Status.InProgress || t.Status == Models.Enum.Status.ToDo));
 
@@ -258,6 +260,8 @@ namespace ProjectManagement.App.Repository
                 return await _dbContext.Projects
                     .Include(p => p.Tasks)
                         .ThenInclude(t => t.Commits)
+                    .Include(p => p.ProjectMembers)
+                        .ThenInclude(m => m.User)
                     .Where(p => p.WorkspaceId == workspaceId && (p.ProjectOwnerUserId == userId || p.ProjectMembers.Any(m => m.UserId == userId)))
                     .OrderByDescending(p => p.CreatedAt)
                     .Take(take)

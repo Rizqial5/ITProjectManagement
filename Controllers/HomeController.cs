@@ -58,7 +58,17 @@ namespace ProjectManagement.App.Controllers
                     Description = p.Description ?? string.Empty,
                     Status = p.Tasks != null && p.Tasks.Any(t => t.Status == Models.Enum.Status.InProgress) ? Models.Enum.Status.InProgress : Models.Enum.Status.ToDo,
                     TaskTotal = p.Tasks?.Count ?? 0,
-                    TaskComplete = p.Tasks?.Count(t => t.Status == Models.Enum.Status.Done) ?? 0
+                    TaskComplete = p.Tasks?.Count(t => t.Status == Models.Enum.Status.Done) ?? 0,
+                    MemberInitials = p.ProjectMembers
+                        .Where(m => m.IsActive && m.User != null)
+                        .Select(m => {
+                            var name = m.User.UserName ?? m.User.Email ?? "?";
+                            var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            var initials = parts.Length > 1 
+                                ? string.Concat(parts[0][0], parts[1][0]) 
+                                : parts[0].Length > 1 ? parts[0].Substring(0, 2) : parts[0];
+                            return initials.ToUpper();
+                        }).ToList()
                 }).ToList();
 
             // Get Recent Activity through repository

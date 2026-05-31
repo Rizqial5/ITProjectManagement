@@ -158,6 +158,7 @@ else
                                                      type="Linear" 
                                                      value="@progress" 
                                                      height="6px" 
+                                                     width="100%"
                                                      trackThickness="6" 
                                                      progressThickness="6"
                                                      cornerRadius="Round"
@@ -166,9 +167,24 @@ else
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center pt-1">
-                                    <div class="d-flex -space-x-2">
-                                        <div class="user-avatar-circle" style="width: 24px; height: 24px; font-size: 0.5rem; border: 2px solid #fff; border-radius: 8px;">JD</div>
-                                        <div class="user-avatar-circle" style="width: 24px; height: 24px; font-size: 0.5rem; border: 2px solid #fff; border-radius: 8px; background: #10b981; margin-left: -8px;">AS</div>
+                                    <div class="d-flex align-items-center" style="margin-left: 4px;">
+                                        @if (project.MemberInitials != null && project.MemberInitials.Any())
+                                        {
+                                            int idx = 0;
+                                            var bgColors = new[] { "var(--primary-color)", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6" };
+                                            foreach (var initial in project.MemberInitials.Take(3))
+                                            {
+                                                var style = idx > 0 ? "margin-left: -8px;" : "";
+                                                var bgColor = bgColors[Math.Abs(initial.GetHashCode()) % bgColors.Length];
+                                                <div class="user-avatar-circle" style="width: 24px; height: 24px; font-size: 0.5rem; border: 2px solid #fff; border-radius: 8px; background: @bgColor; @style">@initial</div>
+                                                idx++;
+                                            }
+                                            if (project.MemberInitials.Count > 3)
+                                            {
+                                                var extraCount = project.MemberInitials.Count - 3;
+                                                <div class="user-avatar-circle" style="width: 24px; height: 24px; font-size: 0.5rem; border: 2px solid #fff; border-radius: 8px; background: #6b7280; margin-left: -8px;" title="@extraCount more members">+@extraCount</div>
+                                            }
+                                        }
                                     </div>
                                     <div class="text-secondary smaller fw-bold">
                                         @project.TaskComplete/@project.TaskTotal Tasks

@@ -258,7 +258,19 @@
             if (toggleBtn) {
                 toggleBtn.addEventListener('click', function (e) {
                     e.preventDefault();
-                    if (sidebarObj) sidebarObj.toggle();
+                    if (sidebarObj) {
+                        sidebarObj.toggle();
+                        
+                        // Dispatch resize events smoothly during transition to update progress bar width
+                        let count = 0;
+                        const interval = setInterval(function() {
+                            window.dispatchEvent(new Event('resize'));
+                            count++;
+                            if (count >= 15) {
+                                clearInterval(interval);
+                            }
+                        }, 25);
+                    }
                 });
             }
 

@@ -862,3 +862,9 @@ footer {
         font-size: 1.75rem;
     }
 }
+
+/* Fluid ProgressBar styling */
+.e-progressbar, 
+.e-progressbar svg {
+    width: 100% !important;
+}
