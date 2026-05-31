@@ -868,3 +868,102 @@ footer {
 .e-progressbar svg {
     width: 100% !important;
 }
+
+/* Global Search Dropdown Styling */
+#global-search-results {
+    max-height: 480px;
+    overflow-y: auto;
+    width: 450px;
+    border-radius: 16px !important;
+    border: 1px solid var(--border-color) !important;
+    background-color: #ffffff;
+    box-shadow: var(--shadow-elegant) !important;
+}
+
+.search-results-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.search-group-header {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.25rem 0.5rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-group-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.search-result-item {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 12px;
+    padding: 0.6rem 0.75rem;
+    transition: var(--transition);
+}
+
+.search-result-item:hover,
+.search-result-item.active-search-item {
+    background-color: var(--primary-light);
+    color: var(--primary-color) !important;
+    cursor: pointer;
+}
+
+.search-icon-wrapper {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.bg-soft-primary {
+    background-color: #eef2ff;
+    color: #4f46e5;
+}
+
+.bg-soft-success {
+    background-color: #f0fdf4;
+    color: #16a34a;
+}
+
+.search-item-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.search-result-item:hover .search-item-title,
+.search-result-item.active-search-item .search-item-title {
+    color: var(--primary-color);
+}
+
+.search-item-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.15rem;
+}
+
+.search-member-nonlink {
+    background-color: #fafbfc;
+}
+
+.search-member-nonlink:hover {
+    background-color: #fafbfc;
+    color: inherit !important;
+    cursor: default;
+}

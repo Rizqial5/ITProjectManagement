@@ -1,0 +1,116 @@
+@model ProjectManagement.App.DTO.Search.SearchQueryResultDto
+
+<div class="search-results-container">
+    @if (!Model.Projects.Any() && !Model.Tasks.Any() && !Model.Members.Any())
+    {
+        <div class="text-center py-4 text-secondary">
+            <i class="fas fa-search-minus mb-2 fs-5 text-muted d-block"></i>
+            <p class="smaller mb-0 fw-500">No results found for "@Model.Query"</p>
+        </div>
+    }
+    else
+    {
+        @if (Model.Projects.Any())
+        {
+            <div class="search-group mb-3">
+                <div class="search-group-header d-flex justify-content-between align-items-center">
+                    <span>Projects</span>
+                    <span class="badge bg-light text-secondary rounded-pill smaller">@Model.Projects.Count</span>
+                </div>
+                <div class="search-group-items">
+                    @foreach (var proj in Model.Projects)
+                    {
+                        <a href="/Projects/Details/@proj.Id" 
+                           hx-get="/Projects/Details/@proj.Id" 
+                           hx-target="#main-content" 
+                           hx-push-url="true" 
+                           class="search-result-item" 
+                           onclick="closeSearchDropdown()">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="search-icon-wrapper bg-soft-primary">
+                                    <i class="fas fa-folder text-primary"></i>
+                                </div>
+                                <div class="d-flex flex-column overflow-hidden">
+                                    <span class="search-item-title text-truncate">@proj.Name</span>
+                                    @if (!string.IsNullOrEmpty(proj.Description))
+                                    {
+                                        <span class="search-item-desc text-truncate">@proj.Description</span>
+                                    }
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (Model.Tasks.Any())
+        {
+            <div class="search-group mb-3">
+                <div class="search-group-header d-flex justify-content-between align-items-center">
+                    <span>Tasks</span>
+                    <span class="badge bg-light text-secondary rounded-pill smaller">@Model.Tasks.Count</span>
+                </div>
+                <div class="search-group-items">
+                    @foreach (var task in Model.Tasks)
+                    {
+                        <a href="/task/@task.ProjectId/@task.Id" 
+                           hx-get="/task/@task.ProjectId/@task.Id" 
+                           hx-target="#main-content" 
+                           hx-push-url="true" 
+                           class="search-result-item" 
+                           onclick="closeSearchDropdown()">
+                            <div class="d-flex align-items-center justify-content-between w-100 gap-2">
+                                <div class="d-flex align-items-center gap-3 overflow-hidden">
+                                    <div class="search-icon-wrapper bg-soft-success">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    </div>
+                                    <div class="d-flex flex-column overflow-hidden">
+                                        <span class="search-item-title text-truncate">@task.Title</span>
+                                        <span class="search-item-desc text-truncate">Project: <span class="fw-600">@task.ProjectName</span></span>
+                                    </div>
+                                </div>
+                                @{
+                                    var statusBadgeClass = task.Status == "Done" ? "bg-soft-success" : (task.Status == "InProgress" ? "bg-soft-indigo" : "bg-soft-secondary");
+                                }
+                                <span class="soft-badge @statusBadgeClass flex-shrink-0" style="font-size: 0.6rem; padding: 2px 6px;">@task.Status</span>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (Model.Members.Any())
+        {
+            <div class="search-group">
+                <div class="search-group-header d-flex justify-content-between align-items-center">
+                    <span>Members</span>
+                    <span class="badge bg-light text-secondary rounded-pill smaller">@Model.Members.Count</span>
+                </div>
+                <div class="search-group-items">
+                    @foreach (var member in Model.Members)
+                    {
+                        <div class="search-result-item search-member-nonlink px-3 py-2">
+                            <div class="d-flex align-items-center justify-content-between w-100 gap-2">
+                                <div class="d-flex align-items-center gap-3 overflow-hidden">
+                                    <div class="user-avatar-circle" style="width: 32px; height: 32px; font-size: 0.8rem; border-radius: 10px; box-shadow: none; flex-shrink: 0; background: var(--primary-light); color: var(--primary-color);">
+                                        @(member.UserName.Length > 0 ? member.UserName[0].ToString().ToUpper() : "?")
+                                    </div>
+                                    <div class="d-flex flex-column overflow-hidden">
+                                        <span class="search-item-title text-truncate">@member.UserName</span>
+                                        <span class="search-item-desc text-truncate">@member.Email</span>
+                                    </div>
+                                </div>
+                                @{
+                                    var roleClass = member.Role == "Admin" ? "role-admin" : "role-member";
+                                }
+                                <span class="role-badge @roleClass flex-shrink-0" style="font-size: 0.6rem; padding: 2px 6px;">@member.Role</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>
