@@ -85,12 +85,26 @@
                             </div>
                         }
                         
-                        <div class="search-container d-none d-lg-block ms-4">
-                            <div class="input-group">
+                        <div class="search-container d-none d-lg-block ms-4 position-relative">
+                            <div class="input-group align-items-center">
                                 <span class="input-group-text bg-transparent border-end-0 border-0 ps-0 text-secondary">
                                     <i class="fas fa-search"></i>
                                 </span>
-                                <input type="text" class="form-control border-0 bg-transparent ps-2" placeholder="Search anything..." style="box-shadow: none; width: 300px;">
+                                <input type="text" 
+                                       id="globalSearchInput"
+                                       name="q"
+                                       class="form-control border-0 bg-transparent ps-2" 
+                                       placeholder="Search anything..." 
+                                       style="box-shadow: none; width: 280px;"
+                                       autocomplete="off"
+                                       hx-get="/Search/Query"
+                                       hx-trigger="keyup changed delay:300ms, search"
+                                       hx-target="#global-search-results"
+                                       hx-indicator="#search-loading-indicator" />
+                                <div class="spinner-border spinner-border-sm text-secondary htmx-indicator me-2" id="search-loading-indicator" role="status" style="width: 14px; height: 14px;"></div>
+                            </div>
+                            <div id="global-search-results" class="position-absolute bg-white shadow-elegant rounded-3 p-3 d-none" 
+                                 style="top: 100%; left: 0; min-width: 420px; z-index: 1050; border: 1px solid var(--border-color); margin-top: 8px;">
                             </div>
                         </div>
                     </div>
@@ -279,6 +293,80 @@
             }
 
             // Handle active links or other sidebar interactions
+            
+            // Global Search Dropdown & Keyboard Navigation
+            const searchInput = document.getElementById('globalSearchInput');
+            const searchResults = document.getElementById('global-search-results');
+
+            if (searchInput && searchResults) {
+                searchInput.addEventListener('focus', function() {
+                    if (searchInput.value.trim().length >= 2) {
+                        searchResults.classList.remove('d-none');
+                    }
+                });
+
+                searchInput.addEventListener('input', function() {
+                    if (searchInput.value.trim().length >= 2) {
+                        searchResults.classList.remove('d-none');
+                    } else {
+                        searchResults.classList.add('d-none');
+                    }
+                });
+
+                // Close search dropdown on click outside
+                document.addEventListener('click', function(e) {
+                    if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                        searchResults.classList.add('d-none');
+                    }
+                });
+
+                // Global function to close the search dropdown when selecting a result
+                window.closeSearchDropdown = function() {
+                    searchResults.classList.add('d-none');
+                    searchInput.value = '';
+                };
+
+                // Keyboard accessibility
+                searchInput.addEventListener('keydown', function(e) {
+                    const items = searchResults.querySelectorAll('.search-result-item:not(.search-member-nonlink)');
+                    let activeIndex = -1;
+
+                    items.forEach((item, idx) => {
+                        if (item.classList.contains('active-search-item')) {
+                            activeIndex = idx;
+                        }
+                    });
+
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (items.length === 0) return;
+                        if (activeIndex !== -1) {
+                            items[activeIndex].classList.remove('active-search-item');
+                        }
+                        activeIndex = (activeIndex + 1) % items.length;
+                        items[activeIndex].classList.add('active-search-item');
+                        // Scroll element into view if scrollable
+                        items[activeIndex].scrollIntoView({ block: 'nearest' });
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        if (items.length === 0) return;
+                        if (activeIndex !== -1) {
+                            items[activeIndex].classList.remove('active-search-item');
+                        }
+                        activeIndex = (activeIndex - 1 + items.length) % items.length;
+                        items[activeIndex].classList.add('active-search-item');
+                        items[activeIndex].scrollIntoView({ block: 'nearest' });
+                    } else if (e.key === 'Enter') {
+                        if (activeIndex !== -1) {
+                            e.preventDefault();
+                            items[activeIndex].click();
+                        }
+                    } else if (e.key === 'Escape') {
+                        searchResults.classList.add('d-none');
+                        searchInput.blur();
+                    }
+                });
+            }
         });
     </script>
 
